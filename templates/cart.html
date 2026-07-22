@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}Cart — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container">
+    <h1 class="sv-page-title">Shopping Bag</h1>
+    {% if cart_items %}
+    <div class="sv-cart-layout">
+      <div class="sv-cart-items">
+        {% for item in cart_items %}
+        <div class="sv-cart-item">
+          <div class="sv-cart-item__img">
+            {% if item.product.image_url %}
+            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+            {% else %}
+            <div class="sv-product-card__placeholder"><i class="fa fa-shirt"></i></div>
+            {% endif %}
+          </div>
+          <div class="sv-cart-item__details">
+            <h3>{{ item.product.name }}</h3>
+            <p class="sv-cart-item__brand">STYLEVERSE Essentials</p>
+            <div class="sv-cart-item__pricing">
+              {% if item.discount_percent > 0 %}
+              <p class="sv-cart-item__price-original">
+                <span style="text-decoration: line-through; color: #999;">₹{{ item.unit_price }}</span>
+                <span class="sv-discount-badge">{{ item.discount_percent|floatformat:0 }}% OFF</span>
+              </p>
+              <p class="sv-cart-item__price" style="color: #e74c3c; font-weight: bold;">₹{{ item.discounted_price }} ×
+                {{ item.quantity }}</p>
+              <p style="font-size: 12px; color: #27ae60;">You save ₹{{ item.discount_amount }}</p>
+              {% else %}
+              <p class="sv-cart-item__price">₹{{ item.unit_price }} × {{ item.quantity }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="sv-cart-item__actions">
+            <div class="sv-qty-section">
+              <div class="sv-qty-control">
+                <button type="button" class="sv-qty-btn" onclick="decreaseQty(this)">−</button>
+                <input type="number" id="qty_{{ item.pk }}" value="{{ item.quantity }}" min="1" max="10"
+                  class="sv-qty-input" onchange="updateQuantity({{ item.pk }})">
+                <button type="button" class="sv-qty-btn" onclick="increaseQty(this)">+</button>
+              </div>
+            </div>
+            <div class="sv-button-row">
+              <form method="POST" action="{% url 'cart' %}" class="sv-update-form" id="form_{{ item.pk }}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="product_id" value="{{ item.pk }}">
+                <input type="hidden" name="update_quantity" id="qty_hidden_{{ item.pk }}" value="{{ item.quantity }}">
+                <button type="submit" class="sv-btn sv-btn--sm sv-btn--gold">Update</button>
+              </form>
+              <form method="POST" action="{% url 'cart' %}" class="sv-remove-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="product_id" value="{{ item.pk }}">
+                <button type="submit" class="sv-btn sv-btn--sm sv-btn--danger">Remove</button>
+              </form>
+            </div>
+          </div>
+          <div class="sv-cart-item__total" style="font-weight: bold; color: #2c3e50;">₹{{ item.total }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="sv-cart-summary">
+        <h3>Order Summary</h3>
+        <div class="sv-cart-summary__row">
+          <span>Subtotal</span>
+          <span>₹{{ subtotal }}</span>
+        </div>
+        {% if discount_total > 0 %}
+        <div class="sv-cart-summary__row" style="color: #27ae60; font-weight: bold;">
+          <span>Discount</span>
+          <span>-₹{{ discount_total }}</span>
+        </div>
+        <div class="sv-cart-summary__row">
+          <span>After Discount</span>
+          <span>₹{{ subtotal_after_discount }}</span>
+        </div>
+        {% endif %}
+        <div class="sv-cart-summary__row">
+          <span>Shipping</span>
+          <span>{% if shipping == 0 %}FREE{% else %}₹{{ shipping }}{% endif %}</span>
+        </div>
+        <div class="sv-cart-summary__row sv-cart-summary__total">
+          <span>Total</span>
+          <span>₹{{ total }}</span>
+        </div>
+        {% if subtotal_after_discount < 999 %} <small class="sv-cart-summary__note">Free shipping on orders over
+          ₹999</small>
+          {% endif %}
+          <a href="{% url 'checkout' %}" class="sv-btn sv-btn--lg sv-btn--full">Proceed to Checkout</a>
+          <a href="{% url 'product_list' %}" class="sv-btn sv-btn--outline sv-btn--full" style="margin-top:8px">Continue
+            Shopping</a>
+      </div>
+    </div>
+    {% else %}
+    <div class="sv-empty-state">
+      <i class="fa fa-shopping-bag"></i>
+      <h2>Your bag is empty</h2>
+      <p>Discover our latest collections.</p>
+      <a href="{% url 'product_list' %}" class="sv-btn">Start Shopping</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .sv-discount-badge {
+    background: #e74c3c;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 8px;
+  }
+
+  .sv-qty-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .sv-qty-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+  }
+
+  .sv-qty-btn {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    transition: all 0.2s;
+  }
+
+  .sv-qty-btn:hover {
+    background: #e8e8e8;
+  }
+
+  .sv-qty-input {
+    border: none;
+    text-align: center;
+    width: 60px;
+    padding: 6px 0;
+    background: transparent;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .sv-qty-input:focus {
+    outline: none;
+  }
+
+  .sv-button-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .sv-update-form,
+  .sv-remove-form {
+    flex: 1;
+    max-width: 150px;
+  }
+
+  .sv-update-form .sv-btn,
+  .sv-remove-form .sv-btn {
+    width: 100%;
+  }
+
+  .sv-cart-item__pricing {
+    margin: 8px 0;
+  }
+
+  .sv-cart-item__price-original {
+    margin: 4px 0;
+    color: #666;
+  }
+</style>
+
+<script>
+  function decreaseQty(btn) {
+    const input = btn.parentElement.querySelector('.sv-qty-input');
+    const current = parseInt(input.value);
+    if (current > 1) {
+      input.value = current - 1;
+    }
+  }
+
+  function increaseQty(btn) {
+    const input = btn.parentElement.querySelector('.sv-qty-input');
+    const current = parseInt(input.value);
+    const max = parseInt(input.max);
+    if (current < max) {
+      input.value = current + 1;
+    }
+  }
+
+  function updateQuantity(productId) {
+    const qtyInput = document.getElementById('qty_' + productId);
+    const hiddenInput = document.getElementById('qty_hidden_' + productId);
+    hiddenInput.value = qtyInput.value;
+    document.getElementById('form_' + productId).submit();
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}My Orders — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container">
+    <h1 class="sv-page-title">My Orders</h1>
+    {% for order in orders %}
+    <div class="sv-order-card">
+      <div class="sv-order-card__header">
+        <div>
+          <strong>Order #{{ order.order_number }}</strong><br>
+          <small>{{ order.order_date|date:"M d, Y — H:i" }}</small>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span class="sv-status sv-status--{{ order.status }}">{{ order.get_status_display }}</span>
+          <span class="sv-status sv-status--pay-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+        </div>
+      </div>
+      <div class="sv-order-card__items">
+        {% for item in order.items.all %}
+        <div class="sv-order-item">
+          <span>{{ item.product_name }} {% if item.size %}({{ item.size }}){% endif %} × {{ item.quantity }}</span>
+          <span>₹{{ item.sub_total }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="sv-order-card__footer">
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;color:#888;">
+          <span><i class="fa fa-map-marker-alt"></i> {{ order.full_address }}</span>
+          <span><i class="fa fa-credit-card"></i> {{ order.get_payment_method_display }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          {% if order.shipping_cost == 0 %}
+          <span style="color:#27ae60;font-size:12px;"><i class="fa fa-truck"></i> Free Shipping</span>
+          {% else %}
+          <span style="font-size:13px;color:#888;">Shipping: ₹{{ order.shipping_cost }}</span>
+          {% endif %}
+          <span>Total: <strong>₹{{ order.total_price }}</strong></span>
+          <a href="{% url 'invoice' order.pk %}" target="_blank" class="sv-btn sv-btn--sm">
+            <i class="fa fa-print"></i> Print Invoice
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="sv-empty-state">
+      <i class="fa fa-box-open"></i>
+      <h2>No orders yet</h2>
+      <p>Looks like you haven't placed any orders. Let's fix that!</p>
+      <a href="{% url 'product_list' %}" class="sv-btn sv-btn--gold">Start Shopping</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+  .sv-order-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, .07);
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, .06);
+  }
+
+  .sv-order-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .sv-order-card__items {
+    padding: 16px 24px;
+  }
+
+  .sv-order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+  }
+
+  .sv-order-item:last-child {
+    border-bottom: none;
+  }
+
+  .sv-order-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 16px 24px;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .sv-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .sv-status--processing {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .sv-status--shipped {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  .sv-status--delivered {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .sv-status--cancelled {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .sv-status--pay-pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .sv-status--pay-completed {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .sv-status--pay-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .sv-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .sv-empty-state i {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .sv-empty-state h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .sv-empty-state p {
+    color: #888;
+    margin-bottom: 24px;
+  }
+</style>
+{% endblock %}

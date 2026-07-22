@@ -1,0 +1,276 @@
+/* ==========================================================================
+   STYLEVERSE — admin-only stylesheet (stat cards, cards, inbox, dashboard)
+   ========================================================================== */
+
+/* ---------------- Stat cards (styled like a garment swing-tag) ---------------- */
+.sv-admin-stats{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:16px;
+  margin-bottom:26px;
+}
+
+.sv-stat-card{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-left:4px solid var(--ink);
+  border-radius:var(--radius);
+  padding:18px 18px 18px 22px;
+  box-shadow:var(--shadow-sm);
+}
+/* swing-tag punch hole, top-left — the one signature flourish */
+.sv-stat-card::before{
+  content:"";
+  position:absolute;
+  top:12px; left:-4px;
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--paper);
+  border:1px solid var(--line);
+}
+
+.sv-stat-card__icon{
+  width:42px; height:42px;
+  flex-shrink:0;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--paper);
+  color:var(--ink);
+  font-size:16px;
+}
+
+.sv-stat-card h3{
+  font-family:'Bodoni Moda', Georgia, serif;
+  font-size:24px;
+  font-weight:600;
+  line-height:1.1;
+}
+.sv-stat-card p{
+  margin:2px 0 0;
+  font-size:12px;
+  color:var(--ink-soft);
+  font-weight:500;
+}
+
+.sv-stat--revenue{ border-left-color:var(--accent); }
+.sv-stat--revenue .sv-stat-card__icon{ background:var(--accent-soft); color:var(--accent); }
+
+.sv-stat--pending{ border-left-color:var(--amber); }
+.sv-stat--pending .sv-stat-card__icon{ background:var(--amber-soft); color:var(--amber); }
+
+.sv-stat--orders{ border-left-color:var(--blue); }
+.sv-stat--orders .sv-stat-card__icon{ background:var(--blue-soft); color:var(--blue); }
+
+.sv-stat--products{ border-left-color:var(--green); }
+.sv-stat--products .sv-stat-card__icon{ background:var(--green-soft); color:var(--green); }
+
+.sv-stat--brand{ border-left-color:var(--gold); }
+.sv-stat--brand .sv-stat-card__icon{ background:var(--gold-soft); color:var(--gold); }
+
+.sv-stat--users{ border-left-color:#4E6D8C; }
+.sv-stat--users .sv-stat-card__icon{ background:#E4EBF1; color:#4E6D8C; }
+
+.sv-stat--admins{ border-left-color:#5C4A8C; }
+.sv-stat--admins .sv-stat-card__icon{ background:#EAE5F3; color:#5C4A8C; }
+
+.sv-stat--messages{ border-left-color:var(--red); }
+.sv-stat--messages .sv-stat-card__icon{ background:var(--red-soft); color:var(--red); }
+
+a.sv-stat-card{ transition: transform .15s ease, box-shadow .15s ease; }
+a.sv-stat-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+
+/* ---------------- Generic admin card ---------------- */
+.sv-admin-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px;
+  margin-bottom:22px;
+  box-shadow:var(--shadow-sm);
+}
+.sv-admin-card h2{
+  font-family:'Bodoni Moda', Georgia, serif;
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:16px;
+}
+
+/* ---------------- Dashboard: two-column layout ---------------- */
+.sv-dashboard-grid{
+  display:grid;
+  grid-template-columns:1.6fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+.sv-panel-title-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.sv-panel-title-row h2{ margin-bottom:0; }
+.sv-panel-link{
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--accent);
+}
+
+/* ---------------- Sales chart (pure CSS bars) ---------------- */
+.sv-chart-bars{
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+  height:150px;
+  padding:0 4px;
+}
+.sv-chart-col{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  height:100%;
+}
+.sv-chart-bar{
+  width:100%;
+  max-width:32px;
+  border-radius:5px 5px 3px 3px;
+  background:var(--gold-soft);
+}
+.sv-chart-bar.sv-chart-bar--peak{
+  background:linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+}
+.sv-chart-col span{
+  font-size:11px;
+  color:var(--ink-soft);
+}
+.sv-chart-legend{
+  display:flex; gap:18px; margin-top:14px;
+  font-size:12px; color:var(--ink-soft);
+}
+.sv-chart-legend i{
+  width:9px; height:9px; border-radius:2px; display:inline-block; margin-right:6px;
+}
+
+/* ---------------- Quick actions ---------------- */
+.sv-admin-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:26px;
+}
+
+/* ---------------- Recent messages mini-list (dashboard preview) ---------------- */
+.sv-mini-inbox{ display:flex; flex-direction:column; }
+.sv-mini-item{
+  display:flex;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  position:relative;
+}
+.sv-mini-item:last-child{ border-bottom:none; padding-bottom:0; }
+.sv-mini-avatar{
+  width:32px; height:32px; border-radius:50%;
+  background:var(--paper);
+  color:var(--ink);
+  font-size:11.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.sv-mini-item strong{ font-size:13.5px; }
+.sv-mini-item p{
+  margin:2px 0 0;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sv-mini-time{
+  margin-left:auto;
+  font-size:11px;
+  color:var(--ink-faint);
+  white-space:nowrap;
+}
+.sv-mini-item--unread strong{ color:var(--accent); }
+.sv-mini-item--unread::before{
+  content:"";
+  position:absolute;
+  left:-4px; top:18px;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--accent);
+}
+
+/* ---------------- Inbox (messages.html) ---------------- */
+.sv-inbox-card{ padding:0; overflow:hidden; }
+.sv-inbox-grid{ display:grid; grid-template-columns:340px 1fr; min-height:480px; }
+.sv-inbox-list{ border-right:1px solid var(--line); display:flex; flex-direction:column; }
+.sv-inbox-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 20px; border-bottom:1px solid var(--line);
+}
+.sv-inbox-header h2{ font-size:16px; margin-bottom:2px; }
+.sv-inbox-count{ margin:0; font-size:12px; color:var(--ink-soft); }
+.sv-inbox-items{ overflow-y:auto; flex:1; }
+.sv-inbox-item{
+  display:flex; gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+}
+.sv-inbox-avatar{
+  width:34px; height:34px; border-radius:50%;
+  background:var(--paper); color:var(--ink);
+  font-size:12px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.sv-inbox-meta{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.sv-inbox-meta strong{ font-size:13.5px; }
+.sv-inbox-meta span{ font-size:11px; color:var(--ink-faint); white-space:nowrap; }
+.sv-inbox-subject{ margin:3px 0 0; font-size:13px; font-weight:600; }
+.sv-inbox-snippet{
+  margin:2px 0 0; font-size:12.5px; color:var(--ink-soft);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.sv-inbox-item--unread{ background:var(--accent-soft); }
+.sv-inbox-dot{
+  position:absolute; top:18px; right:16px;
+  width:8px; height:8px; border-radius:50%; background:var(--accent);
+}
+.sv-inbox-empty{ padding:24px 20px; color:var(--ink-faint); font-size:13px; }
+
+.sv-message-panel{ padding:22px 26px; display:flex; flex-direction:column; }
+.sv-chip{
+  display:inline-block; font-size:11px; font-weight:600;
+  padding:3px 9px; border-radius:999px;
+  background:var(--paper); color:var(--ink-soft); margin-bottom:8px;
+}
+.sv-message-subject{ margin:4px 0 0; font-size:14px; color:var(--ink-soft); }
+.sv-message-body{ margin:18px 0; font-size:13.5px; color:var(--ink); line-height:1.7; }
+.sv-reply-section h4{ font-size:13px; margin-bottom:8px; }
+.sv-reply-textarea{
+  width:100%; min-height:100px; padding:12px;
+  border:1px solid var(--line); border-radius:var(--radius-sm);
+  font-family:inherit; font-size:13.5px; resize:vertical;
+}
+.sv-reply-actions{ display:flex; gap:10px; margin-top:10px; }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 1080px){
+  .sv-admin-stats{ grid-template-columns:repeat(2, 1fr); }
+  .sv-dashboard-grid{ grid-template-columns:1fr; }
+}
+@media (max-width: 760px){
+  .sv-admin-stats{ grid-template-columns:1fr; }
+  .sv-inbox-grid{ grid-template-columns:1fr; }
+  .sv-inbox-list{ border-right:none; border-bottom:1px solid var(--line); }
+}

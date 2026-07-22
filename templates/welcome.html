@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Welcome — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container" style="max-width: 760px;">
+    <div class="sv-auth__card">
+      <span class="sv-auth__eyebrow">Welcome</span>
+      <h1>Welcome to STYLEVERSE</h1>
+      <p class="sv-auth__subtitle">You are now logged in with the legacy account flow. Continue shopping and enjoy your
+        personalized dashboard.</p>
+      <a class="sv-btn" href="{% url 'index' %}">Go to Home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

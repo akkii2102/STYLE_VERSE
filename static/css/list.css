@@ -1,0 +1,318 @@
+/* list.css — intentionally left minimal; all styles are in styleverse.css */
+
+/* Override: remove max-height scroll from shop grid — let page scroll normally */
+.sv-product-grid--shop {
+  max-height: none;
+  overflow-y: visible;
+  padding-right: 0;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+
+ * {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+
+ body {
+     font-family: 'Montserrat', sans-serif;
+     background-color: var(--sv-body-bg);
+     color: var(--sv-text-dark);
+ }
+
+ .sv-container {
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 0 20px;
+ }
+
+ .sv-section {
+     padding: 40px 0;
+ }
+
+ /* ═══ SHOP HEADER & INPUTS ═══ */
+ .sv-shop-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     border-bottom: 1px solid var(--sv-border-color);
+     padding-bottom: 20px;
+     margin-bottom: 30px;
+ }
+
+ .sv-shop-header h1 {
+     font-size: 2rem;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+ }
+
+ .sv-shop-sort {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }
+
+ .sv-shop-sort label {
+     font-weight: 600;
+     font-size: 0.9rem;
+ }
+
+ .sv-input {
+     padding: 8px 16px;
+     border: 1px solid var(--sv-border-color);
+     background-color: white;
+     font-family: inherit;
+     font-size: 0.9rem;
+     outline: none;
+ }
+
+ .sv-input:focus {
+     border-color: var(--sv-gold);
+ }
+
+ /* ═══ FLEX / GRID SHOP LAYOUT ═══ */
+ .sv-shop-layout {
+     display: grid;
+     grid-template-columns: 240px 1fr;
+     gap: 40px;
+ }
+
+/* Ensure sidebar and product grid align at top */
+.sv-shop-layout {
+    align-items: start;
+}
+
+ /* Filters Sidebar Styling */
+ 
+ .sv-filters h3 {
+     font-size: 1.2rem;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+     margin-bottom: 25px;
+     padding-bottom: 10px;
+     border-bottom: 2px solid var(--sv-text-dark);
+ }
+
+ .sv-filter-group {
+     margin-bottom: 30px;
+ }
+
+/* Make filter sidebar stick to viewport when scrolling */
+/* previously had sticky positioning; using default flow so sidebar scrolls with page */
+.sv-filters {
+    position: static;
+}
+
+ .sv-filter-group h4 {
+     font-size: 0.95rem;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 12px;
+     color: var(--sv-text-dark);
+ }
+
+ .sv-filter-group a {
+     display: block;
+     color: var(--sv-text-muted);
+     text-decoration: none;
+     padding: 6px 12px;
+     font-size: 0.9rem;
+     transition: color 0.2s ease;
+ }
+
+ .sv-filter-group a:hover,
+ .sv-filter-group a.active {
+     color: var(--sv-gold);
+     font-weight: 600;
+ }
+
+
+ /* Product Cards Grid Showcase */
+ .sv-product-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+     gap: 30px;
+ }
+
+/* Make the shop product grid scroll independently from the page */
+.sv-product-grid--shop {
+    max-height: calc(132vh - 220px); /* adjust based on header size */
+    overflow-y: auto;
+    padding-right: 8px; /* space for scrollbar */
+    scrollbar-width: thin;
+}
+
+/* Make product cards stretch so images fill the card height */
+.sv-product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+ /* Individual Product Card Layout */
+ .sv-product-card {
+     background: var(--sv-card-bg);
+     transition: transform 0.3s ease;
+ }
+
+ .sv-product-card:hover {
+     transform: translateY(-5px);
+ }
+
+ .sv-product-img-wrapper {
+     position: relative;
+     width: 100%;
+     aspect-ratio: 3 / 4;
+     background-color: #f5f5f5;
+     overflow: hidden;
+ }
+
+ .sv-product-img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+ }
+
+ /* Badges */
+ .sv-tag-badge {
+     position: absolute;
+     top: 15px;
+     left: 15px;
+     background-color: var(--sv-dark-bg);
+     color: var(--sv-text-light);
+     padding: 4px 12px;
+     font-size: 0.75rem;
+     text-transform: uppercase;
+     font-weight: 600;
+     letter-spacing: 0.5px;
+ }
+
+ .sv-tag-badge--sale {
+     background-color: var(--sv-gold);
+ }
+
+ /* Product Info Text Styling */
+ .sv-product-info {
+     padding: 15px 0;
+ }
+
+ .sv-prod-brand {
+     font-size: 0.75rem;
+     text-transform: uppercase;
+     color: var(--sv-text-muted);
+     letter-spacing: 1px;
+     margin-bottom: 4px;
+ }
+
+ .sv-prod-title {
+     font-size: 0.95rem;
+     font-weight: 600;
+     color: var(--sv-text-dark);
+     margin-bottom: 8px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ .sv-prod-pricing {
+     display: flex;
+     gap: 10px;
+     align-items: center;
+ }
+
+ .sv-current-price {
+     font-weight: 700;
+     padding: 0px 5px;
+     color: var(--sv-text-dark);
+ }
+
+ .sv-old-price {
+     font-size: 0.85rem;
+     color: var(--sv-text-muted);
+     text-decoration: line-line-through;
+     text-decoration: line-through;
+ }
+
+ /* ═══ RESPONSIVE BREAKPOINTS ═══ */
+ @media (max-width: 768px) {
+     .sv-shop-layout {
+         grid-template-columns: 1fr;
+         gap: 30px;
+     }
+
+     .sv-filters {
+         display: none;
+         /* Hide standard side-filters on smaller screen types */
+     }
+
+     .sv-shop-header h1 {
+         font-size: 1.5rem;
+     }
+ }
+
+
+ .input-field{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:8px;
+    background:#eef2ff;
+    margin-bottom:15px;
+    font-size:16px;
+}
+
+/* =========================================
+   Wishlist Heart Button
+   ========================================= */
+
+.sv-wishlist-form {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    margin: 0;
+    padding: 0;
+}
+
+.sv-wishlist-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    font-size: 1rem;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+}
+
+.sv-wishlist-btn:hover {
+    background: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #e74c3c;
+}
+
+.sv-wishlist-btn .fa-regular.fa-heart {
+    color: #999;
+    transition: color 0.2s ease;
+}
+
+.sv-wishlist-btn:hover .fa-regular.fa-heart {
+    color: #e74c3c;
+}
+
+.sv-heart--active {
+    color: #e74c3c !important;
+}
+
+.sv-wishlist-btn:has(.sv-heart--active) {
+    color: #e74c3c;
+}

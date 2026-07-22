@@ -1,0 +1,230 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% block title %}Admin Discussion Hub — STYLEVERSE Admin{% endblock %}
+{% block page_title %}Admin Discussion Hub{% endblock %}
+
+{% block extra_admin_css %}
+.adm-disc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap:
+wrap; gap: 16px; }
+.btn-new-disc { background: var(--adm-accent); color: #1a1a2e; padding: 10px 20px; border-radius: 8px; font-size: 14px;
+font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: .2s; }
+.btn-new-disc:hover { opacity: .9; }
+
+.disc-card { background: var(--adm-card); border-radius: 12px; padding: 20px; border: 1px solid var(--adm-border);
+margin-bottom: 20px; transition: .2s; }
+.disc-card.important { border-left: 4px solid var(--adm-accent); }
+.disc-card__header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.disc-card__title { font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+.disc-card__author { font-size: 12px; color: var(--adm-muted); margin-top: 4px; display: flex; align-items: center; gap:
+8px; flex-wrap: wrap; }
+.disc-card__body { font-size: 14px; color: var(--adm-text); line-height: 1.7; background: rgba(0,0,0,.2); border-radius:
+8px; padding: 14px; margin-top: 12px; border: 1px solid var(--adm-border); }
+
+/* Replies */
+.disc-replies { margin-top: 16px; padding-left: 16px; border-left: 2px solid var(--adm-border); }
+.reply-item { background: rgba(255,255,255,.03); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; border:
+1px solid var(--adm-border); }
+.reply-item__header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.reply-item__text { font-size: 13px; color: #ddd; line-height: 1.5; }
+
+.reply-form { display: flex; gap: 10px; margin-top: 14px; }
+.reply-input { flex: 1; background: #0f0f1a; border: 1px solid var(--adm-border); border-radius: 8px; padding: 10px
+14px; color: #fff; font-size: 13px; }
+.btn-reply { background: var(--adm-accent); color: #1a1a2e; border: none; padding: 8px 16px; border-radius: 8px;
+font-weight: 700; font-size: 13px; cursor: pointer; }
+
+/* Badges */
+.badge-super { background: rgba(192,163,110,.2); color: var(--adm-accent); padding: 2px 8px; border-radius: 10px;
+font-size: 11px; font-weight: 700; border: 1px solid rgba(192,163,110,.4); }
+.badge-sub { background: rgba(52,152,219,.2); color: #5dade2; padding: 2px 8px; border-radius: 10px; font-size: 11px;
+font-weight: 700; border: 1px solid rgba(52,152,219,.4); }
+.badge-pinned { background: rgba(231,76,60,.2); color: #e74c3c; padding: 2px 8px; border-radius: 10px; font-size: 11px;
+font-weight: 700; }
+.badge-recip-group { background: rgba(46,204,113,.15); color: #2ecc71; padding: 2px 8px; border-radius: 10px; font-size:
+11px; font-weight: 700; border: 1px solid rgba(46,204,113,.3); }
+.badge-recip-private { background: rgba(155,89,182,.2); color: #af7ac5; padding: 2px 8px; border-radius: 10px;
+font-size: 11px; font-weight: 700; border: 1px solid rgba(155,89,182,.4); }
+
+/* Modal */
+.adm-modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background:
+rgba(0,0,0,.75); z-index: 999; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+.adm-modal-backdrop.show { display: flex; }
+.adm-modal { background: #16162a; border-radius: 16px; border: 1px solid var(--adm-border); width: 100%; max-width:
+540px; padding: 24px; box-shadow: 0 16px 48px rgba(0,0,0,.5); }
+.adm-modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
+.adm-modal__header h3 { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+.adm-modal__close { background: none; border: none; color: var(--adm-muted); font-size: 20px; cursor: pointer; }
+.adm-form-group { margin-bottom: 16px; }
+.adm-form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--adm-muted); margin-bottom: 6px;
+}
+.adm-input { width: 100%; background: #0f0f1a; border: 1px solid var(--adm-border); border-radius: 8px; padding: 10px
+14px; color: #fff; font-size: 14px; }
+{% endblock %}
+
+{% block content %}
+
+<div class="adm-disc-header">
+  <div>
+    <h3 style="color:#fff;margin:0;font-size:18px;font-weight:700;">
+      <i class="fa fa-comments" style="color:var(--adm-accent);"></i> Super-Admin & Sub-Admin Discussion Board
+    </h3>
+    <p style="color:var(--adm-muted);margin:4px 0 0 0;font-size:13px;">
+      Private messaging space connecting Super Admin and Sub-Admins (Group Broadcasts & Direct Messages).
+    </p>
+  </div>
+  <button onclick="openDiscModal()" class="btn-new-disc">
+    <i class="fa fa-paper-plane"></i> Send Query / Discussion
+  </button>
+</div>
+
+{% if discussions %}
+{% for disc in discussions %}
+<div class="disc-card {% if disc.is_important %}important{% endif %}">
+  <div class="disc-card__header">
+    <div>
+      <div class="disc-card__title">
+        {{ disc.title }}
+        {% if disc.is_important %}
+        <span class="badge-pinned"><i class="fa fa-thumbtack"></i> High Priority</span>
+        {% endif %}
+      </div>
+      <div class="disc-card__author">
+        From: <strong>{{ disc.sender.username }}</strong>
+        {% if disc.sender.is_superuser %}
+        <span class="badge-super"><i class="fa fa-crown"></i> Super Admin</span>
+        {% else %}
+        <span class="badge-sub"><i class="fa fa-user-shield"></i> Sub Admin</span>
+        {% endif %}
+
+        <span style="color:#888;">→ Target:</span>
+        {% if disc.discussion_type == 'group' or not disc.recipient %}
+        <span class="badge-recip-group"><i class="fa fa-users"></i> All Sub-Admins (Group)</span>
+        {% else %}
+        <span class="badge-recip-private"><i class="fa fa-lock"></i> Private: {{ disc.recipient.username }}</span>
+        {% endif %}
+
+        • {{ disc.created_at|date:"M d, Y H:i" }}
+      </div>
+    </div>
+  </div>
+
+  <div class="disc-card__body">
+    {{ disc.message }}
+  </div>
+
+  <!-- Replies List -->
+  <div class="disc-replies">
+    <div style="font-size:12px;font-weight:700;color:var(--adm-muted);margin-bottom:10px;">
+      <i class="fa fa-reply-all"></i> Replies ({{ disc.replies.all|length }})
+    </div>
+
+    {% for r in disc.replies.all %}
+    <div class="reply-item">
+      <div class="reply-item__header">
+        <span>
+          <strong>{{ r.sender.username }}</strong>
+          {% if r.sender.is_superuser %}
+          <span class="badge-super"><i class="fa fa-crown"></i> Super Admin</span>
+          {% else %}
+          <span class="badge-sub"><i class="fa fa-user-shield"></i> Sub Admin</span>
+          {% endif %}
+        </span>
+        <span style="color:var(--adm-muted);">{{ r.created_at|date:"M d, Y H:i" }}</span>
+      </div>
+      <div class="reply-item__text">{{ r.reply_text }}</div>
+    </div>
+    {% empty %}
+    <p style="font-size:12px;color:var(--adm-muted);margin-bottom:10px;">No replies yet.</p>
+    {% endfor %}
+
+    <!-- Reply form -->
+    <form method="POST" action="{% url 'admin_discussions' %}" class="reply-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="post_reply">
+      <input type="hidden" name="topic_id" value="{{ disc.pk }}">
+      <input type="text" name="reply_text" class="reply-input" placeholder="Type your reply..." required>
+      <button type="submit" class="btn-reply"><i class="fa fa-paper-plane"></i> Reply</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div
+  style="background:var(--adm-card);border-radius:12px;padding:60px 20px;text-align:center;color:var(--adm-muted);border:1px solid var(--adm-border);">
+  <i class="fa fa-comments" style="font-size:48px;opacity:.3;margin-bottom:16px;display:block;"></i>
+  <h3 style="color:#fff;margin-bottom:8px;">No Discussion Messages</h3>
+  <p style="margin-bottom:20px;">Send a message or query to communicate directly with Super Admin or Sub-Admins.</p>
+  <button onclick="openDiscModal()" class="btn-new-disc">Send First Message</button>
+</div>
+{% endif %}
+
+<!-- Modal: Create Discussion Topic -->
+<div id="discModal" class="adm-modal-backdrop">
+  <div class="adm-modal">
+    <div class="adm-modal__header">
+      <h3>Send Admin Discussion / Query</h3>
+      <button onclick="closeDiscModal()" class="adm-modal__close">&times;</button>
+    </div>
+    <form method="POST" action="{% url 'admin_discussions' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create_topic">
+
+      <!-- Target Recipient Field -->
+      {% if request.user.is_superuser %}
+      <div class="adm-form-group">
+        <label>Send To / Target Audience</label>
+        <select name="recipient" class="adm-input" required>
+          <option value="group">📢 Group Broadcast (All Sub-Admins)</option>
+          <optgroup label="Direct Message Individual Sub-Admin">
+            {% for sub in sub_admins %}
+            <option value="{{ sub.pk }}">👤 {{ sub.username }} ({{ sub.email|default:"Sub-Admin" }})</option>
+            {% endfor %}
+          </optgroup>
+        </select>
+      </div>
+      {% else %}
+      <div class="adm-form-group">
+        <label>Target Recipient (Default Pre-selected)</label>
+        <div class="adm-input"
+          style="background:#0f0f1a;color:var(--adm-accent);font-weight:700;display:flex;align-items:center;gap:8px;">
+          <i class="fa fa-crown"></i> Super Admin ({{ super_admin.username|default:"Admin@" }})
+        </div>
+        <input type="hidden" name="recipient" value="superuser">
+      </div>
+      {% endif %}
+
+      <div class="adm-form-group">
+        <label>Discussion Subject / Query Title</label>
+        <input type="text" name="title" class="adm-input" placeholder="e.g. Product Approval Request / Stock Query"
+          required>
+      </div>
+
+      <div class="adm-form-group">
+        <label>Message / Operational Details</label>
+        <textarea name="message" class="adm-input" rows="4" placeholder="Write your message or query here..."
+          required></textarea>
+      </div>
+
+      <div class="adm-form-group" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" name="is_important" value="true" id="chk_imp" style="width:16px;height:16px;">
+        <label for="chk_imp" style="margin:0;cursor:pointer;color:#fff;">Mark as High Priority / Important</label>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+        <button type="button" onclick="closeDiscModal()"
+          style="background:#2a2a4a;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;">Cancel</button>
+        <button type="submit" class="btn-new-disc">Send Message</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openDiscModal() {
+    document.getElementById('discModal').classList.add('show');
+  }
+  function closeDiscModal() {
+    document.getElementById('discModal').classList.remove('show');
+  }
+</script>
+{% endblock %}

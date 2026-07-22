@@ -1,0 +1,328 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin — STYLEVERSE{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styleverse.css' %}">
+  <style>
+    :root {
+      --ink: #1B2420;
+      --ink-soft: #5B6560;
+      --paper: #F6F4EF;
+      --panel: #FFFFFF;
+      --kraft: #E7DAC0;
+      --green: #2E5940;
+      --green-soft: #E4EEE8;
+      --red: #B8452F;
+      --red-soft: #F6E5E0;
+      --border: #E4E0D6;
+      --radius: 14px;
+      --shadow: 0 1px 2px rgba(27, 36, 32, 0.04), 0 8px 24px -12px rgba(27, 36, 32, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    .app { display: flex; width: 100%; min-height: 100vh; }
+
+    .sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      background: var(--ink);
+      color: #EFEAE0;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 8px 20px 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(239, 234, 224, 0.14);
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--kraft);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      border: 2px dashed rgba(27, 36, 32, 0.35);
+      flex-shrink: 0;
+    }
+
+    .brand-text .name {
+      font-family: 'Fraunces', serif;
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    .brand-text .tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #B9C4BC;
+    }
+
+    .nav-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: #8C978F;
+      padding: 4px 10px 8px;
+    }
+
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: #DAD6C9;
+      transition: 0.2s ease;
+    }
+
+    .nav a:hover { background: rgba(239, 234, 224, 0.08); color: #fff; }
+    .nav a.active { background: var(--kraft); color: var(--ink); font-weight: 600; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(239, 234, 224, 0.14);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 8px;
+    }
+
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sidebar-footer .who { font-size: 13px; font-weight: 600; }
+    .sidebar-footer .role { font-size: 11.5px; color: #9BA69D; }
+
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--paper);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .topbar h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .topbar .sub { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+
+    .topbar-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .content { padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 26px; }
+
+    .adm-messages { display: flex; flex-direction: column; gap: 10px; }
+
+    .adm-alert {
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .adm-alert--success { background: rgba(39, 174, 96, .12); border: 1px solid rgba(39, 174, 96, .25); color: #2E5940; }
+    .adm-alert--error { background: rgba(231, 76, 60, .12); border: 1px solid rgba(231, 76, 60, .25); color: #B8452F; }
+    .adm-alert--info { background: rgba(52, 152, 219, .12); border: 1px solid rgba(52, 152, 219, .2); color: #2F5F77; }
+
+    .adm-table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .adm-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .adm-table-header h3 { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0; }
+
+    .adm-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .adm-table th {
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      color: var(--ink-soft);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .adm-table td { padding: 13px 16px; font-size: 13.5px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .adm-table tr:hover td { background: rgba(27, 36, 32, 0.02); }
+
+    .adm-badge { display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-pending, .badge-status-pending { background: var(--red-soft); color: var(--red); }
+    .badge-completed, .badge-status-approved, .badge-delivered { background: var(--green-soft); color: var(--green); }
+    .badge-cancelled, .badge-status-rejected { background: rgba(231, 76, 60, 0.12); color: var(--red); }
+    .badge-processing, .badge-shipped { background: #FBF0DA; color: #8A6415; }
+
+    .req-badge-add { background: rgba(52, 152, 219, 0.12); color: #2F5F77; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .req-badge-edit { background: rgba(241, 196, 15, 0.16); color: #8A6415; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+    {% block extra_admin_css %}{% endblock %}
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SV</div>
+        <div class="brand-text">
+          <div class="name">STYLEVERSE</div>
+          <div class="tag">Admin Panel</div>
+        </div>
+      </div>
+
+      <div class="nav-label">Manage</div>
+      <nav class="nav">
+        <a href="{% url 'admin_index' %}" class="{% if request.resolver_match.url_name == 'admin_index' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-chart-pie"></i></span>Dashboard
+        </a>
+        <a href="{% url 'admin_orders' %}" class="{% if request.resolver_match.url_name == 'admin_orders' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-box"></i></span>Orders
+        </a>
+        <a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-tshirt"></i></span>Products
+        </a>
+        <a href="{% url 'admin_people' %}" class="{% if request.resolver_match.url_name == 'admin_people' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-users"></i></span>Users
+        </a>
+        <a href="{% url 'admin_messages' %}" class="{% if request.resolver_match.url_name == 'admin_messages' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-envelope"></i></span>Messages
+        </a>
+        <a href="{% url 'admin_discussions' %}" class="{% if request.resolver_match.url_name == 'admin_discussions' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-comments"></i></span>Discussions
+        </a>
+        {% if request.user.is_superuser %}
+        <a href="/admin/" target="_blank" style="color:#E7DAC0;font-weight:700;">
+          <span class="icon"><i class="fa fa-crown"></i></span>Django Admin
+        </a>
+        {% endif %}
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="avatar-sm">{{ request.user.username|slice:':2'|upper }}</div>
+        <div>
+          <div class="who">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="role">{% if request.user.is_superuser %}Super Admin{% else %}Sub Admin{% endif %}</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+          <div class="sub">{% block page_subtitle %}Manage your store from one elegant workspace.{% endblock %}</div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-pill">
+            <i class="fa fa-user-check"></i>
+            {{ request.user.username }}
+          </div>
+          <a href="{% url 'logout' %}" class="topbar-pill" title="Logout">
+            <i class="fa fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </header>
+
+      <main class="content">
+        {% if messages %}
+        <div class="adm-messages">
+          {% for message in messages %}
+          <div class="adm-alert adm-alert--{{ message.tags|default:'info' }}">
+            <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

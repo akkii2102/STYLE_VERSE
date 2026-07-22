@@ -1,0 +1,374 @@
+/* STYLEVERSE Admin Styles */
+.sv-admin-body {
+  background: var(--sv-light);
+}
+
+.sv-admin-header {
+  background: var(--sv-black);
+  color: #fff;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.sv-admin-header .sv-logo {
+  font-size: 20px;
+}
+
+.sv-admin-header small {
+  font-size: 11px;
+  color: var(--sv-accent);
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sv-admin-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sv-admin-nav a {
+  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: .2s;
+}
+
+.sv-admin-nav a:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+}
+
+.sv-admin-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.sv-admin-title {
+  font-family: var(--sv-font-display);
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+.sv-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.sv-stat-card {
+  background: #fff;
+  border-radius: var(--sv-radius);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  border-left: 4px solid var(--sv-accent);
+}
+
+.sv-stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: var(--sv-light);
+  color: var(--sv-accent);
+}
+
+.sv-stat-card h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sv-stat-card p {
+  font-size: 13px;
+  color: var(--sv-muted);
+  margin: 0;
+}
+
+.sv-stat--revenue {
+  border-left-color: var(--sv-success);
+}
+
+.sv-stat--revenue .sv-stat-card__icon {
+  color: var(--sv-success);
+}
+
+.sv-stat--pending {
+  border-left-color: var(--sv-warning);
+}
+
+.sv-stat--pending .sv-stat-card__icon {
+  color: var(--sv-warning);
+}
+
+.sv-stat--orders {
+  border-left-color: #3498db;
+}
+
+.sv-stat--orders .sv-stat-card__icon {
+  color: #3498db;
+}
+
+.sv-stat--products {
+  border-left-color: #9b59b6;
+}
+
+.sv-stat--products .sv-stat-card__icon {
+  color: #9b59b6;
+}
+
+.sv-admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sv-admin-card {
+  background: #fff;
+  border-radius: var(--sv-radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+.sv-admin-card h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.sv-table-wrap {
+  overflow-x: auto;
+}
+
+.sv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sv-table th {
+  background: var(--sv-light);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--sv-muted);
+}
+
+.sv-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sv-gray);
+}
+
+.sv-table tr:hover td {
+  background: rgba(192, 163, 110, .04);
+}
+
+.sv-inbox-card {
+  padding: 24px;
+}
+
+.sv-inbox-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 24px;
+}
+
+.sv-inbox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sv-inbox-count {
+  margin: 4px 0 0;
+  color: var(--sv-muted);
+  font-size: 13px;
+}
+
+.sv-inbox-items {
+  display: grid;
+  gap: 12px;
+}
+
+.sv-inbox-item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, .05);
+  background: #fff;
+  transition: .2s;
+}
+
+.sv-inbox-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .04);
+}
+
+.sv-inbox-item--unread {
+  border-color: rgba(52, 152, 219, .25);
+  background: rgba(235, 251, 255, .75);
+}
+
+.sv-inbox-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: var(--sv-light);
+  color: var(--sv-black);
+}
+
+.sv-inbox-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.sv-inbox-meta strong {
+  display: block;
+  font-size: 15px;
+}
+
+.sv-inbox-subject {
+  font-size: 14px;
+  margin: .35rem 0 0;
+  color: var(--sv-dark);
+  font-weight: 600;
+}
+
+.sv-inbox-snippet {
+  margin: .35rem 0 0;
+  color: var(--sv-muted);
+  font-size: 13px;
+}
+
+.sv-inbox-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e74c3c;
+  align-self: center;
+}
+
+.sv-inbox-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--sv-muted);
+  border: 1px dashed rgba(0, 0, 0, .08);
+  border-radius: 16px;
+}
+
+.sv-message-panel {
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.sv-panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.sv-chip {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--sv-light);
+  color: var(--sv-muted);
+  font-size: 12px;
+}
+
+.sv-message-subject {
+  font-size: 18px;
+  margin: 6px 0 0;
+  color: var(--sv-black);
+}
+
+.sv-message-body {
+  color: var(--sv-dark);
+  line-height: 1.75;
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+
+.sv-reply-section h4 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.sv-reply-textarea {
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid rgba(0, 0, 0, .12);
+  border-radius: 18px;
+  padding: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.sv-reply-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media(max-width:1100px) {
+  .sv-inbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width:768px) {
+  .sv-admin-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sv-admin-nav {
+    justify-content: center;
+  }
+
+  .sv-inbox-item {
+    grid-template-columns: 48px 1fr;
+  }
+
+  .sv-inbox-dot {
+    display: none;
+  }
+}

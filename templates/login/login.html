@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign In — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-auth">
+  <div class="sv-auth__card">
+    <div style="text-align:center;margin-bottom:20px;">
+      <a href="{% url 'index' %}" class="sv-logo">STYLE<span>VERSE</span></a>
+    </div>
+
+    <span class="sv-auth__eyebrow">Welcome Back</span>
+    <h1>Sign In</h1>
+    <p class="sv-auth__subtitle">Access your fashion account, saved orders, wishlist, and exclusive member deals.</p>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="sv-alert sv-alert--{{ message.tags }}">
+      <i
+        class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="sv-auth__form" novalidate>
+      {% csrf_token %}
+      <div class="sv-form-group">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<span class="sv-field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="sv-form-group">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        <div class="sv-input-wrap">
+          {{ form.password }}
+          <button type="button" class="sv-pwd-toggle" onclick="togglePwd('id_login_password',this)" tabindex="-1"
+            aria-label="Show password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% if form.non_field_errors %}<span class="sv-field-error">{{ form.non_field_errors|join:", " }}</span>{% endif %}
+      </div>
+
+    <p class="sv-auth__forgot"><a href="{% url 'forgotpassword' %}">Forgot password?</a></p>
+      <button type="submit" class="sv-btn sv-btn--lg sv-btn--full sv-btn--gold" style="margin-top:8px;">
+        <i class="fa fa-sign-in-alt"></i> Sign In to Account
+      </button>
+    </form>
+
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #f0f0f0;text-align:center;" class="sv-auth__link">
+      Don't have an account? <a href="{% url 'register' %}">Create New Account</a>
+    </div>
+  </div>
+  </div>
+</section>
+
+<script>
+  function togglePwd(id, btn) {
+    const f = document.getElementById(id);
+    if (!f) return;
+    if (f.type === 'password') { f.type = 'text'; btn.innerHTML = '<i class="fa fa-eye-slash"></i>'; }
+    else { f.type = 'password'; btn.innerHTML = '<i class="fa fa-eye"></i>'; }
+  }
+</script>
+{% endblock %}

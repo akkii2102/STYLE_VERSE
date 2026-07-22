@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} — STYLEVERSE{% endblock %}
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="sv-breadcrumb">
+  <div class="sv-container">
+    <a href="{% url 'index' %}">Home</a>
+    <i class="fa fa-chevron-right"></i>
+    <a href="{% url 'product_list' %}">Shop</a>
+    <i class="fa fa-chevron-right"></i>
+    <span>{{ product.name }}</span>
+  </div>
+</div>
+
+<section class="sv-section">
+  <div class="sv-container">
+    <div class="sv-pdp">
+
+      <!-- Gallery -->
+      <div class="sv-pdp__gallery">
+        {% if product.image %}
+        <div class="sv-pdp__img-wrap">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="sv-pdp__main-img" id="mainImg">
+          <span class="sv-pdp__badge">New Arrival</span>
+        </div>
+        {% else %}
+        <div class="sv-pdp__placeholder"><i class="fa fa-tshirt"></i></div>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <div class="sv-pdp__info">
+        <p class="sv-pdp__brand">STYLEVERSE ESSENTIALS</p>
+        <h1>{{ product.name }}</h1>
+
+        <!-- Stars (static, visual only) -->
+        <div class="sv-stars" style="margin:8px 0 16px;">
+          <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+          <i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
+          <small>(4.5 · 128 reviews)</small>
+        </div>
+
+        <div class="sv-pdp__price">
+          <span class="sv-price sv-price--lg">₹{{ product.price }}</span>
+          <span class="sv-pdp__free-ship"><i class="fa fa-truck"></i> Free shipping over ₹999</span>
+        </div>
+
+        <ul class="sv-pdp__features">
+          <li><i class="fa fa-check-circle"></i> Premium quality fabric</li>
+          <li><i class="fa fa-check-circle"></i> 30-day easy returns</li>
+          <li><i class="fa fa-check-circle"></i> Secure checkout</li>
+          <li><i class="fa fa-check-circle"></i> Fast delivery</li>
+        </ul>
+
+        <!-- Add to Cart -->
+        <form method="POST" action="{% url 'cart' %}" class="sv-pdp__actions">
+          {% csrf_token %}
+          <input type="hidden" name="product_id" value="{{ product.pk }}">
+          <div class="sv-pdp__qty">
+            <label>Qty</label>
+            <div class="sv-qty-wrap">
+              <button type="button" onclick="qtyChange(-1)" class="sv-qty-btn">−</button>
+              <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="10" class="sv-qty-input">
+              <button type="button" onclick="qtyChange(1)" class="sv-qty-btn">+</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <button type="submit" class="sv-btn sv-btn--lg sv-btn--gold">
+              <i class="fa fa-shopping-bag"></i> Add to Bag
+            </button>
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'toggle_wishlist' %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="model_type" value="product">
+              <input type="hidden" name="object_id" value="{{ product.pk }}">
+              <button type="submit" class="sv-btn sv-btn--outline"
+                style="border-color:var(--sv-danger);color:var(--sv-danger);">
+                <i class="fa fa-heart"></i> Wishlist
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </form>
+
+        <!-- Share -->
+        <div class="sv-pdp__share" style="margin-top:20px;">
+          <span>Share:</span>
+          <a href="#" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" title="Copy link" onclick="navigator.clipboard.writeText(window.location.href);return false;"><i
+              class="fa fa-link"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+    <div class="sv-section-header" style="margin-top:60px;">
+      <h2 class="sv-section__title" style="text-align:left;margin-bottom:0;">You May Also Like</h2>
+      <a href="{% url 'product_list' %}" class="sv-link">View All <i class="fa fa-arrow-right"></i></a>
+    </div>
+    <div class="sv-product-grid" style="margin-top:24px;">
+      {% for rp in related %}
+      <div class="sv-product-card">
+        <div class="sv-product-img-wrapper" style="position: relative;">
+          <img src="{{ rp.image_url }}" alt="{{ rp.name }}" class="sv-product-img"
+            onerror="this.style.background='#222'">
+
+          <!-- NEW Badge -->
+          <span class="sv-tag-badge">NEW</span>
+
+          <!-- Wishlist heart -->
+          <form method="POST" action="{% url 'toggle_wishlist' %}" class="sv-wishlist-form">
+            {% csrf_token %}
+            <input type="hidden" name="model_type" value="product">
+            <input type="hidden" name="object_id" value="{{ rp.pk }}">
+            <button type="submit" class="sv-wishlist-btn" title="Add to Wishlist">
+              {% if rp.pk in wishlist_ids %}
+              <i class="fa-solid fa-heart sv-heart--active"></i>
+              {% else %}
+              <i class="fa-regular fa-heart"></i>
+              {% endif %}
+            </button>
+          </form>
+
+          <!-- Quick View overlay -->
+          <div class="sv-product-card__overlay">
+            <a href="{% url 'product_detail' rp.pk %}" class="sv-btn sv-btn--sm">Quick View</a>
+          </div>
+        </div>
+        <div class="sv-product-card__info">
+          <span class="sv-product-card__brand">STYLEVERSE</span>
+          <a href="{% url 'product_detail' rp.pk %}" class="sv-product-card__name">{{ rp.name }}</a>
+
+          <!-- Discount Display -->
+          {% if rp.discount > 0 %}
+          <div class="sv-product-card__pricing">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="sv-price" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ rp.price }}</span>
+              <span class="sv-price" style="color: #e74c3c; font-weight: bold;">₹{{ rp.get_discounted_price }}</span>
+              <span
+                style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">{{ rp.discount|floatformat:0 }}%</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="sv-product-card__price">
+            <span class="sv-price">₹{{ rp.price }}</span>
+          </div>
+          {% endif %}
+
+          <!-- Add to Bag Button -->
+          <form method="POST" action="{% url 'cart' %}" style="margin-top:10px;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ rp.pk }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="sv-btn sv-btn--sm sv-btn--full sv-btn--gold">
+              <i class="fa fa-shopping-bag"></i> Add to Bag
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<script>
+  function qtyChange(d) {
+    const i = document.getElementById('qtyInput');
+    const v = Math.min(10, Math.max(1, parseInt(i.value) + d));
+    i.value = v;
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% block title %}Contact Messages & Reviews — STYLEVERSE Admin{% endblock %}
+{% block page_title %}User Contact Messages & Reviews{% endblock %}
+
+{% block extra_admin_css %}
+.adm-msg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+.adm-msg-card { background: var(--adm-card); border-radius: 12px; padding: 20px; border: 1px solid var(--adm-border);
+transition: .2s; }
+.adm-msg-card:hover { border-color: var(--adm-accent); }
+.adm-msg-card__header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.adm-msg-card__name { font-weight: 700; font-size: 15px; color: #fff; }
+.adm-msg-card__email { font-size: 13px; color: var(--adm-muted); margin-top: 2px; }
+.adm-msg-card__body { font-size: 14px; color: var(--adm-text); line-height: 1.7; background: rgba(0,0,0,.2);
+border-radius: 8px; padding: 12px; margin-top: 12px; border: 1px solid var(--adm-border); }
+.adm-review-box { background: rgba(192,163,110,.08); border: 1px solid rgba(192,163,110,.25); border-radius: 8px;
+padding: 12px; margin-top: 12px; font-size: 13px; color: #e2d1b3; }
+.adm-review-box__title { font-weight: 700; color: var(--adm-accent); margin-bottom: 4px; display: flex; align-items:
+center; justify-content: space-between; font-size: 12px; text-transform: uppercase; }
+.adm-msg-card__footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; pt-3;
+border-top: 1px solid var(--adm-border); }
+.btn-review { background: rgba(192,163,110,.15); color: var(--adm-accent); border: none; padding: 6px 14px;
+border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .2s; display: inline-flex;
+align-items: center; gap: 6px; }
+.btn-review:hover { background: rgba(192,163,110,.3); color: #fff; }
+.btn-del { background: rgba(231,76,60,.15); color: #e74c3c; border: none; padding: 6px 12px; border-radius: 6px;
+font-size: 12px; cursor: pointer; text-decoration: none; transition: .2s; display: inline-flex; align-items: center;
+gap: 6px; }
+.btn-del:hover { background: rgba(231,76,60,.3); color: #fff; }
+.status-badge-new { background: rgba(52,152,219,.2); color: #5dade2; padding: 3px 10px; border-radius: 12px; font-size:
+11px; font-weight: 700; text-transform: uppercase; }
+.status-badge-in_progress { background: rgba(241,196,15,.2); color: #f1c40f; padding: 3px 10px; border-radius: 12px;
+font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.status-badge-resolved { background: rgba(39,174,96,.2); color: #2ecc71; padding: 3px 10px; border-radius: 12px;
+font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+/* Modal */
+.adm-modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background:
+rgba(0,0,0,.75); z-index: 999; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+.adm-modal-backdrop.show { display: flex; }
+.adm-modal { background: #16162a; border-radius: 16px; border: 1px solid var(--adm-border); width: 100%; max-width:
+500px; padding: 24px; box-shadow: 0 16px 48px rgba(0,0,0,.5); }
+.adm-modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
+.adm-modal__header h3 { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+.adm-modal__close { background: none; border: none; color: var(--adm-muted); font-size: 20px; cursor: pointer; }
+.adm-form-group { margin-bottom: 16px; }
+.adm-form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--adm-muted); margin-bottom: 6px;
+}
+.adm-input { width: 100%; background: #0f0f1a; border: 1px solid var(--adm-border); border-radius: 8px; padding: 10px
+14px; color: #fff; font-size: 14px; }
+{% endblock %}
+
+{% block content %}
+
+{% if messages_count is not None %}
+<div
+  style="margin-bottom:20px;color:var(--adm-muted);font-size:14px;display:flex;justify-content:space-between;align-items:center;">
+  <span><i class="fa fa-envelope-open" style="color:var(--adm-accent);"></i> Total Contact Messages: <strong>{{ messages_count }}</strong></span>
+  <span style="font-size:12px;color:#888;">All reviews & statuses are synced live to Super-Admin (Jazzmin)</span>
+</div>
+{% endif %}
+
+{% if contact_messages %}
+<div class="adm-msg-grid">
+  {% for msg in contact_messages %}
+  <div class="adm-msg-card">
+    <div class="adm-msg-card__header">
+      <div>
+        <div class="adm-msg-card__name">{{ msg.Name }} {{ msg.Surname }}</div>
+        <div class="adm-msg-card__email"><i class="fa fa-envelope" style="color:var(--adm-accent);"></i> {{ msg.Email }}
+        </div>
+      </div>
+      <span class="status-badge-{{ msg.status }}">{{ msg.get_status_display }}</span>
+    </div>
+
+    <div class="adm-msg-card__body">
+      <div style="font-size:11px;color:var(--adm-muted);margin-bottom:4px;font-weight:600;">USER MESSAGE:</div>
+      {{ msg.Message }}
+    </div>
+
+    <!-- Admin Review & Notes section -->
+    {% if msg.admin_review %}
+    <div class="adm-review-box">
+      <div class="adm-review-box__title">
+        <span><i class="fa fa-sticky-note"></i> Admin Review / Note</span>
+        {% if msg.reviewed_by %}
+        <span style="color:var(--adm-muted);font-size:10px;">by {{ msg.reviewed_by.username }}</span>
+        {% endif %}
+      </div>
+      <div>{{ msg.admin_review }}</div>
+    </div>
+    {% endif %}
+
+    <div class="adm-msg-card__footer">
+      <button onclick="openReviewModal('{{ msg.pk }}', '{{ msg.status }}', '{{ msg.admin_review|escapejs }}')"
+        class="btn-review">
+        <i class="fa fa-edit"></i> {% if msg.admin_review %}Edit Review{% else %}Add Review / Reply{% endif %}
+      </button>
+      <a href="{% url 'admin_messages' %}?delete_msg={{ msg.pk }}" onclick="return confirm('Delete this message?');"
+        class="btn-del">
+        <i class="fa fa-trash"></i> Delete
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="adm-empty">
+  <i class="fa fa-envelope-open"></i>
+  <h3>No Messages Yet</h3>
+  <p>Customer contact messages will appear here.</p>
+</div>
+{% endif %}
+
+<!-- Modal: Add / Edit Review -->
+<div id="reviewModal" class="adm-modal-backdrop">
+  <div class="adm-modal">
+    <div class="adm-modal__header">
+      <h3>Admin Message Review & Status</h3>
+      <button onclick="closeReviewModal()" class="adm-modal__close">&times;</button>
+    </div>
+    <form method="POST" action="{% url 'admin_messages' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_review">
+      <input type="hidden" name="msg_id" id="rev_msg_id">
+
+      <div class="adm-form-group">
+        <label>Message Status</label>
+        <select name="status" id="rev_status" class="adm-input" required>
+          <option value="new">New</option>
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+
+      <div class="adm-form-group">
+        <label>Admin Review / Internal Notes / Action Taken</label>
+        <textarea name="admin_review" id="rev_notes" class="adm-input" rows="4"
+          placeholder="Write internal notes, response details, or status updates..."></textarea>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" onclick="closeReviewModal()"
+          style="background:#2a2a4a;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;">Cancel</button>
+        <button type="submit" class="btn-review" style="padding:10px 20px;">Save Review</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openReviewModal(id, status, notes) {
+    document.getElementById('rev_msg_id').value = id;
+    document.getElementById('rev_status').value = status;
+    document.getElementById('rev_notes').value = notes;
+    document.getElementById('reviewModal').classList.add('show');
+  }
+  function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('show');
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% block title %}Manage Orders — STYLEVERSE Admin{% endblock %}
+{% block page_title %}Manage Orders{% endblock %}
+
+{% block extra_admin_css %}
+.adm-table-wrap { background: var(--adm-card); border-radius: 14px; padding: 24px; border: 1px solid var(--adm-border);
+}
+.adm-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.adm-table-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+.adm-table { width: 100%; border-collapse: collapse; }
+.adm-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--adm-muted); padding: 12px
+14px; text-align: left; border-bottom: 1px solid var(--adm-border); }
+.adm-table td { padding: 14px 14px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align:
+middle; }
+.adm-table tr:last-child td { border-bottom: none; }
+.adm-table tr:hover td { background: rgba(255,255,255,.03); }
+.adm-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-pending { background: rgba(230,126,34,.2); color: #e67e22; }
+.badge-completed { background: rgba(39,174,96,.2); color: #27ae60; }
+.badge-cancelled { background: rgba(231,76,60,.2); color: #e74c3c; }
+.badge-processing{ background: rgba(52,152,219,.2); color: #5dade2; }
+.badge-shipped { background: rgba(155,89,182,.2); color: #c39bd3; }
+.badge-delivered { background: rgba(39,174,96,.2); color: #27ae60; }
+.adm-action-btn { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border:
+none; text-decoration: none; transition: .2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-update { background: var(--adm-accent); color: #1a1a2e; }
+.btn-update:hover { opacity: .85; }
+.btn-delete { background: rgba(231,76,60,.2); color: #e74c3c; }
+.btn-delete:hover { background: rgba(231,76,60,.35); }
+.btn-invoice { background: rgba(52,152,219,.15); color: #5dade2; }
+.btn-invoice:hover { background: rgba(52,152,219,.3); }
+.adm-select { background: #1a1a2e; color: #fff; border: 1px solid var(--adm-border); border-radius: 6px; padding: 6px
+10px; font-size: 13px; }
+.adm-order-items { font-size: 12px; color: var(--adm-muted); line-height: 1.8; }
+{% endblock %}
+
+{% block content %}
+<div class="adm-table-wrap">
+  <div class="adm-table-header">
+    <h3><i class="fa fa-box" style="color:var(--adm-accent);margin-right:8px;"></i>All Orders ({{ orders|length }})</h3>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Payment Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td style="color:var(--adm-accent);font-weight:700;">{{ order.order_number }}</td>
+          <td>
+            <strong>{{ order.name }}</strong><br>
+            <small style="color:var(--adm-muted);">{{ order.email }}</small><br>
+            <small style="color:var(--adm-muted);">{{ order.phone }}</small>
+          </td>
+          <td>
+            <div class="adm-order-items">
+              {% for item in order.items.all %}
+              {{ item.product_name }} ×{{ item.quantity }}<br>
+              {% endfor %}
+            </div>
+          </td>
+          <td style="font-weight:700;">₹{{ order.total_price }}</td>
+          <td>{{ order.order_date|date:"d M, Y" }}</td>
+          <td><span class="adm-badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td><span class="adm-badge badge-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+          </td>
+          <td>
+            <form method="POST" action="{% url 'admin_orders' %}" style="display:flex;flex-direction:column;gap:6px;">
+              {% csrf_token %}
+              <input type="hidden" name="order_id" value="{{ order.pk }}">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <select name="update_payment" class="adm-select">
+                  <option value="pending" {% if order.payment_status == "pending" %}selected{% endif %}>Pending</option>
+                  <option value="completed" {% if order.payment_status == "completed" %}selected{% endif %}>Completed</option>
+                  <option value="cancelled" {% if order.payment_status == "cancelled" %}selected{% endif %}>Cancelled</option>
+                </select>
+                <select name="update_status" class="adm-select">
+                  <option value="processing" {% if order.status == "processing" %}selected{% endif %}>Processing</option>
+                  <option value="shipped" {% if order.status == "shipped" %}selected{% endif %}>Shipped</option>
+                  <option value="delivered" {% if order.status == "delivered" %}selected{% endif %}>Delivered</option>
+                  <option value="cancelled" {% if order.status == "cancelled" %}selected{% endif %}>Cancelled</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="submit" name="update_order" class="adm-action-btn btn-update">
+                  <i class="fa fa-save"></i> Update
+                </button>
+                <a href="{% url 'admin_invoice' order.pk %}" target="_blank" class="adm-action-btn btn-invoice">
+                  <i class="fa fa-print"></i> Invoice
+                </a>
+                <a href="{% url 'admin_orders' %}?delete={{ order.pk }}"
+                  onclick="return confirm('Delete Order #{{ order.order_number }}?');"
+                  class="adm-action-btn btn-delete">
+                  <i class="fa fa-trash"></i>
+                </a>
+              </div>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align:center;color:var(--adm-muted);padding:48px;">
+            <i class="fa fa-box-open" style="font-size:32px;margin-bottom:12px;display:block;opacity:.5;"></i>
+            No orders placed yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

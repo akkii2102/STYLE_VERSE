@@ -1,0 +1,90 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% block title %}Manage Users — STYLEVERSE Admin{% endblock %}
+{% block page_title %}Manage Users{% endblock %}
+
+{% block extra_admin_css %}
+.adm-table-wrap { background: var(--adm-card); border-radius: 14px; padding: 24px; border: 1px solid var(--adm-border);
+overflow-x: auto; }
+.adm-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.adm-table-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+.adm-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.adm-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--adm-muted); padding: 12px
+14px; text-align: left; border-bottom: 1px solid var(--adm-border); }
+.adm-table td { padding: 14px 14px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align:
+middle; }
+.adm-table tr:last-child td { border-bottom: none; }
+.adm-table tr:hover td { background: rgba(255,255,255,.03); }
+.adm-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-staff { background: rgba(192,163,110,.2); color: #c0a36e; }
+.badge-user { background: rgba(52,152,219,.15); color: #5dade2; }
+.badge-super { background: rgba(231,76,60,.2); color: #e74c3c; }
+.adm-avatar-sm { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#1a1a2e,#c0a36e);
+display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700;
+flex-shrink: 0; }
+.user-cell { display: flex; align-items: center; gap: 12px; }
+{% endblock %}
+
+{% block content %}
+<div class="adm-table-wrap">
+  <div class="adm-table-header">
+    <h3><i class="fa fa-users" style="color:var(--adm-accent);margin-right:8px;"></i>All Users ({{ users|length }})</h3>
+  </div>
+  <table class="adm-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Joined</th>
+        <th>Last Login</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="adm-avatar-sm">{{ u.username|first|upper }}</div>
+            <div>
+              <strong>{{ u.username }}</strong><br>
+              <small style="color:var(--adm-muted);">{{ u.get_full_name|default:"—" }}</small>
+            </div>
+          </div>
+        </td>
+        <td style="color:var(--adm-muted);">{{ u.email|default:"—" }}</td>
+        <td>{{ u.date_joined|date:"d M, Y" }}</td>
+        <td>
+          {% if u.last_login %}
+          {{ u.last_login|date:"d M, Y" }}
+          {% else %}
+          <span style="color:var(--adm-muted);">Never</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.is_superuser %}
+          <span class="adm-badge badge-super">Superuser</span>
+          {% elif u.is_staff %}
+          <span class="adm-badge badge-staff">Staff/Admin</span>
+          {% else %}
+          <span class="adm-badge badge-user">Customer</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.is_active %}
+          <span style="color:#27ae60;font-weight:600;"><i class="fa fa-circle" style="font-size:8px;"></i> Active</span>
+          {% else %}
+          <span style="color:#e74c3c;font-weight:600;"><i class="fa fa-circle" style="font-size:8px;"></i>
+            Inactive</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center;color:var(--adm-muted);padding:48px;">No users registered yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

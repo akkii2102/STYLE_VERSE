@@ -1,0 +1,188 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% load static %}
+{% block title %}Admin Dashboard — STYLEVERSE{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}A quick view of your store activity and performance.{% endblock %}
+
+{% block extra_admin_css %}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.stamp {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px 18px 22px;
+  box-shadow: var(--shadow);
+}
+
+.stamp::before,
+.stamp::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 11px;
+  background-image: radial-gradient(circle 4.5px, var(--paper) 4.5px, transparent 4.6px);
+  background-size: 13px 13px;
+  background-repeat: repeat-x;
+}
+
+.stamp::before { top: -6px; }
+.stamp::after { bottom: -6px; }
+
+.stamp .top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.stamp .label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.stamp .badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge.up {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.stamp .value {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.stamp .value small {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-head h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  margin: 0;
+}
+
+.panel-head .link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--green);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+@media (max-width: 1080px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .row-2 { grid-template-columns: 1fr; }
+}
+{% endblock %}
+
+{% block content %}
+<section class="stat-grid">
+  <div class="stamp">
+    <div class="top-row"><span class="label">Total Orders</span><span class="badge up">Live</span></div>
+    <div class="value">{{ total_orders }}</div>
+  </div>
+  <div class="stamp">
+    <div class="top-row"><span class="label">Products</span><span class="badge up">Updated</span></div>
+    <div class="value">{{ total_products }}</div>
+  </div>
+  <div class="stamp">
+    <div class="top-row"><span class="label">Users</span><span class="badge up">Active</span></div>
+    <div class="value">{{ total_users }}</div>
+  </div>
+  <div class="stamp">
+    <div class="top-row"><span class="label">Messages</span><span class="badge up">New</span></div>
+    <div class="value">{{ total_messages }}</div>
+  </div>
+</section>
+
+<section class="row-2">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Recent Orders</h2>
+      <a href="{% url 'admin_orders' %}" class="link">All orders →</a>
+    </div>
+    <div class="adm-table-wrap" style="border:0; box-shadow:none; padding:0;">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td style="font-weight:700; color:var(--green);">{{ order.order_number }}</td>
+            <td>{{ order.name }}<br><small style="color:var(--ink-soft);">{{ order.email }}</small></td>
+            <td>{{ order.order_date|date:"d M, Y" }}</td>
+            <td>₹{{ order.total_price }}</td>
+            <td><span class="adm-badge badge-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="text-align:center;color:var(--ink-soft);padding:32px;">No orders yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Revenue Snapshot</h2>
+    </div>
+    <div style="padding:22px; display:flex; flex-direction:column; gap:16px;">
+      <div class="stamp" style="padding:16px 18px;">
+        <div class="top-row"><span class="label">Pending Revenue</span><span class="badge up">Due</span></div>
+        <div class="value">₹{{ pending_total }}</div>
+      </div>
+      <div class="stamp" style="padding:16px 18px;">
+        <div class="top-row"><span class="label">Completed Revenue</span><span class="badge up">Settled</span></div>
+        <div class="value">₹{{ completed_total }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% load static %}
+<footer class="sv-footer">
+  <div class="sv-footer__top">
+    <!-- Brand col -->
+    <div class="sv-footer__col">
+      <a href="{% url 'index' %}" class="sv-logo sv-logo--footer">STYLE<span>VERSE</span></a>
+      <p class="sv-footer__tagline">Redefining fashion, one outfit at a time.</p>
+      <div class="sv-footer__social">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+      <!-- Payment icons -->
+      <div style="margin-top:20px;">
+        <p style="font-size:12px;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Secure
+          Payments</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span
+            style="background:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#1a1a2e;">VISA</span>
+          <span
+            style="background:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#e74c3c;">MC</span>
+          <span
+            style="background:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#0070ba;">PayPal</span>
+          <span
+            style="background:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#5f259f;">UPI</span>
+          <span
+            style="background:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#1a1a2e;">COD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop col -->
+    <div class="sv-footer__col">
+      <h4>Shop</h4>
+      <a href="{% url 'product_list' %}">All Products</a>
+      <a href="{% url 'men' %}">Men's Collection</a>
+      <a href="{% url 'women' %}">Women's Collection</a>
+      <a href="{% url 'product_list' %}">New Arrivals</a>
+      <a href="{% url 'product_list' %}">Sale</a>
+    </div>
+
+    <!-- Support col -->
+    <div class="sv-footer__col">
+      <h4>Help & Support</h4>
+      <a href="{% url 'contact' %}">Contact Us</a>
+      <a href="{% url 'about' %}">About Us</a>
+      <a href="{% url 'order' %}">Track My Order</a>
+      <a href="#">Returns & Exchanges</a>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Size Guide</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+
+    <!-- Contact col -->
+    <div class="sv-footer__col">
+      <h4>Get in Touch</h4>
+      <p><i class="fa fa-envelope"></i> hello@styleverse.com</p>
+      <p><i class="fa fa-phone"></i> +91 98765 43210</p>
+      <p><i class="fa fa-map-marker-alt"></i> Ahmedabad, Gujarat, India</p>
+      <p><i class="fa fa-clock"></i> Mon–Sat: 9am – 6pm IST</p>
+      <!-- Newsletter mini -->
+      <div style="margin-top:20px;">
+        <p style="font-size:13px;margin-bottom:8px;color:#ccc;">Subscribe for deals & drops</p>
+        <form
+          onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Subscribed';this.querySelector('input').disabled=true;"
+          style="display:flex;gap:0;">
+          <input type="email" placeholder="Your email" required
+            style="flex:1;padding:9px 12px;border:none;border-radius:6px 0 0 6px;font-size:13px;outline:none;">
+          <button type="submit"
+            style="background:var(--sv-accent);color:var(--sv-black);border:none;padding:9px 14px;border-radius:0 6px 6px 0;cursor:pointer;font-weight:700;font-size:13px;">Go</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="sv-footer__bottom">
+    <p>&copy; {% now "Y" %} STYLEVERSE. Designed &amp; Built by <strong>Chauhan Akshay G.</strong> &nbsp;·&nbsp;
+      <a href="#" style="color:#666;">Privacy</a> &nbsp;·&nbsp;
+      <a href="#" style="color:#666;">Terms</a> &nbsp;·&nbsp;
+      <a href="#" style="color:#666;">Returns</a>
+    </p>
+  </div>
+</footer>

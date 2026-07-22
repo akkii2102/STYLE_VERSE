@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container" style="max-width: 880px;">
+    <div class="sv-auth__card">
+      <span class="sv-auth__eyebrow">Account</span>
+      <h1>My Profile</h1>
+      <p class="sv-auth__subtitle">Your account dashboard is ready. You can update your profile details and manage your
+        password from here.</p>
+      <div class="sv-form-grid">
+        <div class="sv-form-group">
+          <label>Username</label>
+          <p>{{ user.username }}</p>
+        </div>
+        <div class="sv-form-group">
+          <label>Email</label>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
+      <div class="sv-form-grid">
+        <a class="sv-btn" href="{% url 'edit_profile' %}">Edit Profile</a>
+        <a class="sv-btn sv-btn--outline" href="{% url 'change_password' %}">Change Password</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

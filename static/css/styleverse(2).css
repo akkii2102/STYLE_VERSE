@@ -1,0 +1,267 @@
+/* ==========================================================================
+   STYLEVERSE — base stylesheet (site-wide: layout, type, header, forms, table)
+   ========================================================================== */
+
+:root{
+  --ink:#14151A;
+  --ink-soft:#6B6D76;
+  --ink-faint:#9A9CA4;
+  --paper:#F7F5F1;
+  --surface:#FFFFFF;
+  --line:#E7E2D8;
+
+  --accent:#6B2737;        /* wine — primary brand accent */
+  --accent-dark:#4E1D28;
+  --accent-soft:#F3E1E4;
+  --gold:#AD8A54;          /* brass — sparing highlight */
+  --gold-soft:#F3ECDF;
+
+  --green:#2F6B4F;
+  --green-soft:#E4F0EA;
+  --red:#B23A3A;
+  --red-soft:#FBE7E5;
+  --amber:#9C6B1F;
+  --amber-soft:#FBF0DC;
+  --blue:#33587A;
+  --blue-soft:#E5EDF3;
+
+  --radius-sm:8px;
+  --radius:12px;
+  --radius-lg:18px;
+  --shadow-sm: 0 1px 2px rgba(20,21,26,0.05);
+  --shadow: 0 1px 2px rgba(20,21,26,0.04), 0 10px 24px -14px rgba(20,21,26,0.20);
+}
+
+*, *::before, *::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+a{ color:inherit; text-decoration:none; }
+img{ max-width:100%; display:block; }
+button{ font-family:inherit; cursor:pointer; }
+
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+h1,h2,h3,h4{ margin:0; font-weight:600; }
+
+/* ---------------- Header / primary nav ---------------- */
+.sv-admin-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  padding:16px 32px;
+  background:var(--ink);
+  color:#EDEAE3;
+  position:sticky;
+  top:0;
+  z-index:50;
+  flex-wrap:wrap;
+}
+
+.sv-logo{
+  font-family:'Bodoni Moda', Georgia, 'Times New Roman', serif;
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0.5px;
+  color:#F4F1EA;
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  white-space:nowrap;
+}
+.sv-logo span{ color:var(--gold); }
+.sv-logo small{
+  font-family:'Inter', sans-serif;
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:#9A9CA4;
+  margin-left:2px;
+}
+
+.sv-admin-nav{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+}
+.sv-admin-nav a{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:500;
+  color:#C9C6BD;
+  transition:background .15s ease, color .15s ease;
+}
+.sv-admin-nav a i{ font-size:12.5px; width:14px; text-align:center; }
+.sv-admin-nav a:hover{ background:rgba(237,234,227,0.08); color:#fff; }
+.sv-admin-nav a.active,
+.sv-admin-nav a[aria-current="page"]{
+  background:var(--gold-soft);
+  color:var(--accent-dark);
+  font-weight:600;
+}
+
+/* ---------------- Main content shell ---------------- */
+.sv-admin-main{
+  max-width:1280px;
+  margin:0 auto;
+  padding:32px 32px 64px;
+}
+
+.sv-admin-title{
+  font-family:'Bodoni Moda', Georgia, 'Times New Roman', serif;
+  font-size:30px;
+  font-weight:600;
+  letter-spacing:0.2px;
+  margin-bottom:22px;
+  color:var(--ink);
+}
+
+/* ---------------- Buttons ---------------- */
+.sv-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  background:var(--ink);
+  color:#fff;
+  border:1px solid var(--ink);
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:600;
+  line-height:1;
+}
+.sv-btn:hover{ background:var(--accent-dark); border-color:var(--accent-dark); }
+.sv-btn--sm{ padding:6px 12px; font-size:12px; }
+.sv-btn--primary{ background:var(--accent); border-color:var(--accent); }
+.sv-btn--primary:hover{ background:var(--accent-dark); }
+.sv-btn--secondary{
+  background:var(--surface);
+  color:var(--ink);
+  border:1px solid var(--line);
+}
+.sv-btn--secondary:hover{ background:var(--paper); }
+.sv-btn--danger{ background:var(--red); border-color:var(--red); }
+.sv-btn--danger:hover{ background:#8f2c2c; }
+
+/* ---------------- Forms ---------------- */
+.sv-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:16px 18px;
+}
+.sv-form-group{ display:flex; flex-direction:column; gap:6px; }
+.sv-form-group--full{ grid-column:1 / -1; display:flex; flex-direction:column; gap:6px; }
+.sv-form-group label,
+.sv-form-group--full label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.sv-input,
+.sv-form-group input,
+.sv-form-group select,
+.sv-form-group textarea,
+.sv-form-group--full input,
+.sv-form-group--full select,
+.sv-form-group--full textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--surface);
+  color:var(--ink);
+  font-family:inherit;
+  font-size:13.5px;
+}
+.sv-form-group textarea{ min-height:90px; resize:vertical; }
+
+/* ---------------- Table ---------------- */
+.sv-table-wrap{ overflow-x:auto; }
+.sv-table{ width:100%; border-collapse:collapse; }
+.sv-table thead th{
+  text-align:left;
+  font-size:11px;
+  letter-spacing:0.6px;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  padding:12px 16px;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+}
+.sv-table tbody td{
+  padding:13px 16px;
+  font-size:13.5px;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+.sv-table tbody tr:last-child td{ border-bottom:none; }
+.sv-table tbody tr:hover{ background:rgba(20,21,26,0.02); }
+.sv-empty{ text-align:center; color:var(--ink-faint); padding:28px 0 !important; }
+
+/* ---------------- Status pills ---------------- */
+.sv-status{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.3px;
+  padding:4px 10px;
+  border-radius:999px;
+  text-transform:capitalize;
+}
+.sv-status--completed,
+.sv-status--delivered,
+.sv-status--admin,
+.sv-status--active{ background:var(--green-soft); color:var(--green); }
+.sv-status--pending,
+.sv-status--processing{ background:var(--amber-soft); color:var(--amber); }
+.sv-status--cancelled,
+.sv-status--failed,
+.sv-status--blocked{ background:var(--red-soft); color:var(--red); }
+.sv-status--user{ background:var(--blue-soft); color:var(--blue); }
+
+/* ---------------- Toasts ---------------- */
+.sv-toast-container{
+  position:fixed;
+  top:18px; right:18px;
+  z-index:200;
+  display:flex; flex-direction:column; gap:8px;
+}
+.sv-toast{
+  background:var(--ink);
+  color:#fff;
+  padding:12px 16px;
+  border-radius:var(--radius-sm);
+  font-size:13px;
+  box-shadow:var(--shadow);
+}
+.sv-toast--success{ background:var(--green); }
+.sv-toast--error{ background:var(--red); }
+.sv-toast--info{ background:var(--ink); }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 860px){
+  .sv-admin-header{ padding:14px 18px; }
+  .sv-admin-nav{ width:100%; overflow-x:auto; }
+  .sv-admin-main{ padding:22px 18px 48px; }
+  .sv-form-grid{ grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
+}

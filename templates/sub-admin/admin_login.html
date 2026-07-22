@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Seller Portal Login — STYLEVERSE Admin{% endblock %}
+{% block content %}
+<section class="sv-auth" style="background: linear-gradient(135deg, #0b0b14 0%, #16162a 100%);">
+  <div class="sv-auth__card"
+    style="background:#16162a;border:1px solid rgba(192,163,110,.35);box-shadow:0 16px 48px rgba(0,0,0,.6);">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <a href="{% url 'index' %}" class="sv-logo" style="font-size:24px;color:#fff;">STYLE<span
+          style="color:#c0a36e;">VERSE</span></a>
+      <div
+        style="font-size:12px;color:#c0a36e;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:6px;">
+        <i class="fa fa-shield-alt"></i> Official Seller Portal
+      </div>
+    </div>
+
+    <h2 style="color:#fff;font-size:22px;font-weight:800;margin-bottom:6px;text-align:center;">Seller & Sub-Admin Sign
+      In</h2>
+    <p style="color:#888;font-size:13px;text-align:center;margin-bottom:24px;">
+      Enter your Super-Admin approved seller credentials to access your store panel.
+    </p>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="sv-alert sv-alert--{{ message.tags }}" style="margin-bottom:16px;">
+      <i
+        class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="sv-auth__form" novalidate>
+      {% csrf_token %}
+      <div class="sv-form-group">
+        <label for="{{ form.username.id_for_label }}" style="color:#ccc;font-size:13px;font-weight:600;">Sub-Admin
+          Username</label>
+        <input type="text" name="username" id="{{ form.username.id_for_label }}" class="sv-input sv-input--dark"
+          placeholder="Enter seller username" required autofocus>
+        {% if form.username.errors %}<span class="sv-field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="sv-form-group">
+        <label for="{{ form.password.id_for_label }}" style="color:#ccc;font-size:13px;font-weight:600;">Super-Admin
+          Password</label>
+        <div class="sv-input-wrap">
+          <input type="password" name="password" id="id_login_password" class="sv-input sv-input--dark"
+            placeholder="Enter password" required>
+          <button type="button" class="sv-pwd-toggle" onclick="togglePwd('id_login_password',this)" tabindex="-1"
+            aria-label="Show password" style="color:#888;">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% if form.non_field_errors %}<span class="sv-field-error">{{ form.non_field_errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <button type="submit" class="sv-btn sv-btn--lg sv-btn--full sv-btn--gold" style="margin-top:8px;">
+        <i class="fa fa-lock"></i> Access Seller Dashboard
+      </button>
+    </form>
+
+    <div
+      style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);text-align:center;font-size:13px;color:#777;">
+      Don't have a seller account? <a href="{% url 'register' %}?type=sub_admin"
+        style="color:#c0a36e;font-weight:600;text-decoration:none;">Apply for Seller Access</a><br>
+      <span style="font-size:12px;color:#555;display:inline-block;margin-top:6px;">Customer accounts use the <a
+          href="{% url 'login' %}" style="color:#888;">Customer Login</a></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sv-input--dark {
+    background: #0f0f1a !important;
+    border-color: rgba(255, 255, 255, .15) !important;
+    color: #ffffff !important;
+  }
+
+  .sv-input--dark:focus {
+    border-color: #c0a36e !important;
+    box-shadow: 0 0 0 4px rgba(192, 163, 110, .2) !important;
+  }
+</style>
+
+<script>
+  function togglePwd(id, btn) {
+    const f = document.getElementById(id);
+    if (!f) return;
+    if (f.type === 'password') { f.type = 'text'; btn.innerHTML = '<i class="fa fa-eye-slash"></i>'; }
+    else { f.type = 'password'; btn.innerHTML = '<i class="fa fa-eye"></i>'; }
+  }
+</script>
+{% endblock %}

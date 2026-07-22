@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Search — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container">
+    <h1 class="sv-page-title">Search</h1>
+    <form method="GET" action="{% url 'search' %}" class="sv-search-bar">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search for products, brands..."
+        class="sv-input sv-input--lg" autofocus>
+      <button type="submit" class="sv-btn"><i class="fa fa-search"></i> Search</button>
+    </form>
+    {% if query %}
+    <p class="sv-search-meta">{{ results|length }} result{{ results|length|pluralize }} for "<strong>{{ query }}</strong>"</p>
+    <div class="sv-product-grid">
+      {% include 'products/product_card.html' with products=results %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

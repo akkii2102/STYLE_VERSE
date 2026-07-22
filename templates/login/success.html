@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Payment Status — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container" style="max-width: 760px;">
+    <div class="sv-auth__card">
+      <span class="sv-auth__eyebrow">Payment</span>
+      <h1>Payment Status</h1>
+      <p class="sv-auth__subtitle">{{ message|default:'Your payment status will appear here.' }}</p>
+      {% if status %}
+      <a class="sv-btn" href="{% url 'order' %}">View Orders</a>
+      {% else %}
+      <a class="sv-btn sv-btn--outline" href="{% url 'checkout' %}">Try Again</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

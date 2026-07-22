@@ -1,0 +1,51 @@
+{% load static %}
+<header class="sv-header">
+
+  <div class="sv-header__inner">
+
+    <a href="{% url 'index' %}" class="sv-logo">STYLE<span>VERSE</span></a>
+
+    <nav class="sv-nav" id="svNav">
+      <a href="{% url 'index' %}">Home</a>
+      <a href="{% url 'product_list' %}">Shop</a>
+      <a href="{% url 'men' %}?gender=Men">Men</a>
+      <a href="{% url 'women' %}?gender=Women">Women</a>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'contact' %}">Contact</a>
+    </nav>
+
+    <div class="sv-header__actions">
+      <a href="{% url 'search' %}" class="sv-icon-btn" title="Search"><i class="fa fa-search"></i></a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'wishlist' %}" class="sv-icon-btn" title="Wishlist"><i class="fa fa-heart"></i>
+        {% if wishlist_count %}<span class="sv-badge">{{ wishlist_count }}</span>{% endif %}</a>
+      {% endif %}
+      <a href="{% url 'cart' %}" class="sv-icon-btn" title="Cart"><i class="fa fa-shopping-bag"></i>
+        {% if cart_count %}<span class="sv-badge">{{ cart_count }}</span>{% endif %}</a>
+
+      {% if user.is_authenticated %}
+      <div class="sv-user-menu">
+        <button class="sv-icon-btn" onclick="document.getElementById('svUserDrop').classList.toggle('show')"
+          type="button" aria-label="User menu">
+          <i class="fa fa-user"></i>
+        </button>
+        <div class="sv-dropdown" id="svUserDrop">
+          <div class="sv-dropdown__header">
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            <small>{{ user.email }}</small>
+          </div>
+          <a href="{% url 'order' %}">My Orders</a>
+          <a href="{% url 'wishlist' %}">Wishlist</a>
+          <a href="{% url 'logout' %}" class="sv-dropdown__logout">Logout</a>
+        </div>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" class="sv-btn sv-btn--sm">Login</a>
+      <a href="{% url 'register' %}" class="sv-btn sv-btn--sm ">Register</a>
+      {% endif %}
+
+      <button class="sv-hamburger" onclick="document.getElementById('svNav').classList.toggle('open')" type="button"
+        aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
+    </div>
+  </div>
+</header>

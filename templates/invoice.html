@@ -1,0 +1,405 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice #{{ order.order_number }} — STYLEVERSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a2e;
+      padding: 40px 20px;
+    }
+
+    .inv-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
+    }
+
+    /* ── Header ── */
+    .inv-header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inv-logo {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .inv-logo span {
+      color: #c0a36e;
+    }
+
+    .inv-header-right {
+      text-align: right;
+    }
+
+    .inv-header-right h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #c0a36e;
+    }
+
+    .inv-header-right p {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* ── Body ── */
+    .inv-body {
+      padding: 36px 40px;
+    }
+
+    /* ── Address row ── */
+    .inv-address-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .inv-address-box h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #c0a36e;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .inv-address-box p {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #555;
+    }
+
+    .inv-address-box p strong {
+      color: #1a1a2e;
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+    }
+
+    thead tr {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    /* ── Totals ── */
+    .inv-totals {
+      margin-left: auto;
+      width: 280px;
+    }
+
+    .inv-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #666;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .inv-total-row.discount {
+      color: #27ae60;
+      font-weight: 600;
+    }
+
+    .inv-total-row.grand {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a1a2e;
+      border-top: 2px solid #1a1a2e;
+      border-bottom: none;
+      padding-top: 14px;
+      margin-top: 6px;
+    }
+
+    /* ── Payment info ── */
+    .inv-payment {
+      background: #f8f8f8;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .inv-payment span {
+      color: #888;
+    }
+
+    .inv-payment strong {
+      color: #1a1a2e;
+    }
+
+    .pay-pending {
+      color: #e67e22;
+      font-weight: 700;
+    }
+
+    .pay-completed {
+      color: #27ae60;
+      font-weight: 700;
+    }
+
+    .pay-cancelled {
+      color: #e74c3c;
+      font-weight: 700;
+    }
+
+    /* ── Footer ── */
+    .inv-footer {
+      background: #f8f8f8;
+      border-top: 1px solid #eee;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .inv-footer strong {
+      color: #1a1a2e;
+    }
+
+    /* ── Print buttons ── */
+    .inv-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .inv-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .inv-btn--print {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .inv-btn--print:hover {
+      background: #c0a36e;
+    }
+
+    .inv-btn--back {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .inv-btn--back:hover {
+      background: #e0e0e0;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+
+      .inv-wrapper {
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .inv-actions {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Print / Back buttons (hidden on print) -->
+  <div class="inv-actions no-print" style="max-width:800px;margin:0 auto 24px;">
+    <button class="inv-btn inv-btn--print" onclick="window.print()">
+      🖨 Print / Save as PDF
+    </button>
+    <a class="inv-btn inv-btn--back"
+      href="{% if is_admin %}{% url 'admin_orders' %}{% else %}{% url 'orders' %}{% endif %}">
+      ← Back to Orders
+    </a>
+  </div>
+
+  <div class="inv-wrapper">
+
+    <!-- Header -->
+    <div class="inv-header">
+      <div class="inv-logo">STYLE<span>VERSE</span></div>
+      <div class="inv-header-right">
+        <h2>INVOICE</h2>
+        <p>#{{ order.order_number }}</p>
+        <p>{{ order.order_date|date:"d M, Y" }}</p>
+      </div>
+    </div>
+
+    <div class="inv-body">
+
+      <!-- Address block -->
+      <div class="inv-address-row">
+        <div class="inv-address-box">
+          <h4>Shipped To</h4>
+          <p>
+            <strong>{{ order.name }}</strong><br>
+            {{ order.address }}<br>
+            {{ order.city }}, {{ order.state }} {{ order.pincode }}<br>
+            {{ order.country }}<br>
+            📞 {{ order.phone }}<br>
+            ✉ {{ order.email }}
+          </p>
+        </div>
+        <div class="inv-address-box">
+          <h4>Sold By</h4>
+          <p>
+            <strong>STYLEVERSE</strong><br>
+            Fashion & Clothing<br>
+            Mumbai, Maharashtra<br>
+            India — 400065<br>
+            📧 styleverse2005@gmail.com<br>
+            📞 +91 91733 26591
+          </p>
+        </div>
+        <div class="inv-address-box">
+          <h4>Order Details</h4>
+          <p>
+            <strong>Order #:</strong> {{ order.order_number }}<br>
+            <strong>Order Date:</strong> {{ order.order_date|date:"d M, Y" }}<br>
+            {% if order.updated_date %}
+            <strong>Updated:</strong> {{ order.updated_date|date:"d M, Y" }}<br>
+            {% endif %}
+            <strong>Status:</strong> {{ order.get_status_display }}<br>
+            <strong>Payment:</strong> {{ order.get_payment_method_display }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Items table -->
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item</th>
+            {% if order.items.all.0.size %}<th>Size/Color</th>{% endif %}
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+              {{ item.product_name }}<br>
+              <small style="color:#c0a36e;">{{ item.brand_name }}</small>
+            </td>
+            {% if item.size %}<td>{{ item.size }}{% if item.color %} / {{ item.color }}{% endif %}</td>{% endif %}
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.unit_price }}</td>
+            <td>₹{{ item.sub_total }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div class="inv-totals">
+        <div class="inv-total-row"><span>Subtotal</span><span>₹{{ order.subtotal }}</span></div>
+        {% if order.discount > 0 %}
+        <div class="inv-total-row discount"><span>Discount</span><span>−₹{{ order.discount }}</span></div>
+        {% endif %}
+        <div class="inv-total-row">
+          <span>Shipping</span>
+          <span>{% if order.shipping_cost == 0 %}FREE{% else %}₹{{ order.shipping_cost }}{% endif %}</span>
+        </div>
+        <div class="inv-total-row grand"><span>TOTAL</span><span>₹{{ order.total_price }}</span></div>
+      </div>
+
+      <!-- Payment status -->
+      <div class="inv-payment">
+        <div><span>Payment Method: </span><strong>{{ order.get_payment_method_display }}</strong></div>
+        <div>
+          <span>Payment Status: </span>
+          <strong class="pay-{{ order.payment_status }}">{{ order.get_payment_status_display }}</strong>
+        </div>
+      </div>
+
+    </div><!-- /inv-body -->
+
+    <div class="inv-footer">
+      <p>Thank you for shopping with <strong>STYLEVERSE</strong> — Your Style, Our Passion.</p>
+      <p style="margin-top:4px;">styleverse2005@gmail.com · +91 91733 26591</p>
+    </div>
+
+  </div><!-- /inv-wrapper -->
+
+</body>
+
+</html>

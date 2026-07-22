@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Account — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-auth">
+  <div class="sv-auth__card" style="max-width:500px;">
+    <a href="{% url 'index' %}" class="sv-logo" style="display:inline-block;margin-bottom:14px;">STYLE<span>VERSE</span></a>
+
+    <!-- Role Switcher Section Tabs -->
+    <div class="sv-reg-tabs" style="display:flex;gap:8px;background:#f5f5f7;padding:6px;border-radius:12px;margin-bottom:20px;border:1px solid #eaeaea;">
+      <button type="button" id="tabCustomer" class="sv-reg-tab {% if account_type != 'sub_admin' %}active{% endif %}"
+        onclick="switchRole('customer')"
+        style="flex:1;padding:10px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <i class="fa fa-user"></i> Customer Account
+      </button>
+      <button type="button" id="tabSubAdmin" class="sv-reg-tab {% if account_type == 'sub_admin' %}active{% endif %}"
+        onclick="switchRole('sub_admin')"
+        style="flex:1;padding:10px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <i class="fa fa-user-tie"></i> Sub-Admin / Seller
+      </button>
+    </div>
+
+    <!-- Dynamic Header -->
+    <span class="sv-auth__eyebrow" id="regEyebrow">
+      {% if account_type == 'sub_admin' %}🔒 Secure Seller Application{% else %}Join STYLEVERSE{% endif %}
+    </span>
+    <h1 id="regTitle">
+      {% if account_type == 'sub_admin' %}Apply for Seller Access{% else %}Create Customer Account{% endif %}
+    </h1>
+    <p class="sv-auth__subtitle" id="regSubtitle">
+      {% if account_type == 'sub_admin' %}
+      Submit your business application to the Super Admin. Upon approval, your login password and exclusive seller portal link will be emailed to your personal address.
+      {% else %}
+      Get faster checkout, saved orders, exclusive deals, and your personal wishlist.
+      {% endif %}
+    </p>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="sv-alert sv-alert--{{ message.tags }}"><i class="fa fa-info-circle"></i> {{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- ── FORM 1: CUSTOMER REGISTRATION ── -->
+    <form method="POST" id="formCustomer" class="sv-auth__form {% if account_type != 'sub_admin' %}u-block{% else %}u-hidden{% endif %}" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="account_type" value="customer">
+
+      <div class="sv-form-group">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<span class="sv-field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label for="{{ form.email.id_for_label }}">Email Address</label>
+        {{ form.email }}
+        {% if form.email.errors %}<span class="sv-field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        <div class="sv-input-wrap">
+          {{ form.password1 }}
+          <button type="button" class="sv-pwd-toggle" onclick="togglePwd('id_password1',this)" tabindex="-1" aria-label="Show password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% if form.password1.errors %}<span class="sv-field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
+        <!-- Password strength meter -->
+        <div class="sv-pwd-strength" id="pwdStrength" style="display:none;">
+          <div class="sv-pwd-strength__bar">
+            <div id="pwdBar"></div>
+          </div>
+          <span id="pwdLabel"></span>
+        </div>
+      </div>
+      <div class="sv-form-group">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}<span class="sv-field-error">{{ form.password2.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <button type="submit" class="sv-btn sv-btn--lg sv-btn--full sv-btn--gold" style="margin-top:8px;">
+        <i class="fa fa-user-plus"></i> Create Customer Account
+      </button>
+
+
+      <p class="sv-auth__link" style="margin-top:16px;">Already a User? <a href="{% url 'login' %}">Go to User Login</a></p>
+    </form>
+
+    <!-- ── FORM 2: SUB-ADMIN SELLER APPLICATION (SECURE) ── -->
+    <form method="POST" id="formSubAdmin" class="sv-auth__form {% if account_type == 'sub_admin' %}u-block{% else %}u-hidden{% endif %}" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="account_type" value="sub_admin">
+
+      <div class="sv-form-group">
+        <label>Full Name</label>
+        {{ seller_form.full_name }}
+        {% if seller_form.full_name.errors %}<span class="sv-field-error">{{ seller_form.full_name.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Desired Username</label>
+        {{ seller_form.username }}
+        {% if seller_form.username.errors %}<span class="sv-field-error">{{ seller_form.username.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Personal Email Address <small style="color:#888;">(Password & login link sent here)</small></label>
+        {{ seller_form.email }}
+        {% if seller_form.email.errors %}<span class="sv-field-error">{{ seller_form.email.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Phone Number</label>
+        {{ seller_form.phone }}
+        {% if seller_form.phone.errors %}<span class="sv-field-error">{{ seller_form.phone.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Store / Business Name</label>
+        {{ seller_form.store_name }}
+        {% if seller_form.store_name.errors %}<span class="sv-field-error">{{ seller_form.store_name.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Business Details / Reason for Request</label>
+        {{ seller_form.reason }}
+        {% if seller_form.reason.errors %}<span class="sv-field-error">{{ seller_form.reason.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div style="background:rgba(52,152,219,.12);border:1px solid rgba(52,152,219,.3);padding:12px;border-radius:10px;font-size:12px;color:#2980b9;margin-bottom:14px;line-height:1.5;">
+        <i class="fa fa-shield-alt" style="color:#2980b9;"></i> <strong>Security Verification Notice:</strong><br>
+        For security, Sub-Admin accounts cannot set their own password directly. Super Admin will review your application and email your generated password along with the private <strong>Seller Login Portal</strong> link.
+      </div>
+
+      <button type="submit" class="sv-btn sv-btn--lg sv-btn--full sv-btn--dark" style="margin-top:8px;">
+        <i class="fa fa-paper-plane"></i> Submit Application to Super Admin
+      </button>
+    </form>
+
+    
+  </div>
+</section>
+
+<style>
+  .u-block { display: block !important; }
+  .u-hidden { display: none !important; }
+
+  .sv-reg-tab {
+    background: transparent;
+    color: #666;
+  }
+
+  .sv-reg-tab.active {
+    background: #fff;
+    color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+  }
+</style>
+
+<script>
+  function switchRole(role) {
+    const formCust = document.getElementById('formCustomer');
+    const formSub = document.getElementById('formSubAdmin');
+    const tabCust = document.getElementById('tabCustomer');
+    const tabSub = document.getElementById('tabSubAdmin');
+    const eyebrow = document.getElementById('regEyebrow');
+    const title = document.getElementById('regTitle');
+    const subtitle = document.getElementById('regSubtitle');
+
+    if (role === 'sub_admin') {
+      formSub.classList.remove('u-hidden');
+      formSub.classList.add('u-block');
+      formCust.classList.remove('u-block');
+      formCust.classList.add('u-hidden');
+      tabSub.classList.add('active');
+      tabCust.classList.remove('active');
+      eyebrow.textContent = '🔒 Secure Seller Application';
+      title.textContent = 'Apply for Seller Access';
+      subtitle.textContent = 'Submit your business application to the Super Admin. Upon approval, your login password and exclusive seller portal link will be emailed to your personal address.';
+    } else {
+      formCust.classList.remove('u-hidden');
+      formCust.classList.add('u-block');
+      formSub.classList.remove('u-block');
+      formSub.classList.add('u-hidden');
+      tabCust.classList.add('active');
+      tabSub.classList.remove('active');
+      eyebrow.textContent = 'Join STYLEVERSE';
+      title.textContent = 'Create Customer Account';
+      subtitle.textContent = 'Get faster checkout, saved orders, exclusive deals, and your personal wishlist.';
+    }
+  }
+
+  function togglePwd(id, btn) {
+    const f = document.getElementById(id);
+    if (!f) return;
+    if (f.type === 'password') { f.type = 'text'; btn.innerHTML = '<i class="fa fa-eye-slash"></i>'; }
+    else { f.type = 'password'; btn.innerHTML = '<i class="fa fa-eye"></i>'; }
+  }
+
+  const pwdInput = document.getElementById('id_password1');
+  if (pwdInput) {
+    pwdInput.addEventListener('input', function () {
+      const v = this.value;
+      const meter = document.getElementById('pwdStrength');
+      const bar = document.getElementById('pwdBar');
+      const lbl = document.getElementById('pwdLabel');
+      if (!v) { meter.style.display = 'none'; return; }
+      meter.style.display = 'block';
+      let score = 0;
+      if (v.length >= 8) score++;
+      if (/[A-Z]/.test(v)) score++;
+      if (/[0-9]/.test(v)) score++;
+      if (/[^A-Za-z0-9]/.test(v)) score++;
+      const levels = [
+        { label: 'Weak', color: '#e74c3c', width: '25%' },
+        { label: 'Fair', color: '#f39c12', width: '50%' },
+        { label: 'Good', color: '#3498db', width: '75%' },
+        { label: 'Strong', color: '#27ae60', width: '100%' },
+      ];
+      const l = levels[score - 1] || levels[0];
+      bar.style.width = l.width;
+      bar.style.background = l.color;
+      lbl.textContent = l.label;
+      lbl.style.color = l.color;
+    });
+  }
+</script>
+{% endblock %}
+
+
+
+
+

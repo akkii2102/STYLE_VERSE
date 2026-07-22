@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — STYLEVERSE{% endblock %}
+{% block content %}
+<section class="sv-section">
+  <div class="sv-container">
+    <h1 class="sv-page-title">Checkout</h1>
+    <div class="sv-checkout-layout">
+
+      <!-- ── Left: Shipping + Payment form ── -->
+      <form method="POST" action="{% url 'checkout' %}" class="sv-checkout-form">
+        {% csrf_token %}
+
+        <div class="sv-checkout-block">
+          <h3><i class="fa fa-map-marker-alt"></i> Shipping Details</h3>
+          <div class="sv-form-grid">
+            <div class="sv-form-group">
+              {{ form.firstname.label_tag }}
+              {{ form.firstname }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.email.label_tag }}
+              {{ form.email }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.phone.label_tag }}
+              {{ form.phone }}
+            </div>
+            <div class="sv-form-group sv-form-group--full">
+              {{ form.address.label_tag }}
+              {{ form.address }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.city.label_tag }}
+              {{ form.city }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.state.label_tag }}
+              {{ form.state }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.country.label_tag }}
+              {{ form.country }}
+            </div>
+            <div class="sv-form-group">
+              {{ form.pincode.label_tag }}
+              {{ form.pincode }}
+            </div>
+          </div>
+        </div>
+
+        <div class="sv-checkout-block">
+          <h3><i class="fa fa-credit-card"></i> Payment Method</h3>
+          <div class="sv-payment-icons" style="display:flex;gap:16px;margin-bottom:16px;font-size:28px;color:#888;">
+            <i class="fa fa-money-bill-wave" title="Cash on Delivery"></i>
+            <i class="fab fa-cc-visa" title="Debit/Credit Card" style="color:#1a1f71;"></i>
+            <i class="fab fa-google-pay" title="Google Pay" style="color:#4285f4;"></i>
+            <i class="fab fa-cc-paypal" title="PayPal" style="color:#003087;"></i>
+          </div>
+          <div class="sv-form-group sv-form-group--full">
+            {{ form.method.label_tag }}
+            {{ form.method }}
+          </div>
+        </div>
+
+        <button type="submit" name="checkout" class="sv-btn sv-btn--lg sv-btn--full sv-btn--gold">
+          <i class="fa fa-lock"></i> Place Order — ₹{{ grand_total }}
+        </button>
+      </form>
+
+      <!-- ── Right: Order Summary ── -->
+      <div class="sv-checkout-summary">
+        <h3>Your Order</h3>
+        {% for item in cart_items %}
+        <div class="sv-checkout-item">
+          <span>{{ item.product.name }} × {{ item.quantity }}</span>
+          {% if item.discount_percent > 0 %}
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#999;text-decoration:line-through;">₹{{ item.unit_price }}</div>
+            <div style="color:#e74c3c;font-weight:700;">₹{{ item.discounted_price }}</div>
+            <div style="color:#27ae60;font-size:11px;">Save ₹{{ item.discount_amount }}</div>
+          </div>
+          {% else %}
+          <span>₹{{ item.total }}</span>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p style="color:#888;text-align:center;padding:20px;">Your cart is empty.</p>
+        {% endfor %}
+        <hr>
+        <div class="sv-checkout-item"><span>Subtotal</span><span>₹{{ subtotal }}</span></div>
+        {% if discount_total > 0 %}
+        <div class="sv-checkout-item" style="color:#27ae60;font-weight:700;">
+          <span>Discount</span><span>−₹{{ discount_total }}</span>
+        </div>
+        <div class="sv-checkout-item"><span>After Discount</span><span>₹{{ subtotal_after_discount }}</span></div>
+        {% endif %}
+        <div class="sv-checkout-item">
+          <span>Shipping</span>
+          <span>{% if shipping == 0 %}<span style="color:#27ae60;">FREE</span>{% else %}₹{{ shipping }}{% endif
+            %}</span>
+        </div>
+        <div class="sv-checkout-item sv-checkout-item--total">
+          <span>Grand Total</span><span>₹{{ grand_total }}</span>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:#f8f8f8;border-radius:8px;font-size:13px;color:#666;">
+          <i class="fa fa-shield-alt" style="color:#27ae60;"></i> 100% Secure & Encrypted Checkout<br>
+          <i class="fa fa-rotate-left" style="color:#c0a36e;"></i> 30-Day Easy Returns
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .sv-checkout-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+  }
+
+  .sv-checkout-block {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, .05);
+  }
+
+  .sv-checkout-block h3 {
+    margin: 0 0 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+  }
+
+  .sv-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .sv-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sv-form-group--full {
+    grid-column: 1/-1;
+  }
+
+  .sv-form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .sv-checkout-form .sv-btn {
+    margin-top: 8px;
+  }
+
+  .sv-checkout-summary {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, .05);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .sv-checkout-summary h3 {
+    margin: 0 0 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .sv-checkout-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  .sv-checkout-item:last-of-type {
+    border-bottom: none;
+  }
+
+  .sv-checkout-item--total {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a2e;
+    border-top: 2px solid #1a1a2e !important;
+    margin-top: 8px;
+    padding-top: 14px;
+  }
+
+  @media(max-width:900px) {
+    .sv-checkout-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .sv-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

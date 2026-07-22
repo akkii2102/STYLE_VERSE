@@ -1,0 +1,83 @@
+/* --- CONTACT SECTION STYLE --- */
+.contact-section {
+    background-color: #ffffff;
+    color: #111111;
+    padding: 35px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.contact-section h1 {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #111111;
+}
+
+.contact-section .subtitle {
+    font-size: 15px;
+    color: #888888;
+    max-width: 600px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* Contact Form Layout */
+.contact-form {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111111;
+}
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #111111;
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus, 
+.form-group textarea:focus {
+    border-color: #191825; /* Matches the dark theme color */
+}
+
+/* Responsive fix for side-by-side inputs on mobile */
+@media (max-width: 576px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .contact-section h1 {
+        font-size: 32px;
+    }
+}
