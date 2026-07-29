@@ -42,7 +42,7 @@
     a { color: inherit; text-decoration: none; }
     button { font-family: inherit; }
 
-    .app { display: flex; width: 100%; min-height: 100vh; }
+    .app { display: flex; width: 100%; min-height: 100vh; position: relative; }
 
     .sidebar {
       width: 248px;
@@ -52,9 +52,29 @@
       display: flex;
       flex-direction: column;
       padding: 24px 16px;
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      bottom: 0;
       height: 100vh;
+      z-index: 100;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(239, 234, 224, 0.25) transparent;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 5px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(239, 234, 224, 0.25);
+      border-radius: 999px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(239, 234, 224, 0.45);
     }
 
     .brand {
@@ -64,6 +84,13 @@
       padding: 4px 8px 20px 8px;
       margin-bottom: 16px;
       border-bottom: 1px solid rgba(239, 234, 224, 0.14);
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .brand:hover {
+      opacity: 0.9;
     }
 
     .brand-mark {
@@ -123,13 +150,18 @@
 
     .sidebar-footer {
       margin-top: auto;
-      padding-top: 16px;
+      padding: 10px;
       border-top: 1px solid rgba(239, 234, 224, 0.14);
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-left: 8px;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 8px;
+      transition: background 0.2s ease;
     }
+    .sidebar-footer:hover { background: rgba(239, 234, 224, 0.08); color: #fff; }
+    .sidebar-footer.active { background: rgba(239, 234, 224, 0.14); border: 1px solid var(--kraft); }
 
     .avatar-sm {
       width: 32px;
@@ -143,12 +175,13 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
       font-weight: 600;
+      flex-shrink: 0;
     }
 
-    .sidebar-footer .who { font-size: 13px; font-weight: 600; }
+    .sidebar-footer .who { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sidebar-footer .role { font-size: 11.5px; color: #9BA69D; }
 
-    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .main { flex: 1; min-width: 0; margin-left: 248px; display: flex; flex-direction: column; min-height: 100vh; }
 
     .topbar {
       display: flex;
@@ -234,22 +267,22 @@
 
     .req-badge-add { background: rgba(52, 152, 219, 0.12); color: #2F5F77; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .req-badge-edit { background: rgba(241, 196, 15, 0.16); color: #8A6415; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-
-    {% block extra_admin_css %}{% endblock %}
   </style>
+
+  {% block extra_admin_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
 </head>
 
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand">
+      <a href="{% url 'admin_index' %}" class="brand" title="Sub-Admin Dashboard">
         <div class="brand-mark">SV</div>
         <div class="brand-text">
           <div class="name">STYLEVERSE</div>
-          <div class="tag">Admin Panel</div>
+          <div class="tag">Sub Admin Panel</div>
         </div>
-      </div>
+      </a>
 
       <div class="nav-label">Manage</div>
       <nav class="nav">
@@ -262,29 +295,31 @@
         <a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' %}active{% endif %}">
           <span class="icon"><i class="fa fa-tshirt"></i></span>Products
         </a>
-        <a href="{% url 'admin_people' %}" class="{% if request.resolver_match.url_name == 'admin_people' %}active{% endif %}">
-          <span class="icon"><i class="fa fa-users"></i></span>Users
-        </a>
         <a href="{% url 'admin_messages' %}" class="{% if request.resolver_match.url_name == 'admin_messages' %}active{% endif %}">
           <span class="icon"><i class="fa fa-envelope"></i></span>Messages
+        </a>
+        <a href="{% url 'admin_delivery' %}" class="{% if request.resolver_match.url_name == 'admin_delivery' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-truck-fast"></i></span>Delivery
+        </a>
+        <a href="{% url 'admin_stock' %}" class="{% if request.resolver_match.url_name == 'admin_stock' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-boxes-stacked"></i></span>Stock Details
         </a>
         <a href="{% url 'admin_discussions' %}" class="{% if request.resolver_match.url_name == 'admin_discussions' %}active{% endif %}">
           <span class="icon"><i class="fa fa-comments"></i></span>Discussions
         </a>
-        {% if request.user.is_superuser %}
-        <a href="/admin/" target="_blank" style="color:#E7DAC0;font-weight:700;">
-          <span class="icon"><i class="fa fa-crown"></i></span>Django Admin
+        <a href="{% url 'admin_profile' %}" class="{% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}">
+          <span class="icon"><i class="fa fa-id-card"></i></span>My Profile
         </a>
-        {% endif %}
       </nav>
 
-      <div class="sidebar-footer">
+      <a href="{% url 'admin_profile' %}" class="sidebar-footer {% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}" title="View & Edit Profile">
         <div class="avatar-sm">{{ request.user.username|slice:':2'|upper }}</div>
-        <div>
+        <div style="flex:1; min-width:0;">
           <div class="who">{{ request.user.get_full_name|default:request.user.username }}</div>
-          <div class="role">{% if request.user.is_superuser %}Super Admin{% else %}Sub Admin{% endif %}</div>
+          <div class="role">Sub Admin</div>
         </div>
-      </div>
+        <i class="fa fa-gear" style="font-size:13.5px; color:#8C978F; margin-left:auto;"></i>
+      </a>
     </aside>
 
     <div class="main">
@@ -294,10 +329,10 @@
           <div class="sub">{% block page_subtitle %}Manage your store from one elegant workspace.{% endblock %}</div>
         </div>
         <div class="topbar-right">
-          <div class="topbar-pill">
+          <a href="{% url 'admin_profile' %}" class="topbar-pill" title="My Profile" style="text-decoration:none; cursor:pointer;">
             <i class="fa fa-user-check"></i>
             {{ request.user.username }}
-          </div>
+          </a>
           <a href="{% url 'logout' %}" class="topbar-pill" title="Logout">
             <i class="fa fa-sign-out-alt"></i>
           </a>

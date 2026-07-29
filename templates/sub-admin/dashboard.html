@@ -5,6 +5,7 @@
 {% block page_subtitle %}A quick view of your store activity and performance.{% endblock %}
 
 {% block extra_admin_css %}
+<style>
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -111,6 +112,7 @@
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .row-2 { grid-template-columns: 1fr; }
 }
+</style>
 {% endblock %}
 
 {% block content %}

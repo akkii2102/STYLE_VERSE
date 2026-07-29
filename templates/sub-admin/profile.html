@@ -1,0 +1,389 @@
+{% extends 'sub-admin/sub_base.html' %}
+{% load static %}
+
+{% block title %}My Profile — STYLEVERSE Admin{% endblock %}
+{% block page_title %}Admin Profile & Settings{% endblock %}
+{% block page_subtitle %}Manage your account details, personal profile, and login security credentials.{% endblock %}
+
+{% block extra_admin_css %}
+<style>
+.profile-container {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Header Banner */
+.profile-banner {
+  background: linear-gradient(135deg, #1B2420 0%, #2E5940 100%);
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 22px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 16px rgba(27, 36, 32, 0.12);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #E7DAC0;
+  color: #1B2420;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.profile-banner-info h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #FFFFFF;
+}
+
+.profile-banner-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #D1D5DB;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-pill-super {
+  background: rgba(231, 218, 192, 0.2);
+  color: #E7DAC0;
+  border: 1px solid rgba(231, 218, 192, 0.4);
+}
+
+.role-pill-sub {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ECC71;
+  border: 1px solid rgba(46, 204, 113, 0.4);
+}
+
+/* Card Boxes */
+.card-box {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px -4px rgba(0, 0, 0, 0.04);
+}
+
+.card-box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+/* Forms & Inputs */
+.form-group-custom {
+  margin-bottom: 18px;
+}
+
+.form-label-custom {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.input-custom {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 14px;
+  color: #0F172A;
+  transition: all 0.2s ease-in-out;
+}
+
+.input-custom:focus {
+  outline: none;
+  border-color: #2E5940;
+  box-shadow: 0 0 0 3px rgba(46, 89, 64, 0.12);
+}
+
+.input-help {
+  font-size: 11.5px;
+  color: #64748B;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Buttons */
+.btn-submit-main {
+  background: #2E5940;
+  color: #FFFFFF;
+  padding: 11px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-submit-main:hover {
+  background: #1B2420;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.btn-submit-security {
+  background: #1B2420;
+  color: #FFFFFF;
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.btn-submit-security:hover {
+  background: #2E5940;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 13.5px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #64748B;
+}
+
+.info-value {
+  font-weight: 600;
+  color: #0F172A;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header Overview Banner -->
+<div class="profile-banner">
+  <div class="profile-avatar">
+    {{ request.user.username|slice:':2'|upper }}
+  </div>
+  <div class="profile-banner-info">
+    <h2>
+      {% if request.user.first_name %}
+        {{ request.user.first_name }} {{ request.user.last_name }}
+      {% else %}
+        {{ request.user.username }}
+      {% endif %}
+    </h2>
+    <div class="profile-banner-badges">
+      <span><i class="fa fa-user"></i> @{{ request.user.username }}</span>
+      <span>•</span>
+      <span><i class="fa fa-envelope"></i> {{ request.user.email|default:"No email set" }}</span>
+      <span>•</span>
+      <span class="role-pill role-pill-sub"><i class="fa fa-user-shield"></i> Sub Admin</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Profile Grid -->
+<div class="profile-container">
+  
+  <!-- Left Column: Edit Personal Details -->
+  <div class="card-box">
+    <div class="card-box-header">
+      <i class="fa fa-user-gear" style="color:#2E5940;"></i> Personal Profile Details
+    </div>
+
+    <form method="POST" action="{% url 'admin_profile' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="update_profile">
+
+      <div class="row g-3">
+        <!-- Row 1: Username & Email -->
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">Username</label>
+          <input type="text" name="username" class="input-custom" value="{{ request.user.username }}" required>
+          <span class="input-help">Unique handle used to sign into the seller portal.</span>
+        </div>
+
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">Email Address</label>
+          <input type="email" name="email" class="input-custom" value="{{ request.user.email }}" placeholder="admin@example.com" required>
+          <span class="input-help">Primary email for system alerts & notifications.</span>
+        </div>
+
+        <!-- Row 2: First Name & Last Name -->
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">First Name</label>
+          <input type="text" name="first_name" class="input-custom" value="{{ request.user.first_name }}" placeholder="e.g. Akshay">
+        </div>
+
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">Last Name</label>
+          <input type="text" name="last_name" class="input-custom" value="{{ request.user.last_name }}" placeholder="e.g. Varma">
+        </div>
+
+        <!-- Row 3: Phone & Gender -->
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">Contact / Phone Number</label>
+          <input type="text" name="contact" class="input-custom" value="{{ profile.contact }}" placeholder="10-digit Phone Number" maxlength="10">
+        </div>
+
+        <div class="col-md-6 form-group-custom">
+          <label class="form-label-custom">Gender</label>
+          <select name="gender" class="input-custom">
+            <option value="Not Specified" {% if profile.gender == "Not Specified" %}selected{% endif %}>Not Specified</option>
+            <option value="Male" {% if profile.gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if profile.gender == "Female" %}selected{% endif %}>Female</option>
+            <option value="Other" {% if profile.gender == "Other" %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <!-- Row 4: Birthdate -->
+        <div class="col-md-12 form-group-custom">
+          <label class="form-label-custom">Date of Birth</label>
+          <input type="date" name="birthdate" class="input-custom" value="{{ profile.birthdate|date:'Y-m-d' }}">
+        </div>
+
+        <!-- Row 5: Bio -->
+        <div class="col-md-12 form-group-custom">
+          <label class="form-label-custom">Bio / Store Info</label>
+          <textarea name="bio" rows="3" class="input-custom" placeholder="Write a short summary about your store management role...">{{ profile.bio }}</textarea>
+        </div>
+
+        <!-- Row 6: Address -->
+        <div class="col-md-12 form-group-custom">
+          <label class="form-label-custom">Store / Office Address</label>
+          <textarea name="address" rows="2" class="input-custom" placeholder="Enter your official store or office location...">{{ profile.address }}</textarea>
+        </div>
+      </div>
+
+      <div class="pt-3 border-top d-flex justify-content-end">
+        <button type="submit" class="btn-submit-main">
+          <i class="fa fa-check-circle"></i> Save Profile Details
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right Column: Password & Account Info -->
+  <div>
+    <!-- Security Card -->
+    <div class="card-box mb-4">
+      <div class="card-box-header">
+        <i class="fa fa-shield-halved" style="color:#2E5940;"></i> Change Password
+      </div>
+
+      <form method="POST" action="{% url 'admin_profile' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="change_password">
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">Current Password</label>
+          <input type="password" name="current_password" class="input-custom" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">New Password</label>
+          <input type="password" name="new_password" class="input-custom" placeholder="At least 6 characters" minlength="6" required>
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">Confirm New Password</label>
+          <input type="password" name="confirm_password" class="input-custom" placeholder="Repeat new password" minlength="6" required>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="btn-submit-security">
+            <i class="fa fa-key"></i> Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Account Details Card -->
+    <div class="card-box">
+      <div class="card-box-header">
+        <i class="fa fa-circle-info" style="color:#2E5940;"></i> Account Summary
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">User ID</span>
+        <span class="info-value">#{{ request.user.id }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Account Role</span>
+        <span class="info-value">Sub Admin</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Account Status</span>
+        <span class="badge bg-success bg-opacity-10 text-success fw-bold">Active</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Date Joined</span>
+        <span class="info-value">{{ request.user.date_joined|date:"M d, Y" }}</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

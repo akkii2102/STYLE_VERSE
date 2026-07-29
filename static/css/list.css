@@ -105,26 +105,39 @@
 }
 
  .sv-filter-group h4 {
-     font-size: 0.95rem;
+     font-size: 11.5px;
+     font-weight: 700;
      text-transform: uppercase;
-     letter-spacing: 0.5px;
-     margin-bottom: 12px;
-     color: var(--sv-text-dark);
+     letter-spacing: 1.2px;
+     color: #5B6560;
+     margin-bottom: 10px;
  }
 
  .sv-filter-group a {
-     display: block;
-     color: var(--sv-text-muted);
-     text-decoration: none;
-     padding: 6px 12px;
-     font-size: 0.9rem;
-     transition: color 0.2s ease;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 9px 14px;
+     font-size: 13.5px;
+     font-weight: 500;
+     color: #1B2420 !important;
+     border-radius: 8px;
+     margin-bottom: 4px;
+     transition: all 0.2s ease;
+     text-decoration: none !important;
  }
 
- .sv-filter-group a:hover,
- .sv-filter-group a.active {
-     color: var(--sv-gold);
+ .sv-filter-group a:hover {
+     background: rgba(192, 163, 110, 0.15);
+     color: #8A6415 !important;
      font-weight: 600;
+ }
+
+ .sv-filter-group a.active {
+     background: #1B2420 !important;
+     color: #FFFFFF !important;
+     font-weight: 600;
+     box-shadow: 0 4px 12px rgba(27, 36, 32, 0.18);
  }
 
 

@@ -9,5 +9,8 @@ urlpatterns = [
     path('people/', views.admin_people, name='admin_people'),
     path('messages/', views.admin_messages_view, name='admin_messages'),
     path('discussions/', views.admin_discussions_view, name='admin_discussions'),
+    path('delivery/', views.admin_delivery, name='admin_delivery'),
+    path('stock/', views.admin_stock, name='admin_stock'),
+    path('profile/', views.admin_profile, name='admin_profile'),
     path('invoice/<int:order_id>/', views.admin_invoice, name='admin_invoice'),
 ]

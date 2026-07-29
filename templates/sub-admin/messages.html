@@ -3,6 +3,7 @@
 {% block page_title %}User Contact Messages & Reviews{% endblock %}
 
 {% block extra_admin_css %}
+<style>
 .adm-msg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
 .adm-msg-card { background: var(--adm-card); border-radius: 12px; padding: 20px; border: 1px solid var(--adm-border);
 transition: .2s; }
@@ -48,6 +49,7 @@ border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
 }
 .adm-input { width: 100%; background: #0f0f1a; border: 1px solid var(--adm-border); border-radius: 8px; padding: 10px
 14px; color: #fff; font-size: 14px; }
+</style>
 {% endblock %}
 
 {% block content %}

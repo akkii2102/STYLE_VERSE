@@ -55,13 +55,21 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
+    stock = models.IntegerField(default=25, help_text='Stock quantity available')
     image = models.ImageField(upload_to='Product')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_general_products', help_text='Sub-Admin who added this product')
     
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
             return round(self.price * (1 - self.discount / 100), 2)
         return self.price
+
+    def is_low_stock(self):
+        return 0 < self.stock <= 5
+
+    def is_out_of_stock(self):
+        return self.stock <= 0
 
     @property
     def image_url(self):
@@ -79,17 +87,31 @@ class Product(models.Model):
     def model_name(self):
         return 'product'
 
+    @property
+    def added_by_name(self):
+        if self.created_by:
+            return self.created_by.first_name or self.created_by.username
+        return 'Store Admin'
+
 class Men(models.Model):
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
+    stock = models.IntegerField(default=25, help_text='Stock quantity available')
     image = models.ImageField(upload_to='Product')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_men_products', help_text='Sub-Admin who added this product')
     
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
             return round(self.price * (1 - self.discount / 100), 2)
         return self.price
+
+    def is_low_stock(self):
+        return 0 < self.stock <= 5
+
+    def is_out_of_stock(self):
+        return self.stock <= 0
 
     @property
     def image_url(self):
@@ -107,17 +129,31 @@ class Men(models.Model):
     def model_name(self):
         return 'men'
 
+    @property
+    def added_by_name(self):
+        if self.created_by:
+            return self.created_by.first_name or self.created_by.username
+        return 'Store Admin'
+
 class Women(models.Model):
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
+    stock = models.IntegerField(default=25, help_text='Stock quantity available')
     image = models.ImageField(upload_to='Product')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_women_products', help_text='Sub-Admin who added this product')
     
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
             return round(self.price * (1 - self.discount / 100), 2)
         return self.price
+
+    def is_low_stock(self):
+        return 0 < self.stock <= 5
+
+    def is_out_of_stock(self):
+        return self.stock <= 0
 
     @property
     def image_url(self):
@@ -134,6 +170,12 @@ class Women(models.Model):
     @property
     def model_name(self):
         return 'women'
+
+    @property
+    def added_by_name(self):
+        if self.created_by:
+            return self.created_by.first_name or self.created_by.username
+        return 'Store Admin'
 
 
 class Wishlist(models.Model):
@@ -195,6 +237,10 @@ class Order(models.Model):
     payment_method  = models.CharField(max_length=30, choices=PAYMENT_METHOD_CHOICES, default='cash_on_delivery')
     payment_status  = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     status          = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='processing')
+    courier_partner = models.CharField(max_length=100, default='STYLEVERSE Express', blank=True)
+    tracking_number = models.CharField(max_length=100, blank=True, default='')
+    estimated_delivery = models.DateField(null=True, blank=True)
+    delivery_notes  = models.TextField(blank=True, default='')
     subtotal        = models.FloatField(default=0)
     discount        = models.FloatField(default=0)
     shipping_cost   = models.FloatField(default=0)
@@ -344,6 +390,7 @@ class SubAdminRequest(models.Model):
     phone       = models.CharField(max_length=20)
     store_name  = models.CharField(max_length=100)
     reason      = models.TextField(help_text='Reason / Business details for applying as seller')
+    requested_password = models.CharField(max_length=128, blank=True, default='')
     status      = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
     created_at  = models.DateTimeField(auto_now_add=True)
 

@@ -36,25 +36,31 @@
           <div class="sv-cart-item__actions">
             <div class="sv-qty-section">
               <div class="sv-qty-control">
-                <button type="button" class="sv-qty-btn" onclick="decreaseQty(this)">−</button>
-                <input type="number" id="qty_{{ item.pk }}" value="{{ item.quantity }}" min="1" max="10"
-                  class="sv-qty-input" onchange="updateQuantity({{ item.pk }})">
-                <button type="button" class="sv-qty-btn" onclick="increaseQty(this)">+</button>
+                <button type="button" class="sv-qty-btn" onclick="decreaseQty(this)" title="Decrease Quantity">−</button>
+                <input type="number" id="qty_{{ item.cart_key }}" value="{{ item.quantity }}" min="1" max="99"
+                  data-hidden-id="qty_hidden_{{ item.cart_key }}" data-form-id="form_{{ item.cart_key }}"
+                  class="sv-qty-input" onchange="syncHiddenQty(this)">
+                <button type="button" class="sv-qty-btn" onclick="increaseQty(this)" title="Increase Quantity">+</button>
               </div>
             </div>
             <div class="sv-button-row">
-              <form method="POST" action="{% url 'cart' %}" class="sv-update-form" id="form_{{ item.pk }}">
+              <form method="POST" action="{% url 'cart' %}" class="sv-update-form" id="form_{{ item.cart_key }}" style="display:none;">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="update">
+                <input type="hidden" name="cart_key" value="{{ item.cart_key }}">
                 <input type="hidden" name="product_id" value="{{ item.pk }}">
-                <input type="hidden" name="update_quantity" id="qty_hidden_{{ item.pk }}" value="{{ item.quantity }}">
-                <button type="submit" class="sv-btn sv-btn--sm sv-btn--gold">Update</button>
+                <input type="hidden" name="model_type" value="{{ item.product.model_name }}">
+                <input type="hidden" name="update_quantity" id="qty_hidden_{{ item.cart_key }}" value="{{ item.quantity }}">
               </form>
               <form method="POST" action="{% url 'cart' %}" class="sv-remove-form">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="cart_key" value="{{ item.cart_key }}">
                 <input type="hidden" name="product_id" value="{{ item.pk }}">
-                <button type="submit" class="sv-btn sv-btn--sm sv-btn--danger">Remove</button>
+                <input type="hidden" name="model_type" value="{{ item.product.model_name }}">
+                <button type="submit" class="sv-btn sv-btn--sm" style="display:inline-flex; align-items:center; gap:6px; border:1px solid #fecdd3; color:#e11d48; background:#fff1f2; padding:6px 14px; border-radius:6px; font-weight:600; cursor:pointer;">
+                  <i class="fa fa-trash"></i> Remove
+                </button>
               </form>
             </div>
           </div>
@@ -187,28 +193,54 @@
 </style>
 
 <script>
+  let updateDebounceTimer = null;
+
+  function autoSubmitUpdate(formId) {
+    clearTimeout(updateDebounceTimer);
+    updateDebounceTimer = setTimeout(function() {
+      const form = document.getElementById(formId);
+      if (form) {
+        const card = form.closest('.sv-cart-item');
+        if (card) {
+          card.style.opacity = '0.5';
+          card.style.pointerEvents = 'none';
+        }
+        form.submit();
+      }
+    }, 450);
+  }
+
+  function syncHiddenQty(input) {
+    const hiddenId = input.getAttribute('data-hidden-id');
+    const formId = input.getAttribute('data-form-id');
+    if (hiddenId) {
+      const hiddenInput = document.getElementById(hiddenId);
+      if (hiddenInput) {
+        hiddenInput.value = input.value;
+      }
+    }
+    if (formId) {
+      autoSubmitUpdate(formId);
+    }
+  }
+
   function decreaseQty(btn) {
     const input = btn.parentElement.querySelector('.sv-qty-input');
-    const current = parseInt(input.value);
+    const current = parseInt(input.value) || 1;
     if (current > 1) {
       input.value = current - 1;
+      syncHiddenQty(input);
     }
   }
 
   function increaseQty(btn) {
     const input = btn.parentElement.querySelector('.sv-qty-input');
-    const current = parseInt(input.value);
-    const max = parseInt(input.max);
+    const current = parseInt(input.value) || 1;
+    const max = parseInt(input.max) || 99;
     if (current < max) {
       input.value = current + 1;
+      syncHiddenQty(input);
     }
-  }
-
-  function updateQuantity(productId) {
-    const qtyInput = document.getElementById('qty_' + productId);
-    const hiddenInput = document.getElementById('qty_hidden_' + productId);
-    hiddenInput.value = qtyInput.value;
-    document.getElementById('form_' + productId).submit();
   }
 </script>
 {% endblock %}

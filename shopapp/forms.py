@@ -20,13 +20,40 @@ class SubAdminRequestForm(forms.ModelForm):
     store_name = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'sv-input', 'placeholder': 'Store / Business Name'})
     )
+    password = forms.CharField(
+        label='Password',
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'sv-input', 'placeholder': 'Create Seller Password', 'id': 'id_subadmin_password'})
+    )
+    confirm_password = forms.CharField(
+        label='Confirm Password',
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'sv-input', 'placeholder': 'Confirm Seller Password'})
+    )
     reason = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'sv-input', 'rows': 3, 'placeholder': 'Describe your business or reason for requesting a seller account'})
     )
 
     class Meta:
         model = SubAdminRequest
-        fields = ['full_name', 'username', 'email', 'phone', 'store_name', 'reason']
+        fields = ['full_name', 'username', 'email', 'phone', 'store_name', 'reason', 'requested_password']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pwd = cleaned_data.get('password')
+        cpwd = cleaned_data.get('confirm_password')
+        if pwd and cpwd and pwd != cpwd:
+            self.add_error('confirm_password', 'Passwords do not match.')
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        pwd = self.cleaned_data.get('password')
+        if pwd:
+            instance.requested_password = pwd
+        if commit:
+            instance.save()
+        return instance
 
 
 class RegisterUserForm(UserCreationForm):
@@ -183,10 +210,25 @@ class CheckoutForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'sv-input', 'placeholder': 'Country'})
     )
     pincode = forms.CharField(
-        max_length=10,
-        widget=forms.TextInput(attrs={'class': 'sv-input', 'placeholder': 'PIN Code'})
+        min_length=6,
+        max_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'sv-input',
+            'placeholder': '6-Digit PIN Code',
+            'maxlength': '6',
+            'minlength': '6',
+            'pattern': r'\d{6}',
+            'inputmode': 'numeric',
+            'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+        })
     )
     method = forms.ChoiceField(
         choices=PAYMENT_CHOICES,
         widget=forms.Select(attrs={'class': 'sv-input'})
     )
+
+    def clean_pincode(self):
+        pincode = self.cleaned_data.get('pincode', '').strip()
+        if not pincode.isdigit() or len(pincode) != 6:
+            raise forms.ValidationError('PIN Code must be exactly 6 numeric digits.')
+        return pincode

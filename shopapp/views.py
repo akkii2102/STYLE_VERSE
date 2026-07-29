@@ -243,7 +243,19 @@ def cart(request):
         key = request.POST.get('cart_key') or (f"{model_type}_{product_id}" if model_type else str(product_id))
 
         if action == 'remove':
-            cart_data.pop(key, None)
+            if key in cart_data:
+                cart_data.pop(key, None)
+            else:
+                # Fallback: match by product_id & model_type or product_id
+                keys_to_remove = [
+                    k for k, v in cart_data.items()
+                    if str(v.get('id')) == str(product_id) and v.get('model_type', 'product') == model_type
+                ]
+                if not keys_to_remove:
+                    keys_to_remove = [k for k, v in cart_data.items() if str(v.get('id')) == str(product_id)]
+                for k in keys_to_remove:
+                    cart_data.pop(k, None)
+
             request.session['cart'] = cart_data
             messages.success(request, 'Item removed from your bag.')
             return redirect('cart')
@@ -252,7 +264,22 @@ def cart(request):
             qty = max(1, int(request.POST.get('update_quantity', 1) or 1))
             if key in cart_data:
                 cart_data[key]['quantity'] = qty
-                request.session['cart'] = cart_data
+            else:
+                # Fallback: match by product_id & model_type or product_id
+                updated_flag = False
+                for k, v in cart_data.items():
+                    if str(v.get('id')) == str(product_id) and v.get('model_type', 'product') == model_type:
+                        cart_data[k]['quantity'] = qty
+                        updated_flag = True
+                        break
+                if not updated_flag:
+                    for k, v in cart_data.items():
+                        if str(v.get('id')) == str(product_id):
+                            cart_data[k]['quantity'] = qty
+                            break
+
+            request.session['cart'] = cart_data
+            messages.success(request, 'Quantity updated in your bag.')
             return redirect('cart')
 
         # Default: add
@@ -537,54 +564,72 @@ def register(request):
             if seller_form.is_valid():
                 req_obj = seller_form.save()
 
-                # ── 1. Notify super admin about new seller application ──────
+                import random, string
+                pwd_display = req_obj.requested_password if req_obj.requested_password else ('SV-Seller#' + ''.join(random.choices(string.digits, k=6)))
+                if not req_obj.requested_password:
+                    req_obj.requested_password = pwd_display
+                    req_obj.save()
+
+                seller_login_url = request.build_absolute_uri('/seller/login/')
+
+                # ── 1. Notify super admin about new seller registration (with password details) ──────
                 try:
                     superusers = User.objects.filter(is_superuser=True, is_active=True)
                     admin_emails = [u.email for u in superusers if u.email]
                     if not admin_emails:
                         admin_emails = [settings.EMAIL_HOST_USER]  # fallback to host only
-                    subj = f"[STYLEVERSE Action Required] New Seller Access Application: {req_obj.store_name}"
+
+                    subj = f"[STYLEVERSE] New Seller Sub-Admin Registered: {req_obj.store_name}"
                     admin_msg = f"""Hello Super Admin,
 
-Applicant '{req_obj.full_name}' ({req_obj.email}) has submitted an application for Sub-Admin / Seller access for store '{req_obj.store_name}'.
+A new Sub-Admin / Seller has registered on STYLEVERSE for store '{req_obj.store_name}'.
 
-Request Details:
+Sub-Admin Registration Details:
 ------------------------------------------
-Full Name : {req_obj.full_name}
-Username  : {req_obj.username}
-Email     : {req_obj.email}
-Phone     : {req_obj.phone}
-Store Name: {req_obj.store_name}
-Reason    : {req_obj.reason}
+Full Name       : {req_obj.full_name}
+Username        : {req_obj.username}
+Seller Email    : {req_obj.email}
+Phone           : {req_obj.phone}
+Store Name      : {req_obj.store_name}
+Login Password  : {pwd_display}
+Business Reason : {req_obj.reason}
 
-Log in to Jazzmin Super Admin (/admin/shopapp/subadminrequest/) to review and approve.
-Upon approval, a random password and the exclusive Seller Portal link (/seller/login/) will be sent to {req_obj.email}.
+Seller Portal Link:
+{seller_login_url}
+
+Super Admin Panel Review / Approval Link:
+{request.build_absolute_uri('/admin/shopapp/subadminrequest/')}
+
+Thank you,
+STYLEVERSE System Notification
 """
                     send_mail(subj, admin_msg, settings.EMAIL_HOST_USER, admin_emails, fail_silently=True)
                 except Exception as e:
                     print("Error sending seller request mail to admin:", e)
 
-                # ── 2. Send confirmation to the applicant's own email ───────
+                # ── 2. Send confirmation with login password to Seller's Email ID ───────
                 try:
-                    applicant_subject = f"[STYLEVERSE] Your Seller Application Has Been Received — {req_obj.store_name}"
+                    applicant_subject = f"🎉 [STYLEVERSE] Sub-Admin / Seller Account Details — {req_obj.store_name}"
                     applicant_msg = f"""Hello {req_obj.full_name},
 
-Thank you for applying to become a STYLEVERSE Seller!
+Thank you for registering as a STYLEVERSE Seller!
 
-We have received your application for store '{req_obj.store_name}' and it is currently under review by our Super Admin team.
+Your Sub-Admin Seller account has been created for store '{req_obj.store_name}'.
 
-Your Application Details:
+Your Login Credentials:
 ------------------------------------------
-Full Name : {req_obj.full_name}
-Username  : {req_obj.username}
-Store Name: {req_obj.store_name}
-Status    : Pending Review
+Store Name  : {req_obj.store_name}
+Username    : {req_obj.username}
+Email ID    : {req_obj.email}
+Password    : {pwd_display}
 
-What happens next?
-- Our Super Admin will review your application.
-- Once approved, you will receive a separate email with your login credentials and the exclusive Seller Portal link.
+Exclusive Seller Portal Login Link:
+{seller_login_url}
 
-If you have any questions, please contact us.
+Important Instructions:
+1. Access the Seller Panel using the link above: {seller_login_url}
+2. Use your Username ({req_obj.username}) and Password to log in.
+3. If your account requires Super-Admin approval, your status is recorded and credentials will activate upon approval.
 
 Thank you,
 STYLEVERSE Team
@@ -593,7 +638,7 @@ STYLEVERSE Team
                 except Exception as e:
                     print("Error sending confirmation email to applicant:", e)
 
-                messages.success(request, f'🎉 Seller application for "{req_obj.store_name}" submitted! A confirmation has been sent to {req_obj.email}. Super Admin will review and send your login credentials.')
+                messages.success(request, f'🎉 Seller application for "{req_obj.store_name}" registered successfully! Password and account details have been sent to your email ({req_obj.email}) and Super Admin.')
                 return redirect('register')
         else:
             user_form = RegisterUserForm(request.POST)
@@ -660,14 +705,19 @@ def login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                is_new_user = (user.last_login is None)
                 auth_login(request, user)
+
+                display_name = user.first_name or user.username
+                if is_new_user:
+                    messages.success(request, f'🎉 Welcome to STYLEVERSE, {display_name}! We are thrilled to have you join us.')
+                else:
+                    messages.success(request, f'✨ Welcome back to STYLEVERSE, {display_name}!')
+
                 # ── Role-based redirect after login ───────────────
                 if user.is_staff or user.is_superuser:
-                    # Sub-admin AND super-admin both go to seller panel first
-                    messages.success(request, f'Welcome, {user.username}! Redirected to Admin Panel.')
                     return redirect('admin_index')
                 else:
-                    messages.success(request, f'Welcome back, {user.username}!')
                     return redirect('index')
             else:
                 messages.error(request, 'Invalid username or password.')

@@ -6,11 +6,11 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
 from shopapp.forms import LoginUserForm
 from shopapp.models import (
     Product, Men, Women, ProductRequest, Order, Contact, 
-    AdminDiscussion, AdminDiscussionReply
+    AdminDiscussion, AdminDiscussionReply, UserProfile
 )
 from shopapp.decorators import admin_required
 
@@ -188,8 +188,8 @@ def admin_products(request):
             notify_super_admin_product_request(req, request)
             return redirect(f"{request.path}?tab=requests")
 
-        # ── SUB ADMIN: Submit Edit Product Request
-        elif action == 'request_edit':
+        # ── SUB ADMIN: Direct Edit Product (Instant Update)
+        elif action in ['direct_edit', 'request_edit']:
             target_id = request.POST.get('target_id')
             category = request.POST.get('category', 'product')
             name = request.POST.get('name', '').strip()
@@ -211,24 +211,35 @@ def admin_products(request):
             ModelClass = model_map.get(category, Product)
             target_obj = get_object_or_404(ModelClass, pk=target_id)
 
-            req = ProductRequest.objects.create(
-                user=request.user,
-                request_type='edit',
-                category=category,
-                target_id=target_id,
-                name=name,
-                price=price,
-                discount=discount,
-                image=image if image else (target_obj.image.name if target_obj.image else None),
-                status='pending'
-            )
-            notify_super_admin_product_request(req, request)
-            return redirect(f"{request.path}?tab=requests")
+            target_obj.name = name
+            target_obj.price = price
+            target_obj.discount = discount
+            if image:
+                target_obj.image = image
+            if not target_obj.created_by:
+                target_obj.created_by = request.user
+            target_obj.save()
+
+            messages.success(request, f'🎉 Product "{target_obj.name}" updated successfully!')
+            return redirect('admin_products')
+
+    # Cancel / Remove Product Request
+    if 'cancel_request' in request.GET:
+        req_id = request.GET['cancel_request']
+        if request.user.is_superuser:
+            req_obj = get_object_or_404(ProductRequest, pk=req_id)
+        else:
+            req_obj = get_object_or_404(ProductRequest, pk=req_id, user=request.user)
+
+        req_name = req_obj.name
+        req_obj.delete()
+        messages.success(request, f'Product request for "{req_name}" has been cancelled.')
+        return redirect(f"{request.path}?tab=requests")
 
     # Delete product
     if 'delete_product' in request.GET:
         if not request.user.is_superuser:
-            messages.error(request, '⛔ Only Super Admins can delete products directly. Please submit an edit request instead.')
+            messages.error(request, '⛔ Only Super Admins can delete products directly.')
             return redirect('admin_products')
         pk = request.GET['delete_product']
         model = request.GET.get('model', 'product')
@@ -260,7 +271,9 @@ def admin_products(request):
 
 @admin_required
 def admin_people(request):
-    """Admin: list all users."""
+    """Admin: list all users (Super Admin only)."""
+    if not request.user.is_superuser:
+        return redirect('admin_index')
     all_users = User.objects.all().order_by('-date_joined')
     return render(request, 'sub-admin/people.html', {'users': all_users})
 
@@ -370,3 +383,295 @@ def admin_invoice(request, order_id):
     """Admin: view invoice for any order."""
     order_obj = get_object_or_404(Order, pk=order_id)
     return render(request, 'invoice.html', {'order': order_obj, 'is_admin': True})
+
+
+@admin_required
+def admin_delivery(request):
+    """Seller Panel: Delivery & Logistics Management Section."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_delivery':
+            order_id = request.POST.get('order_id')
+            order_obj = get_object_or_404(Order, pk=order_id)
+            
+            new_status = request.POST.get('status')
+            courier = request.POST.get('courier_partner', '').strip()
+            tracking = request.POST.get('tracking_number', '').strip()
+            est_date = request.POST.get('estimated_delivery')
+            notes = request.POST.get('delivery_notes', '').strip()
+
+            if new_status in dict(Order.ORDER_STATUS_CHOICES):
+                order_obj.status = new_status
+            if courier:
+                order_obj.courier_partner = courier
+            if tracking:
+                order_obj.tracking_number = tracking
+            if est_date:
+                try:
+                    order_obj.estimated_delivery = est_date
+                except Exception:
+                    pass
+            if notes:
+                order_obj.delivery_notes = notes
+
+            order_obj.save()
+            messages.success(request, f'🚚 Delivery status for Order #{order_obj.order_number} updated to "{order_obj.get_status_display()}"!')
+            return redirect('admin_delivery')
+
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('q', '').strip()
+
+    orders = Order.objects.all()
+    if status_filter != 'all':
+        orders = orders.filter(status=status_filter)
+    if search_query:
+        orders = orders.filter(
+            Q(order_number__icontains=search_query) |
+            Q(name__icontains=search_query) |
+            Q(city__icontains=search_query) |
+            Q(tracking_number__icontains=search_query)
+        )
+
+    # Delivery KPI statistics
+    total_orders = Order.objects.count()
+    processing_count = Order.objects.filter(status='processing').count()
+    shipped_count = Order.objects.filter(status='shipped').count()
+    delivered_count = Order.objects.filter(status='delivered').count()
+    cancelled_count = Order.objects.filter(status='cancelled').count()
+
+    return render(request, 'sub-admin/delivery.html', {
+        'orders': orders,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'total_orders': total_orders,
+        'processing_count': processing_count,
+        'shipped_count': shipped_count,
+        'delivered_count': delivered_count,
+        'cancelled_count': cancelled_count,
+    })
+
+
+@admin_required
+def admin_stock(request):
+    """Seller Panel: Individual Stock & Inventory Details Section."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_stock':
+            cat = request.POST.get('category')
+            prod_id = request.POST.get('product_id')
+            new_stock = request.POST.get('stock')
+
+            try:
+                stock_val = max(0, int(new_stock))
+                if cat == 'men':
+                    prod_item = get_object_or_404(Men, pk=prod_id)
+                elif cat == 'women':
+                    prod_item = get_object_or_404(Women, pk=prod_id)
+                else:
+                    prod_item = get_object_or_404(Product, pk=prod_id)
+
+                prod_item.stock = stock_val
+                prod_item.save()
+                messages.success(request, f'📦 Stock for "{prod_item.name}" updated to {stock_val} units!')
+            except (ValueError, TypeError):
+                messages.error(request, 'Invalid stock quantity entered.')
+            return redirect('admin_stock')
+
+    # Get combined product list with category tag and stock status
+    p1 = list(Product.objects.all())
+    for p in p1: p.category_label = 'General'
+    p2 = list(Men.objects.all())
+    for p in p2: p.category_label = 'Men'
+    p3 = list(Women.objects.all())
+    for p in p3: p.category_label = 'Women'
+
+    all_products = p1 + p2 + p3
+    all_products.sort(key=lambda x: x.stock)
+
+    stock_filter = request.GET.get('filter', 'all')
+    search_q = request.GET.get('q', '').strip().lower()
+
+    if search_q:
+        all_products = [p for p in all_products if search_q in p.name.lower() or search_q in p.category_label.lower()]
+
+    if stock_filter == 'low':
+        all_products = [p for p in all_products if p.is_low_stock()]
+    elif stock_filter == 'out':
+        all_products = [p for p in all_products if p.is_out_of_stock()]
+    elif stock_filter == 'in_stock':
+        all_products = [p for p in all_products if p.stock > 5]
+
+    # Inventory summary KPI stats
+    all_raw = list(Product.objects.all()) + list(Men.objects.all()) + list(Women.objects.all())
+    total_items = len(all_raw)
+    in_stock_count = sum(1 for p in all_raw if p.stock > 5)
+    low_stock_count = sum(1 for p in all_raw if p.is_low_stock())
+    out_stock_count = sum(1 for p in all_raw if p.is_out_of_stock())
+
+    return render(request, 'sub-admin/stock.html', {
+        'products': all_products,
+        'stock_filter': stock_filter,
+        'search_q': request.GET.get('q', ''),
+        'total_items': total_items,
+        'in_stock_count': in_stock_count,
+        'low_stock_count': low_stock_count,
+        'out_stock_count': out_stock_count,
+    })
+
+
+def notify_super_admin_profile_update(user, update_type):
+    """Notify super admins whenever a sub-admin updates their password or profile info."""
+    try:
+        superusers = User.objects.filter(is_superuser=True, is_active=True)
+        emails = [u.email for u in superusers if u.email]
+        if not emails:
+            emails = [settings.EMAIL_HOST_USER]
+
+        if update_type == 'password':
+            subject = f"[STYLEVERSE Security Alert] Sub-Admin Password Changed: {user.username}"
+            message = f"""Hello Super Admin,
+
+Notice: Sub-Admin account '{user.username}' has successfully updated their password.
+
+Security Event Details:
+----------------------------------
+Sub-Admin Username : {user.username}
+Sub-Admin Email    : {user.email or 'N/A'}
+Action Performed   : Password Change
+Timestamp          : {timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+If you did not authorize this change, please review user access immediately in Jazzmin Super Admin:
+http://127.0.0.1:1111/admin/auth/user/
+
+Thank you,
+STYLEVERSE Security System
+"""
+        else:
+            subject = f"[STYLEVERSE Notice] Sub-Admin Profile Updated: {user.username}"
+            message = f"""Hello Super Admin,
+
+Notice: Sub-Admin user '{user.username}' has updated their profile details.
+
+Updated Account Summary:
+----------------------------------
+Username  : {user.username}
+Full Name : {user.get_full_name() or user.username}
+Email     : {user.email or 'N/A'}
+Action    : Profile Information Updated
+Timestamp : {timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+You can view and manage sub-admins in the Super Admin panel:
+http://127.0.0.1:1111/admin/auth/user/
+
+Thank you,
+STYLEVERSE Admin Notification System
+"""
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=emails,
+            fail_silently=True
+        )
+    except Exception:
+        pass
+
+
+@admin_required
+def admin_profile(request):
+    """View and update sub-admin / seller profile and security details."""
+    initial_fname = request.user.first_name
+    if not initial_fname and not ('@' in request.user.username):
+        initial_fname = request.user.username
+
+    profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'fname': initial_fname or '',
+            'lname': request.user.last_name or '',
+            'email': request.user.email or '',
+            'contact': '',
+            'gender': 'Not Specified',
+            'address': '',
+            'bio': 'Sub Admin / Seller at STYLEVERSE Store'
+        }
+    )
+
+    # Clean profile.fname if it currently holds a username containing '@'
+    if profile.fname == request.user.username and '@' in profile.fname:
+        profile.fname = request.user.first_name or ''
+        profile.save()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_profile':
+            username = request.POST.get('username', '').strip()
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            contact = request.POST.get('contact', '').strip()
+            gender = request.POST.get('gender', '').strip()
+            birthdate = request.POST.get('birthdate', '').strip()
+            bio = request.POST.get('bio', '').strip()
+            address = request.POST.get('address', '').strip()
+
+            # Validate unique username
+            if username and username != request.user.username:
+                if User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                    messages.error(request, f'Username "{username}" is already taken by another account.')
+                    return redirect('admin_profile')
+
+            # Update User model
+            user = request.user
+            if username:
+                user.username = username
+            user.first_name = first_name
+            user.last_name = last_name
+            if email:
+                user.email = email
+            user.save()
+
+            # Update UserProfile model
+            profile.fname = first_name
+            profile.lname = last_name
+            profile.email = email
+            profile.contact = contact
+            profile.gender = gender or 'Not Specified'
+            profile.bio = bio
+            profile.address = address
+
+            if birthdate:
+                try:
+                    profile.birthdate = birthdate
+                except Exception:
+                    pass
+
+            profile.save()
+            notify_super_admin_profile_update(request.user, update_type='profile')
+            messages.success(request, '👤 Profile details updated successfully! Super-Admin notified via email.')
+            return redirect('admin_profile')
+
+        elif action == 'change_password':
+            current_pass = request.POST.get('current_password', '')
+            new_pass = request.POST.get('new_password', '')
+            confirm_pass = request.POST.get('confirm_password', '')
+
+            if not request.user.check_password(current_pass):
+                messages.error(request, 'Incorrect current password. Please try again.')
+            elif len(new_pass) < 6:
+                messages.error(request, 'New password must be at least 6 characters long.')
+            elif new_pass != confirm_pass:
+                messages.error(request, 'New passwords do not match. Please re-enter.')
+            else:
+                request.user.set_password(new_pass)
+                request.user.save()
+                update_session_auth_hash(request, request.user)
+                notify_super_admin_profile_update(request.user, update_type='password')
+                messages.success(request, '🔐 Password changed successfully! Super-Admin notified via email.')
+            return redirect('admin_profile')
+
+    return render(request, 'sub-admin/profile.html', {
+        'profile': profile,
+    })

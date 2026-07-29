@@ -118,6 +118,21 @@
         {% if seller_form.store_name.errors %}<span class="sv-field-error">{{ seller_form.store_name.errors|join:", " }}</span>{% endif %}
       </div>
       <div class="sv-form-group">
+        <label>Password <small style="color:#888;">(Create or leave blank to auto-generate)</small></label>
+        <div class="sv-input-wrap">
+          {{ seller_form.password }}
+          <button type="button" class="sv-pwd-toggle" onclick="togglePwd('id_subadmin_password',this)" tabindex="-1" aria-label="Show password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% if seller_form.password.errors %}<span class="sv-field-error">{{ seller_form.password.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
+        <label>Confirm Password</label>
+        {{ seller_form.confirm_password }}
+        {% if seller_form.confirm_password.errors %}<span class="sv-field-error">{{ seller_form.confirm_password.errors|join:", " }}</span>{% endif %}
+      </div>
+      <div class="sv-form-group">
         <label>Business Details / Reason for Request</label>
         {{ seller_form.reason }}
         {% if seller_form.reason.errors %}<span class="sv-field-error">{{ seller_form.reason.errors|join:", " }}</span>{% endif %}
@@ -125,11 +140,11 @@
 
       <div style="background:rgba(52,152,219,.12);border:1px solid rgba(52,152,219,.3);padding:12px;border-radius:10px;font-size:12px;color:#2980b9;margin-bottom:14px;line-height:1.5;">
         <i class="fa fa-shield-alt" style="color:#2980b9;"></i> <strong>Security Verification Notice:</strong><br>
-        For security, Sub-Admin accounts cannot set their own password directly. Super Admin will review your application and email your generated password along with the private <strong>Seller Login Portal</strong> link.
+        Your login credentials (Username & Password) will be emailed immediately to both your <strong>Personal Email Address</strong> and the <strong>Super-Admin Email</strong> along with the private <strong>Seller Login Portal</strong> link.
       </div>
 
       <button type="submit" class="sv-btn sv-btn--lg sv-btn--full sv-btn--dark" style="margin-top:8px;">
-        <i class="fa fa-paper-plane"></i> Submit Application to Super Admin
+        <i class="fa fa-user-shield"></i> Register Sub-Admin Seller Account
       </button>
     </form>
 
