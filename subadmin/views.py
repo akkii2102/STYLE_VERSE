@@ -77,27 +77,46 @@ TOKEN_MAX_AGE_S  = 60 * 60  # 1 hour
 
 def admin_login_request(request):
     """
-    Step 1 — Public page: enter your registered Super Admin email.
-    Sends a signed, time-limited magic link to that email.
-    No password form is shown here.
+    Admin Login Portal:
+    Supports direct Username/Email + Password login AND Email Magic Link flow.
+    Allows both Super Admins and Sub-Admins (staff).
     """
-    # Already authenticated superuser → go to dashboard
     if request.user.is_authenticated:
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.is_staff:
             return redirect('admin_index')
-        # Sub-admins / customers trying this URL are blocked
-        messages.error(request, '⛔ Access Denied. This portal is restricted to Super Admins only.')
+        messages.error(request, '⛔ Access Denied. Restricted to Admins only.')
         return redirect('index')
 
     sent = False
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip().lower()
-        # Look for an active superuser with that email
-        admin_user = User.objects.filter(
-            email__iexact=email,
-            is_superuser=True,
-            is_active=True
-        ).first()
+        password = request.POST.get('password', '').strip()
+        login_input = request.POST.get('username_or_email', '').strip() or request.POST.get('email', '').strip()
+
+        # ── DIRECT LOGIN (Username / Email + Password) ────────
+        if password and login_input:
+            # Find matching user by username or email
+            found_user = User.objects.filter(
+                Q(username__iexact=login_input) | Q(email__iexact=login_input),
+                is_active=True
+            ).filter(Q(is_superuser=True) | Q(is_staff=True)).first()
+
+            if found_user:
+                user = authenticate(request, username=found_user.username, password=password)
+                if user is not None and (user.is_superuser or user.is_staff):
+                    auth_login(request, user)
+                    role = "Super Admin" if user.is_superuser else "Sub Admin"
+                    messages.success(request, f'⚡ Welcome, {role} {user.username}! You are now logged in.')
+                    return redirect('admin_index')
+
+            messages.error(request, '❌ Invalid username/email or password, or account lacks admin access.')
+            return render(request, 'sub-admin/admin_login_request.html', {'sent': False, 'login_input': login_input})
+
+        # ── MAGIC LINK REQUEST (Email only) ───────────────────
+        elif login_input:
+            admin_user = User.objects.filter(
+                Q(email__iexact=login_input) | Q(username__iexact=login_input),
+                is_active=True
+            ).filter(Q(is_superuser=True) | Q(is_staff=True)).first()
 
         if admin_user:
             # Build signed token:  {username, email}
@@ -318,23 +337,26 @@ def admin_login_verify(request, token):
         messages.error(request, '⛔ Invalid or tampered login link. Please request a fresh link.')
         return redirect('admin_login')
 
-    # Fetch the super-admin user
+    # Fetch the admin user
     try:
-        admin_user = User.objects.get(username=username, email__iexact=token_email, is_superuser=True, is_active=True)
+        admin_user = User.objects.filter(username=username, is_active=True).filter(Q(is_superuser=True) | Q(is_staff=True)).first()
+        if not admin_user:
+            raise User.DoesNotExist
     except User.DoesNotExist:
         messages.error(request, '⛔ Account not found or access revoked.')
         return redirect('admin_login')
 
     # Already logged in
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff):
         return redirect('admin_index')
 
     if request.method == 'POST':
         password = request.POST.get('password', '')
         user = authenticate(request, username=admin_user.username, password=password)
-        if user is not None and user.is_superuser:
+        if user is not None and (user.is_superuser or user.is_staff):
             auth_login(request, user)
-            messages.success(request, f'⚡ Welcome, Super Admin {user.username}! You are now logged in.')
+            role = "Super Admin" if user.is_superuser else "Sub Admin"
+            messages.success(request, f'⚡ Welcome, {role} {user.username}! You are now logged in.')
             return redirect('admin_index')
         else:
             messages.error(request, '❌ Incorrect password. Please try again.')

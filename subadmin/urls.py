@@ -17,3 +17,4 @@ urlpatterns = [
     path('profile/', views.admin_profile, name='admin_profile'),
     path('invoice/<int:order_id>/', views.admin_invoice, name='admin_invoice'),
 ]
+

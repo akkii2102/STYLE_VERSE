@@ -290,15 +290,26 @@
     <div class="login-form-wrap">
 
       <div class="security-badge">
-        <i class="fa fa-envelope-circle-check"></i> Email-Only Login
+        <i class="fa fa-shield-halved"></i> Admin Portal Login
       </div>
+
+      {% if messages %}
+      <div class="adm-messages">
+        {% for message in messages %}
+        <div class="adm-alert adm-alert--{{ message.tags|default:'info' }}">
+          <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+          <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       {% if sent %}
         <!-- ── Confirmation state ── -->
         <div class="sent-card">
           <div class="sent-icon"><i class="fa fa-paper-plane"></i></div>
           <h3>Check your inbox</h3>
-          <p>If a Super Admin account is registered with that email, a secure login link has been sent.</p>
+          <p>If an Admin account is registered with that email, a secure login link has been sent.</p>
           <p>The link is valid for <strong>1 hour</strong> and can only be used once.</p>
           <div class="note">
             <i class="fa fa-shield-halved"></i>&nbsp;
@@ -311,42 +322,101 @@
         </div>
 
       {% else %}
-        <!-- ── Email request form ── -->
-        <div class="form-heading">
-          <div class="eyebrow"><i class="fa fa-lock"></i> Admin Access Request</div>
-          <h2>Get your login link</h2>
-          <p>Enter your registered Super Admin email address and we'll send you a secure, one-time login link.</p>
-        </div>
-
-        <form method="POST" novalidate id="loginRequestForm">
-          {% csrf_token %}
-          <div class="form-field">
-            <label for="id_admin_email">Registered Admin Email</label>
-            <div class="field-wrap">
-              <i class="fa fa-envelope field-icon"></i>
-              <input
-                type="email"
-                name="email"
-                id="id_admin_email"
-                class="form-input"
-                placeholder="Enter your admin email"
-                required
-                autofocus
-                autocomplete="email"
-              >
-            </div>
+        <!-- ── Direct Login Form (Username / Email + Password) ── -->
+        <div id="directLoginSection">
+          <div class="form-heading">
+            <div class="eyebrow"><i class="fa fa-lock"></i> Admin Access</div>
+            <h2>Sign In to Admin Panel</h2>
+            <p>Enter your Admin credentials (Username or Email & Password) to access the workspace.</p>
           </div>
 
-          <button type="submit" class="btn-submit" id="btn_send_link">
-            <i class="fa fa-paper-plane"></i>
-            Send Secure Login Link
-          </button>
-        </form>
+          <form method="POST" action="{% url 'admin_login' %}" id="directLoginForm">
+            {% csrf_token %}
+            <div class="form-field">
+              <label for="id_username_or_email">Username or Email</label>
+              <div class="field-wrap">
+                <i class="fa fa-user field-icon"></i>
+                <input
+                  type="text"
+                  name="username_or_email"
+                  id="id_username_or_email"
+                  class="form-input"
+                  placeholder="e.g. Admin@ or email"
+                  value="{{ login_input|default:'' }}"
+                  required
+                  autofocus
+                >
+              </div>
+            </div>
 
-        <div class="form-footer">
-          <p>
-            This portal is for <strong>Super Admins only</strong>.<br>
-          </p>
+            <div class="form-field">
+              <label for="id_password">Password</label>
+              <div class="field-wrap" style="position: relative;">
+                <i class="fa fa-key field-icon"></i>
+                <input
+                  type="password"
+                  name="password"
+                  id="id_password"
+                  class="form-input"
+                  placeholder="Enter your password"
+                  required
+                >
+                <button type="button" onclick="togglePwdVisibility()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px;" tabindex="-1">
+                  <i class="fa fa-eye" id="eyeIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn_direct_login">
+              <i class="fa fa-right-to-bracket"></i>
+              Access Admin Dashboard
+            </button>
+          </form>
+
+          <div class="form-footer">
+            <p>
+              Forgot password or prefer Magic Link? <a href="#" onclick="toggleMode('magic'); return false;">Request Email Magic Link</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── Magic Link Request Form ── -->
+        <div id="magicLinkSection" style="display: none;">
+          <div class="form-heading">
+            <div class="eyebrow"><i class="fa fa-envelope"></i> Email Authentication</div>
+            <h2>Get One-Time Login Link</h2>
+            <p>Enter your registered Admin email address and we'll send you a secure, one-time login link.</p>
+          </div>
+
+          <form method="POST" action="{% url 'admin_login' %}" novalidate id="loginRequestForm">
+            {% csrf_token %}
+            <div class="form-field">
+              <label for="id_admin_email">Registered Admin Email</label>
+              <div class="field-wrap">
+                <i class="fa fa-envelope field-icon"></i>
+                <input
+                  type="email"
+                  name="email"
+                  id="id_admin_email"
+                  class="form-input"
+                  placeholder="Enter your admin email"
+                  autocomplete="email"
+                >
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn_send_link">
+              <i class="fa fa-paper-plane"></i>
+              Send Secure Magic Link
+            </button>
+          </form>
+
+          <div class="form-footer">
+            <p>
+              Have your password ready? <a href="#" onclick="toggleMode('direct'); return false;">Sign in with Password</a>
+            </p>
+          </div>
+        </div>
       {% endif %}
 
     </div>
@@ -355,13 +425,29 @@
 </div>
 
 <script>
-  const form = document.getElementById('loginRequestForm');
-  if (form) {
-    form.addEventListener('submit', function () {
-      const btn = document.getElementById('btn_send_link');
-      btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending…';
-      btn.disabled = true;
-    });
+  function togglePwdVisibility() {
+    const pwd = document.getElementById('id_password');
+    const eye = document.getElementById('eyeIcon');
+    if (!pwd) return;
+    if (pwd.type === 'password') {
+      pwd.type = 'text';
+      eye.className = 'fa fa-eye-slash';
+    } else {
+      pwd.type = 'password';
+      eye.className = 'fa fa-eye';
+    }
+  }
+
+  function toggleMode(mode) {
+    const direct = document.getElementById('directLoginSection');
+    const magic = document.getElementById('magicLinkSection');
+    if (mode === 'magic') {
+      direct.style.display = 'none';
+      magic.style.display = 'block';
+    } else {
+      magic.style.display = 'none';
+      direct.style.display = 'block';
+    }
   }
 </script>
 
