@@ -30,17 +30,17 @@ from django.contrib import messages
 def admin_required(view_func):
     """
     Protects /admin-panel/ views.
-    Allows: Sub Admin (is_staff) + Super Admin (is_superuser)
-    Blocks:  Normal users
+    Allows: Super Admin only (is_superuser = True)
+    Blocks: Sub-Admins (is_staff only) and Normal users
     """
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.error(request, 'Please log in to access the admin panel.')
             return redirect('admin_login')
-        # Both sub-admin (is_staff) and super-admin (is_superuser) are allowed
-        if not (request.user.is_staff or request.user.is_superuser):
-            messages.error(request, 'Access denied. Admin privileges required.')
+        # Only Super-Admins are allowed; sub-admins are explicitly blocked
+        if not request.user.is_superuser:
+            messages.error(request, '⛔ Access Denied. Sub-Admin accounts have been disabled. Only Super Admins can access this panel.')
             return redirect('index')
         return view_func(request, *args, **kwargs)
     return wrapper

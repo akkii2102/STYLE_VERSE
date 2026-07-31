@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login — STYLEVERSE</title>
-  <meta name="description" content="Secure Super Admin login portal for STYLEVERSE.">
+  <title>Admin Access — STYLEVERSE</title>
+  <meta name="description" content="Request a secure admin login link for STYLEVERSE.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -29,13 +29,14 @@
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); }
     a { text-decoration: none; color: inherit; }
 
+    /* ── Layout ── */
     .login-page {
       display: grid;
       grid-template-columns: 1fr 1fr;
       min-height: 100vh;
     }
 
-    /* ── Left panel ── */
+    /* ── Left dark panel ── */
     .login-left {
       background: var(--ink);
       color: #EFEAE0;
@@ -90,50 +91,42 @@
       z-index: 1;
     }
 
-    .login-left__hero h1 { font-family: 'Fraunces', serif; font-size: 42px; font-weight: 600; line-height: 1.18; margin-bottom: 18px; color: #EFEAE0; }
+    .login-left__hero h1 { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 600; line-height: 1.2; margin-bottom: 18px; color: #EFEAE0; }
     .login-left__hero p  { font-size: 14.5px; color: #9BA69D; line-height: 1.7; max-width: 340px; }
 
-    /* Identity card on left side */
-    .identity-card {
+    .how-it-works {
+      list-style: none;
       margin-top: 32px;
-      background: rgba(231,218,192,.07);
-      border: 1px solid rgba(231,218,192,.18);
-      border-radius: var(--radius);
-      padding: 20px 22px;
-    }
-
-    .identity-card .id-label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: #8C978F;
-      margin-bottom: 12px;
-    }
-
-    .identity-card .id-row {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .id-avatar {
-      width: 42px;
-      height: 42px;
+    .how-it-works li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 13.5px;
+      color: #B9C4BC;
+      line-height: 1.5;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: var(--green);
-      color: #fff;
+      background: rgba(231,218,192,.12);
+      border: 1px solid rgba(231,218,192,.25);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 600;
+      color: var(--kraft);
       flex-shrink: 0;
+      margin-top: 1px;
     }
-
-    .id-info .name { font-size: 14.5px; font-weight: 600; color: #EFEAE0; }
-    .id-info .role { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8C978F; margin-top: 2px; }
 
     .login-left__footer { z-index: 1; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B6560; letter-spacing: .5px; }
 
@@ -169,15 +162,33 @@
     .form-heading { margin-bottom: 30px; }
     .form-heading .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
     .form-heading h2 { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
-    .form-heading p  { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
+    .form-heading p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
 
-    /* ── Alerts ── */
-    .adm-messages { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .adm-alert { padding: 12px 16px; border-radius: 10px; font-size: 13.5px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
-    .adm-alert i { margin-top: 2px; flex-shrink: 0; }
-    .adm-alert--success { background: var(--green-soft); border: 1px solid rgba(46,89,64,.2); color: var(--green); }
-    .adm-alert--error   { background: var(--red-soft);   border: 1px solid rgba(184,69,47,.2); color: var(--red); }
-    .adm-alert--info    { background: rgba(52,152,219,.08); border: 1px solid rgba(52,152,219,.2); color: #2F5F77; }
+    /* ── Sent state ── */
+    .sent-card {
+      background: var(--green-soft);
+      border: 1px solid rgba(46,89,64,.2);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .sent-card .sent-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin: 0 auto 16px;
+    }
+
+    .sent-card h3 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; color: var(--green); margin-bottom: 10px; }
+    .sent-card p  { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 6px; }
+    .sent-card .note { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft); margin-top: 16px; background: rgba(46,89,64,.08); border-radius: 8px; padding: 10px 14px; }
 
     /* ── Form fields ── */
     .form-field { margin-bottom: 20px; }
@@ -200,24 +211,6 @@
 
     .form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,89,64,.12); background: #fff; }
     .form-input::placeholder { color: #B0B8B3; }
-
-    .pwd-toggle {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--ink-soft);
-      font-size: 13px;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      transition: color .2s;
-    }
-
-    .pwd-toggle:hover { color: var(--ink); }
 
     .btn-submit {
       width: 100%;
@@ -244,6 +237,7 @@
     .form-footer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; }
     .form-footer p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.7; }
     .form-footer a { color: var(--green); font-weight: 600; }
+    .form-footer a:hover { opacity: .75; }
 
     @media (max-width: 860px) {
       .login-page { grid-template-columns: 1fr; }
@@ -267,19 +261,23 @@
     </div>
 
     <div class="login-left__hero">
-      <h1>Your store,<br>fully in control.</h1>
-      <p>You've verified your email. Enter your password below to access the STYLEVERSE admin dashboard.</p>
+      <h1>Secure by design.</h1>
+      <p>The STYLEVERSE admin portal uses a one-time email link to authenticate Super Admins. No public password forms — ever.</p>
 
-      <div class="identity-card">
-        <div class="id-label"><i class="fa fa-check-circle"></i>&nbsp; Verified Identity</div>
-        <div class="id-row">
-          <div class="id-avatar">{{ admin_user.username|slice:':2'|upper }}</div>
-          <div class="id-info">
-            <div class="name">{{ admin_user.get_full_name|default:admin_user.username }}</div>
-            <div class="role">Super Admin · {{ admin_user.email }}</div>
-          </div>
-        </div>
-      </div>
+      <ul class="how-it-works">
+        <li>
+          <span class="step-num">1</span>
+          <span>Enter your registered Super Admin email address below.</span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span>We send a secure, one-time login link to your inbox. It expires in <strong style="color:#E7DAC0;">1 hour</strong>.</span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span>Click the link in your email, enter your password, and access your dashboard.</span>
+        </li>
+      </ul>
     </div>
 
     <div class="login-left__footer">
@@ -287,66 +285,69 @@
     </div>
   </div>
 
-  <!-- ══ RIGHT PANEL (PASSWORD FORM) ══ -->
+  <!-- ══ RIGHT PANEL ══ -->
   <div class="login-right">
     <div class="login-form-wrap">
 
       <div class="security-badge">
-        <i class="fa fa-shield-halved"></i> Secure Link Verified
+        <i class="fa fa-envelope-circle-check"></i> Email-Only Login
       </div>
 
-      <div class="form-heading">
-        <div class="eyebrow"><i class="fa fa-lock"></i> Enter Your Password</div>
-        <h2>Almost there</h2>
-        <p>Your secure login link is verified. Enter your password to complete sign-in as <strong>{{ admin_user.username }}</strong>.</p>
-      </div>
-
-      {% if messages %}
-      <div class="adm-messages">
-        {% for message in messages %}
-        <div class="adm-alert adm-alert--{{ message.tags|default:'info' }}">
-          <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-          <span>{{ message }}</span>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      <form method="POST" action="{% url 'admin_login_verify' token=token %}" novalidate id="loginForm">
-        {% csrf_token %}
-
-        <div class="form-field">
-          <label for="id_login_password">Admin Password</label>
-          <div class="field-wrap">
-            <i class="fa fa-key field-icon"></i>
-            <input
-              type="password"
-              name="password"
-              id="id_login_password"
-              class="form-input"
-              placeholder="Enter your password"
-              required
-              autofocus
-              autocomplete="current-password"
-            >
-            <button type="button" class="pwd-toggle" onclick="togglePwd()" aria-label="Toggle password visibility" tabindex="-1">
-              <i class="fa fa-eye" id="eyeIcon"></i>
-            </button>
+      {% if sent %}
+        <!-- ── Confirmation state ── -->
+        <div class="sent-card">
+          <div class="sent-icon"><i class="fa fa-paper-plane"></i></div>
+          <h3>Check your inbox</h3>
+          <p>If a Super Admin account is registered with that email, a secure login link has been sent.</p>
+          <p>The link is valid for <strong>1 hour</strong> and can only be used once.</p>
+          <div class="note">
+            <i class="fa fa-shield-halved"></i>&nbsp;
+            Do not share the link with anyone. STYLEVERSE will never ask for your password via email.
           </div>
         </div>
 
-        <button type="submit" class="btn-submit" id="btn_login">
-          <i class="fa fa-right-to-bracket"></i>
-          Access Admin Dashboard
-        </button>
-      </form>
+        <div class="form-footer">
+          <p>Didn't receive it? <a href="{% url 'admin_login' %}">Try again</a> or check your spam folder.</p>
+        </div>
 
-      <div class="form-footer">
-        <p>
-          Not you? <a href="{% url 'admin_login' %}">Request a new login link</a>.<br>
-          This link expires in <strong>1 hour</strong>.
-        </p>
-      </div>
+      {% else %}
+        <!-- ── Email request form ── -->
+        <div class="form-heading">
+          <div class="eyebrow"><i class="fa fa-lock"></i> Admin Access Request</div>
+          <h2>Get your login link</h2>
+          <p>Enter your registered Super Admin email address and we'll send you a secure, one-time login link.</p>
+        </div>
+
+        <form method="POST" novalidate id="loginRequestForm">
+          {% csrf_token %}
+          <div class="form-field">
+            <label for="id_admin_email">Registered Admin Email</label>
+            <div class="field-wrap">
+              <i class="fa fa-envelope field-icon"></i>
+              <input
+                type="email"
+                name="email"
+                id="id_admin_email"
+                class="form-input"
+                placeholder="Enter your admin email"
+                required
+                autofocus
+                autocomplete="email"
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btn_send_link">
+            <i class="fa fa-paper-plane"></i>
+            Send Secure Login Link
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <p>
+            This portal is for <strong>Super Admins only</strong>.<br>
+          </p>
+      {% endif %}
 
     </div>
   </div>
@@ -354,19 +355,14 @@
 </div>
 
 <script>
-  function togglePwd() {
-    const f = document.getElementById('id_login_password');
-    const i = document.getElementById('eyeIcon');
-    if (!f) return;
-    f.type = (f.type === 'password') ? 'text' : 'password';
-    i.className = (f.type === 'text') ? 'fa fa-eye-slash' : 'fa fa-eye';
+  const form = document.getElementById('loginRequestForm');
+  if (form) {
+    form.addEventListener('submit', function () {
+      const btn = document.getElementById('btn_send_link');
+      btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending…';
+      btn.disabled = true;
+    });
   }
-
-  document.getElementById('loginForm').addEventListener('submit', function () {
-    const btn = document.getElementById('btn_login');
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Signing in…';
-    btn.disabled = true;
-  });
 </script>
 
 </body>

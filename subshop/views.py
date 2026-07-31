@@ -5,11 +5,12 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core import signing
 
 from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
 from shopapp.forms import LoginUserForm
 from shopapp.models import (
-    Product, Men, Women, ProductRequest, Order, Contact, 
+    Product, Men, Women, ProductRequest, Order, Contact,
     AdminDiscussion, AdminDiscussionReply, UserProfile
 )
 from shopapp.decorators import admin_required
@@ -64,34 +65,284 @@ STYLEVERSE Admin System
         print(f"Error sending email: {e}")
 
 
-def admin_login(request):
-    """Exclusive Seller & Sub-Admin Login Portal."""
+# ─────────────────────────────────────────────────────────────
+#  ADMIN LOGIN — EMAIL-ONLY MAGIC LINK FLOW
+#  Step 1:  /seller/login/          → Enter admin email
+#  Step 2:  /seller/login/<token>/  → Password form (email link only)
+# ─────────────────────────────────────────────────────────────
+
+TOKEN_SALT       = 'sv-admin-magic-link'
+TOKEN_MAX_AGE_S  = 60 * 60  # 1 hour
+
+
+def admin_login_request(request):
+    """
+    Step 1 — Public page: enter your registered Super Admin email.
+    Sends a signed, time-limited magic link to that email.
+    No password form is shown here.
+    """
+    # Already authenticated superuser → go to dashboard
     if request.user.is_authenticated:
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_superuser:
             return redirect('admin_index')
-        else:
-            messages.error(request, 'Access denied. You are logged in as a customer. Please log in with a Sub-Admin account.')
-            return redirect('index')
+        # Sub-admins / customers trying this URL are blocked
+        messages.error(request, '⛔ Access Denied. This portal is restricted to Super Admins only.')
+        return redirect('index')
+
+    sent = False
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        # Look for an active superuser with that email
+        admin_user = User.objects.filter(
+            email__iexact=email,
+            is_superuser=True,
+            is_active=True
+        ).first()
+
+        if admin_user:
+            # Build signed token:  {username, email}
+            token = signing.dumps(
+                {'username': admin_user.username, 'email': admin_user.email},
+                salt=TOKEN_SALT
+            )
+            login_url = request.build_absolute_uri(f'/seller/login/{token}/')
+            display_name = admin_user.get_full_name() or admin_user.username
+
+            subject = '🔐 [STYLEVERSE] Your Secure Admin Login Link'
+
+            # ── Plain-text fallback ───────────────────────────────
+            plain_message = f"""Hello {display_name},
+
+You requested a Super Admin login link for STYLEVERSE.
+
+🔗 Secure Login Link (valid for 1 hour):
+{login_url}
+
+If you did not request this, please ignore this email. The link will expire automatically.
+Do NOT share this link with anyone.
+
+— STYLEVERSE Security System
+"""
+
+            # ── HTML email matching sub-admin panel design ────────
+            initials = (admin_user.username[:2]).upper()
+            html_message = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Secure Admin Login Link</title>
+</head>
+<body style="margin:0;padding:0;background:#F6F4EF;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1B2420;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F4EF;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(27,36,32,.12);">
+
+          <!-- ── HEADER (dark panel) ── -->
+          <tr>
+            <td style="background:#1B2420;padding:32px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <!-- Brand mark -->
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="width:42px;height:42px;background:#E7DAC0;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:14px;color:#1B2420;border:2px dashed rgba(27,36,32,.35);">
+                          SV
+                        </td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:18px;font-weight:700;color:#EFEAE0;letter-spacing:.5px;">STYLEVERSE</div>
+                          <div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8C978F;margin-top:2px;">SUPER ADMIN PORTAL</div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right">
+                    <span style="background:rgba(231,218,192,.12);border:1px solid rgba(231,218,192,.25);border-radius:999px;padding:5px 12px;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#E7DAC0;">
+                      🔐 SECURE LINK
+                    </span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Hero text -->
+              <div style="margin-top:32px;">
+                <div style="font-size:26px;font-weight:700;color:#EFEAE0;line-height:1.25;margin-bottom:10px;">Your login link<br>is ready.</div>
+                <div style="font-size:13.5px;color:#9BA69D;line-height:1.6;">A secure, one-time login link has been generated for your STYLEVERSE Super Admin account.</div>
+              </div>
+
+              <!-- Identity card inside header -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;background:rgba(231,218,192,.07);border:1px solid rgba(231,218,192,.18);border-radius:12px;padding:16px 18px;">
+                <tr>
+                  <td style="width:44px;height:44px;background:#2E5940;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:14px;color:#fff;">
+                    {initials}
+                  </td>
+                  <td style="padding-left:12px;">
+                    <div style="font-size:14px;font-weight:600;color:#EFEAE0;">{display_name}</div>
+                    <div style="font-family:monospace;font-size:11px;color:#8C978F;margin-top:2px;">Super Admin &middot; {admin_user.email}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── BODY (light panel) ── -->
+          <tr>
+            <td style="background:#FFFFFF;padding:36px 40px;">
+
+              <!-- Steps -->
+              <div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#2E5940;font-weight:700;margin-bottom:20px;">
+                HOW TO LOG IN
+              </div>
+
+              <!-- Step 1 -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:14px;">
+                <tr>
+                  <td style="width:30px;height:30px;background:#E4EEE8;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:12px;color:#2E5940;">1</td>
+                  <td style="padding-left:14px;font-size:13.5px;color:#5B6560;line-height:1.5;">Click the button below to open your secure login page.</td>
+                </tr>
+              </table>
+
+              <!-- Step 2 -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:14px;">
+                <tr>
+                  <td style="width:30px;height:30px;background:#E4EEE8;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:12px;color:#2E5940;">2</td>
+                  <td style="padding-left:14px;font-size:13.5px;color:#5B6560;line-height:1.5;">Enter your admin password on the verified login page.</td>
+                </tr>
+              </table>
+
+              <!-- Step 3 -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="width:30px;height:30px;background:#E4EEE8;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:12px;color:#2E5940;">3</td>
+                  <td style="padding-left:14px;font-size:13.5px;color:#5B6560;line-height:1.5;">Access your STYLEVERSE Admin Dashboard instantly.</td>
+                </tr>
+              </table>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="padding:4px 0 28px;">
+                    <a href="{login_url}"
+                       style="display:inline-block;background:#1B2420;color:#E7DAC0;text-decoration:none;font-size:15px;font-weight:700;padding:16px 40px;border-radius:10px;letter-spacing:.3px;">
+                      🚀 Access Admin Dashboard
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F4EF;border-radius:10px;padding:14px 18px;margin-bottom:28px;">
+                <tr>
+                  <td style="font-size:12.5px;color:#5B6560;line-height:1.6;">
+                    <strong style="color:#1B2420;">⏱ This link expires in 1 hour.</strong><br>
+                    If it expires, visit <a href="{request.build_absolute_uri('/seller/login/')}" style="color:#2E5940;font-weight:600;text-decoration:none;">{request.build_absolute_uri('/seller/login/')}</a> to request a new one.
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback URL -->
+              <div style="font-size:11.5px;color:#9BA69D;word-break:break-all;line-height:1.6;">
+                If the button doesn't work, copy and paste this URL into your browser:<br>
+                <span style="font-family:monospace;color:#5B6560;">{login_url}</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ── SECURITY FOOTER ── -->
+          <tr>
+            <td style="background:#E4EEE8;border-top:1px solid #D8EAD9;padding:20px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-size:12px;color:#5B6560;line-height:1.6;">
+                    <strong style="color:#2E5940;">🛡 Security Notice</strong><br>
+                    STYLEVERSE will never ask for your password via email. If you did not request this link, please ignore it — it will expire automatically. Do not share this link with anyone.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── BOTTOM BAR ── -->
+          <tr>
+            <td style="background:#1B2420;padding:16px 40px;text-align:center;">
+              <div style="font-family:monospace;font-size:10.5px;color:#5B6560;letter-spacing:.5px;">
+                &copy; 2026 STYLEVERSE &mdash; Super Admin Access Only
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>"""
+
+            try:
+                from django.core.mail import EmailMultiAlternatives
+                email_msg = EmailMultiAlternatives(
+                    subject=subject,
+                    body=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=[admin_user.email],
+                )
+                email_msg.attach_alternative(html_message, "text/html")
+                email_msg.send(fail_silently=False)
+            except Exception as e:
+                print(f'Error sending admin login link: {e}')
+
+        # Always show the same confirmation (security: don't reveal if email exists)
+        sent = True
+
+    return render(request, 'sub-admin/admin_login_request.html', {'sent': sent})
+
+
+def admin_login_verify(request, token):
+    """
+    Step 2 — Token-gated page: validate the signed URL token, then
+    show the password form. This URL is ONLY distributed via email.
+    """
+    # Validate the token
+    try:
+        data = signing.loads(token, salt=TOKEN_SALT, max_age=TOKEN_MAX_AGE_S)
+        username = data.get('username')
+        token_email = data.get('email')
+    except signing.SignatureExpired:
+        messages.error(request, '⏰ Your login link has expired. Please request a new one.')
+        return redirect('admin_login')
+    except signing.BadSignature:
+        messages.error(request, '⛔ Invalid or tampered login link. Please request a fresh link.')
+        return redirect('admin_login')
+
+    # Fetch the super-admin user
+    try:
+        admin_user = User.objects.get(username=username, email__iexact=token_email, is_superuser=True, is_active=True)
+    except User.DoesNotExist:
+        messages.error(request, '⛔ Account not found or access revoked.')
+        return redirect('admin_login')
+
+    # Already logged in
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('admin_index')
 
     if request.method == 'POST':
-        form = LoginUserForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                if user.is_staff or user.is_superuser:
-                    auth_login(request, user)
-                    messages.success(request, f'⚡ Welcome, Seller {user.username}! You are now logged in to the Admin Panel.')
-                    return redirect('admin_index')
-                else:
-                    messages.error(request, '⛔ Access Denied. Your account is a Customer account. Please use the customer login page or apply for Seller access.')
-            else:
-                messages.error(request, 'Invalid username or password.')
-    else:
-        form = LoginUserForm()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=admin_user.username, password=password)
+        if user is not None and user.is_superuser:
+            auth_login(request, user)
+            messages.success(request, f'⚡ Welcome, Super Admin {user.username}! You are now logged in.')
+            return redirect('admin_index')
+        else:
+            messages.error(request, '❌ Incorrect password. Please try again.')
 
-    return render(request, 'sub-admin/admin_login.html', {'form': form})
+    return render(request, 'sub-admin/admin_login.html', {
+        'admin_user': admin_user,
+        'token': token,
+    })
 
 
 @admin_required

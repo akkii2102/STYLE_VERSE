@@ -694,7 +694,7 @@ Thank you for joining STYLEVERSE!
 def login(request):
     # Already logged in — redirect based on role
     if request.user.is_authenticated:
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_superuser:
             return redirect('admin_index')
         return redirect('index')
 
@@ -705,19 +705,26 @@ def login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                is_new_user = (user.last_login is None)
-                auth_login(request, user)
-
-                display_name = user.first_name or user.username
-                if is_new_user:
-                    messages.success(request, f'🎉 Welcome to STYLEVERSE, {display_name}! We are thrilled to have you join us.')
-                else:
-                    messages.success(request, f'✨ Welcome back to STYLEVERSE, {display_name}!')
-
-                # ── Role-based redirect after login ───────────────
-                if user.is_staff or user.is_superuser:
+                # Block sub-admin accounts from logging in anywhere
+                if user.is_staff and not user.is_superuser:
+                    messages.error(request, '⛔ Access Denied. Sub-Admin accounts have been disabled and cannot log in to the website.')
+                elif user.is_superuser:
+                    is_new_user = (user.last_login is None)
+                    auth_login(request, user)
+                    display_name = user.first_name or user.username
+                    if is_new_user:
+                        messages.success(request, f'🎉 Welcome to STYLEVERSE, {display_name}! You are logged in as Super Admin.')
+                    else:
+                        messages.success(request, f'✨ Welcome back to STYLEVERSE, {display_name}!')
                     return redirect('admin_index')
                 else:
+                    is_new_user = (user.last_login is None)
+                    auth_login(request, user)
+                    display_name = user.first_name or user.username
+                    if is_new_user:
+                        messages.success(request, f'🎉 Welcome to STYLEVERSE, {display_name}! We are thrilled to have you join us.')
+                    else:
+                        messages.success(request, f'✨ Welcome back to STYLEVERSE, {display_name}!')
                     return redirect('index')
             else:
                 messages.error(request, 'Invalid username or password.')

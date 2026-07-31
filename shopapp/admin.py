@@ -340,7 +340,7 @@ class SubAdminRequestAdmin(admin.ModelAdmin):
 
     def approve_seller_request(self, request, req_id):
         import random, string
-        from django.core.mail import send_mail
+        from django.core.mail import EmailMultiAlternatives
         from django.conf import settings
 
         req_obj = get_object_or_404(SubAdminRequest, pk=req_id)
@@ -365,47 +365,88 @@ class SubAdminRequestAdmin(admin.ModelAdmin):
         req_obj.status = 'approved'
         req_obj.save()
 
-        seller_login_url = request.build_absolute_uri('/seller/login/')
-
-        # Recipients: both Seller email ID and Super-Admin email ID(s)
+        # Recipients: seller + all superadmins with email set
         superusers = User.objects.filter(is_superuser=True, is_active=True)
-        recipient_emails = list(set([u.email for u in superusers if u.email] + [req_obj.email]))
+        recipient_emails = list(set(
+            [u.email for u in superusers if u.email] + ([req_obj.email] if req_obj.email else [])
+        ))
         if not recipient_emails:
             recipient_emails = [settings.EMAIL_HOST_USER]
 
-        subject = f"🎉 Approved: STYLEVERSE Sub-Admin Seller Portal Credentials"
-        message = f"""Hello {req_obj.full_name},
+        subject = f'🎉 [STYLEVERSE] Seller Account Approved — {req_obj.store_name}'
 
-Congratulations! Your application for a Sub-Admin (Seller) account for store '{req_obj.store_name}' on STYLEVERSE has been APPROVED by the Super Admin!
+        plain_message = f"""Hello {req_obj.full_name},
 
-Your Sub-Admin Login Credentials:
---------------------------------------------------
-Store Name: {req_obj.store_name}
-Username  : {req_obj.username}
-Password  : {raw_password}
+Congratulations! Your Sub-Admin (Seller) account for '{req_obj.store_name}' on STYLEVERSE has been APPROVED.
 
-Exclusive Seller Portal Login Link:
-{seller_login_url}
+Store Name : {req_obj.store_name}
+Username   : {req_obj.username}
+Password   : {raw_password}
 
-Important Security Notice:
-- Please click the link above to log in to the Seller Panel (/seller/login/).
-- Customer accounts use the regular customer login page, while your Sub-Admin account uses the exclusive Seller Portal link provided above.
-- We recommend changing your password after logging in for the first time.
+The Super Admin will send you a secure login link to your registered email when access is granted.
 
 Thank you,
 STYLEVERSE Super Admin Team
 """
+        store_initial = (req_obj.store_name[:2] if req_obj.store_name else 'SV').upper()
+        html_message = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Seller Account Approved</title></head>
+<body style="margin:0;padding:0;background:#F6F4EF;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1B2420;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F4EF;padding:40px 20px;">
+  <tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(27,36,32,.12);">
+      <tr><td style="background:#1B2420;padding:32px 40px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td><table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;height:42px;background:#E7DAC0;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:14px;color:#1B2420;">SV</td>
+              <td style="padding-left:12px;"><div style="font-size:18px;font-weight:700;color:#EFEAE0;">STYLEVERSE</div><div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8C978F;">SUPER ADMIN PORTAL</div></td>
+            </tr></table></td>
+            <td align="right"><span style="background:rgba(46,89,64,.5);border:1px solid rgba(100,180,120,.3);border-radius:999px;padding:5px 12px;font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;color:#A8D8B4;">✅ APPROVED</span></td>
+          </tr>
+        </table>
+        <div style="margin-top:28px;">
+          <div style="font-size:26px;font-weight:700;color:#EFEAE0;line-height:1.25;margin-bottom:10px;">Congratulations,<br>{req_obj.full_name}!</div>
+          <div style="font-size:13.5px;color:#9BA69D;line-height:1.6;">Your Sub-Admin (Seller) account on STYLEVERSE has been approved by the Super Admin.</div>
+        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;background:rgba(231,218,192,.07);border:1px solid rgba(231,218,192,.18);border-radius:12px;padding:16px 18px;">
+          <tr>
+            <td style="width:44px;height:44px;background:#2E5940;border-radius:50%;text-align:center;vertical-align:middle;font-family:monospace;font-weight:700;font-size:14px;color:#fff;">{store_initial}</td>
+            <td style="padding-left:12px;"><div style="font-size:14px;font-weight:600;color:#EFEAE0;">{req_obj.store_name}</div><div style="font-family:monospace;font-size:11px;color:#8C978F;">{req_obj.email}</div></td>
+          </tr>
+        </table>
+      </td></tr>
+      <tr><td style="background:#FFFFFF;padding:36px 40px;">
+        <div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#2E5940;font-weight:700;margin-bottom:20px;">YOUR ACCOUNT CREDENTIALS</div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E4E0D6;border-radius:10px;overflow:hidden;margin-bottom:24px;">
+          <tr style="background:#F6F4EF;"><td style="padding:12px 18px;font-size:12px;font-family:monospace;font-weight:700;color:#5B6560;text-transform:uppercase;border-bottom:1px solid #E4E0D6;width:35%;">Store</td><td style="padding:12px 18px;font-size:13.5px;color:#1B2420;border-bottom:1px solid #E4E0D6;font-weight:600;">{req_obj.store_name}</td></tr>
+          <tr><td style="padding:12px 18px;font-size:12px;font-family:monospace;font-weight:700;color:#5B6560;text-transform:uppercase;border-bottom:1px solid #E4E0D6;">Username</td><td style="padding:12px 18px;font-size:13.5px;color:#1B2420;border-bottom:1px solid #E4E0D6;font-family:monospace;font-weight:600;">{req_obj.username}</td></tr>
+          <tr style="background:#F6F4EF;"><td style="padding:12px 18px;font-size:12px;font-family:monospace;font-weight:700;color:#5B6560;text-transform:uppercase;">Password</td><td style="padding:12px 18px;font-size:13.5px;color:#1B2420;font-family:monospace;font-weight:600;">{raw_password}</td></tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#E4EEE8;border:1px solid #D8EAD9;border-radius:10px;padding:14px 18px;margin-bottom:24px;">
+          <tr><td style="font-size:12.5px;color:#2E5940;line-height:1.6;"><strong>🔐 Next Steps</strong><br>The Super Admin will send a <strong>secure login link</strong> to your registered email when access is granted. Keep your credentials safe.</td></tr>
+        </table>
+        <div style="font-size:12px;color:#9BA69D;line-height:1.6;">If you did not apply, contact us at <a href="mailto:{settings.EMAIL_HOST_USER}" style="color:#2E5940;">{settings.EMAIL_HOST_USER}</a>.</div>
+      </td></tr>
+      <tr><td style="background:#1B2420;padding:16px 40px;text-align:center;"><div style="font-family:monospace;font-size:10.5px;color:#5B6560;">&copy; 2026 STYLEVERSE &mdash; Super Admin Access Only</div></td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>"""
+
         try:
-            send_mail(
+            email_msg = EmailMultiAlternatives(
                 subject=subject,
-                message=message,
+                body=plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                recipient_list=recipient_emails,
-                fail_silently=False
+                to=recipient_emails,
             )
-            messages.success(request, f'Approved seller "{req_obj.full_name}" ({req_obj.store_name})! Credentials sent to seller ({req_obj.email}) and Super Admin.')
+            email_msg.attach_alternative(html_message, "text/html")
+            email_msg.send(fail_silently=False)
+            messages.success(request, f'✅ Approved "{req_obj.full_name}" ({req_obj.store_name})! Credentials sent to {req_obj.email}.')
         except Exception as e:
-            messages.warning(request, f'Approved seller account created, but email could not be sent: {e}')
+            messages.warning(request, f'Seller account approved, but email could not be sent: {e}')
 
         return redirect('admin:shopapp_subadminrequest_changelist')
 
