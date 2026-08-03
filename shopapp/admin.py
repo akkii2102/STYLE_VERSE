@@ -16,6 +16,14 @@ admin.site.index_title = 'Super Admin Dashboard'
 customer_admin_site = CustomerAdminSite(name='customer_admin')
 
 
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('icon', 'text', 'is_active', 'order', 'created_at')
+    list_editable = ('is_active', 'order')
+    search_fields = ('text', 'icon')
+    list_filter = ('is_active',)
+
+
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('Name', 'Surname', 'Email', 'status_badge', 'reviewed_by_user', 'created_at')

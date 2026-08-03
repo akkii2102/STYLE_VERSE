@@ -73,6 +73,7 @@ TEMPLATES = [
                 'shopapp.context_processors.cart_context',
                 'shopapp.context_processors.wishlist_context',
                 'shopapp.context_processors.admin_approval_context',
+                'shopapp.context_processors.announcements_context',
             ],
         },
     },

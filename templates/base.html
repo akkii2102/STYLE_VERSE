@@ -23,6 +23,21 @@
 
 <body>
 
+  <!-- Luxury Page Preloader -->
+  <div id="svLuxuryPreloader" class="sv-preloader">
+    <div class="sv-preloader__inner">
+      <div class="sv-preloader__logo-wrap">
+        <div class="sv-preloader__ring"></div>
+        <div class="sv-preloader__mark">SV</div>
+      </div>
+      <div class="sv-preloader__brand">STYLE<span>VERSE</span></div>
+      <div class="sv-preloader__sub">LUXURY FASHION & ESSENTIALS</div>
+      <div class="sv-preloader__bar">
+        <div class="sv-preloader__progress"></div>
+      </div>
+    </div>
+  </div>
+
   {% include 'partials/header.html' %}
 
   {% if messages %}
@@ -44,6 +59,20 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // Luxury Preloader Dismiss
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('svLuxuryPreloader');
+      if (loader) {
+        setTimeout(function() { loader.classList.add('sv-preloader--done'); }, 350);
+      }
+    });
+    setTimeout(function() {
+      const loader = document.getElementById('svLuxuryPreloader');
+      if (loader && !loader.classList.contains('sv-preloader--done')) {
+        loader.classList.add('sv-preloader--done');
+      }
+    }, 2000);
+
     // Auto-dismiss toasts after 4 s
     setTimeout(() => {
       document.querySelectorAll('.sv-toast').forEach(t => t.classList.add('sv-toast--hide'));

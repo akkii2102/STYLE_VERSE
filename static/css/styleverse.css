@@ -3,7 +3,190 @@
    ═══════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
 
-/* ─── Extra components added in v2 ─── */
+/* ═══════════════════════════════════════════════════════════
+   LUXURY PAGE PRELOADER
+   ═══════════════════════════════════════════════════════════ */
+.sv-preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #090d16;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sv-preloader.sv-preloader--done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sv-preloader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #ffffff;
+}
+
+.sv-preloader__logo-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.sv-preloader__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #C0A36E;
+  border-right-color: #f59e0b;
+  animation: svPreloaderSpin 1.2s linear infinite;
+  box-shadow: 0 0 15px rgba(192, 163, 110, 0.3);
+}
+
+@keyframes svPreloaderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.sv-icon{
+    color:#c0a36e;
+}
+
+.bg-blue{
+  background-color: #1a1a2e;
+}
+
+.sv-preloader__mark {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #C0A36E;
+  text-shadow: 0 0 12px rgba(192, 163, 110, 0.4);
+}
+
+.sv-preloader__brand {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.sv-preloader__brand span {
+  color: #C0A36E;
+}
+
+.sv-preloader__sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.sv-preloader__bar {
+  width: 140px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sv-preloader__progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #C0A36E 0%, #f59e0b 50%, #E7DAC0 100%);
+  border-radius: 10px;
+  animation: svPreloaderFill 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes svPreloaderFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* ── Seamless Infinite Auto-Slide News Ticker Bar (Zero Gaps / Zero Blank Lines) ── */
+.sv-top-ticker,
+.sv-seamless-ticker {
+  background: #0f172a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 0;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 1002;
+  width: 100%;
+}
+
+.sv-top-ticker__track,
+.sv-seamless-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: svTickerSlide 24s linear infinite;
+  will-change: transform;
+}
+
+.sv-top-ticker:hover .sv-top-ticker__track,
+.sv-seamless-ticker:hover .sv-seamless-ticker__track {
+  animation-play-state: paused;
+}
+
+.sv-top-ticker__content,
+.sv-seamless-ticker__content {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sv-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.sv-ticker-item i {
+  color: #f59e0b;
+  font-size: 14px;
+}
+
+.sv-ticker-sep {
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 6px;
+}
+
+@keyframes svTickerSlide {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
 /* Breadcrumb */
 .sv-breadcrumb {

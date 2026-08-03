@@ -399,3 +399,22 @@ class SubAdminRequest(models.Model):
 
     def __str__(self):
         return f"Seller Request: {self.store_name} ({self.full_name}) - {self.get_status_display()}"
+
+
+# ─────────────────────────────────────────────────────────
+#  DYNAMIC ANNOUNCEMENTS & NEWS MARQUEE
+# ─────────────────────────────────────────────────────────
+
+class Announcement(models.Model):
+    icon = models.CharField(max_length=50, default='fa-truck', help_text='FontAwesome icon class e.g. fa-truck, fa-rotate-left, fa-shield-halved, fa-headset, fa-tag, fa-star')
+    text = models.CharField(max_length=255, help_text='Announcement line text shown in scrolling ticker')
+    link_url = models.CharField(max_length=255, blank=True, default='', help_text='Optional URL link when clicked')
+    is_active = models.BooleanField(default=True, help_text='Show in scrolling news ticker line')
+    order = models.IntegerField(default=0, help_text='Sort order priority')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return f"{self.icon} - {self.text}"

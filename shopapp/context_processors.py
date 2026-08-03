@@ -25,3 +25,29 @@ def admin_approval_context(request):
         else:
             pending_approval_count = ProductRequest.objects.filter(user=request.user, status='pending').count()
     return {'pending_approval_count': pending_approval_count}
+
+
+def announcements_context(request):
+    """Inject active announcements dynamically into all templates."""
+    try:
+        from shopapp.models import Announcement
+        announcements = list(Announcement.objects.filter(is_active=True).order_by('order', '-created_at'))
+        if not announcements:
+            announcements = [
+                {'icon': 'fa-truck', 'text': 'Free Shipping Over ₹999'},
+                {'icon': 'fa-rotate-left', 'text': '30-Day Easy Returns'},
+                {'icon': 'fa-shield-halved', 'text': '100% Secure Checkout'},
+                {'icon': 'fa-headset', 'text': '24/7 Customer Support'},
+                {'icon': 'fa-tag', 'text': 'New Arrivals Every Week'},
+                {'icon': 'fa-star', 'text': '50,000+ Happy Customers'},
+            ]
+    except Exception:
+        announcements = [
+            {'icon': 'fa-truck', 'text': 'Free Shipping Over ₹999'},
+            {'icon': 'fa-rotate-left', 'text': '30-Day Easy Returns'},
+            {'icon': 'fa-shield-halved', 'text': '100% Secure Checkout'},
+            {'icon': 'fa-headset', 'text': '24/7 Customer Support'},
+            {'icon': 'fa-tag', 'text': 'New Arrivals Every Week'},
+            {'icon': 'fa-star', 'text': '50,000+ Happy Customers'},
+        ]
+    return {'announcements': announcements}
