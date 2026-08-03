@@ -26,6 +26,15 @@
       --border: #E4E0D6;
       --radius: 14px;
       --shadow: 0 1px 2px rgba(27, 36, 32, 0.04), 0 8px 24px -12px rgba(27, 36, 32, 0.12);
+
+      /* Compatibility variables for all sub-admin pages */
+      --adm-bg: #F6F4EF;
+      --adm-card: #FFFFFF;
+      --adm-border: #E4E0D6;
+      --adm-ink: #1B2420;
+      --adm-muted: #5B6560;
+      --adm-accent: #2E5940;
+      --adm-gold: #C0A36E;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -236,8 +245,8 @@
     .adm-alert--info { background: rgba(52, 152, 219, .12); border: 1px solid rgba(52, 152, 219, .2); color: #2F5F77; }
 
     .adm-table-wrap {
-      background: var(--panel);
-      border: 1px solid var(--border);
+      background: #FFFFFF;
+      border: 1px solid #E4E0D6;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 24px;
@@ -245,28 +254,56 @@
     }
 
     .adm-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .adm-table-header h3 { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0; }
+    .adm-table-header h3 { font-size: 16px; font-weight: 700; color: #1B2420; margin: 0; font-family: 'Fraunces', serif; }
 
     .adm-table { width: 100%; border-collapse: collapse; min-width: 700px; }
     .adm-table th {
       text-align: left;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5B6560;
       padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid #E4E0D6;
+      background: #FAF8F5;
     }
-    .adm-table td { padding: 13px 16px; font-size: 13.5px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .adm-table tr:hover td { background: rgba(27, 36, 32, 0.02); }
+    .adm-table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #1B2420;
+      border-bottom: 1px solid #E4E0D6;
+      vertical-align: middle;
+      background: #FFFFFF;
+    }
+    .adm-table tr:hover td { background: #F6F4EF; }
 
-    .adm-badge { display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-    .badge-pending, .badge-status-pending { background: var(--red-soft); color: var(--red); }
-    .badge-completed, .badge-status-approved, .badge-delivered { background: var(--green-soft); color: var(--green); }
-    .badge-cancelled, .badge-status-rejected { background: rgba(231, 76, 60, 0.12); color: var(--red); }
-    .badge-processing, .badge-shipped { background: #FBF0DA; color: #8A6415; }
+    .adm-select {
+      background: #FFFFFF;
+      color: #1B2420;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-    .req-badge-add { background: rgba(52, 152, 219, 0.12); color: #2F5F77; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .req-badge-edit { background: rgba(241, 196, 15, 0.16); color: #8A6415; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .adm-select:focus {
+      border-color: #2E5940;
+      box-shadow: 0 0 0 3px rgba(46, 89, 64, 0.12);
+    }
+
+    .adm-badge { display: inline-block; padding: 5px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 700; text-transform: capitalize; }
+    .badge-pending, .badge-status-pending { background: #FDF2E9; color: #D35400; border: 1px solid #F5CBA7; }
+    .badge-completed, .badge-status-approved, .badge-delivered { background: #E8F8F5; color: #117A65; border: 1px solid #A3E4D7; }
+    .badge-cancelled, .badge-status-rejected { background: #FDEDEC; color: #C0392B; border: 1px solid #F9EBEA; }
+    .badge-processing, .badge-shipped { background: #FEF9E7; color: #B7950B; border: 1px solid #F9E79F; }
+
+    .req-badge-add { background: #EBF5FB; color: #2980B9; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; border: 1px solid #AED6F1; }
+    .req-badge-edit { background: #FEF9E7; color: #B7950B; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; border: 1px solid #F9E79F; }
   </style>
 
   {% block extra_admin_css %}{% endblock %}
@@ -276,11 +313,11 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <a href="{% url 'admin_index' %}" class="brand" title="Admin Dashboard">
+      <a href="{% url 'admin_index' %}" class="brand" title="Sub-Admin Dashboard">
         <div class="brand-mark">SV</div>
         <div class="brand-text">
           <div class="name">STYLEVERSE</div>
-          <div class="tag">{% if request.user.is_superuser %}Super Admin Panel{% else %}Sub Admin Panel{% endif %}</div>
+          <div class="tag">Sub Admin Panel</div>
         </div>
       </a>
 
@@ -295,11 +332,6 @@
         <a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' %}active{% endif %}">
           <span class="icon"><i class="fa fa-tshirt"></i></span>Products
         </a>
-        {% if request.user.is_superuser %}
-        <a href="{% url 'admin_people' %}" class="{% if request.resolver_match.url_name == 'admin_people' %}active{% endif %}">
-          <span class="icon"><i class="fa fa-users"></i></span>People & Access
-        </a>
-        {% endif %}
         <a href="{% url 'admin_messages' %}" class="{% if request.resolver_match.url_name == 'admin_messages' %}active{% endif %}">
           <span class="icon"><i class="fa fa-envelope"></i></span>Messages
         </a>
@@ -315,18 +347,13 @@
         <a href="{% url 'admin_profile' %}" class="{% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}">
           <span class="icon"><i class="fa fa-id-card"></i></span>My Profile
         </a>
-        {% if request.user.is_superuser %}
-        <a href="/admin/" target="_blank" style="margin-top: 10px; border: 1px dashed rgba(231,218,192,.3);">
-          <span class="icon"><i class="fa fa-sliders"></i></span>Django Admin
-        </a>
-        {% endif %}
       </nav>
 
       <a href="{% url 'admin_profile' %}" class="sidebar-footer {% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}" title="View & Edit Profile">
         <div class="avatar-sm">{{ request.user.username|slice:':2'|upper }}</div>
         <div style="flex:1; min-width:0;">
           <div class="who">{{ request.user.get_full_name|default:request.user.username }}</div>
-          <div class="role">{% if request.user.is_superuser %}Super Admin{% else %}Sub Admin{% endif %}</div>
+          <div class="role">Sub Admin</div>
         </div>
         <i class="fa fa-gear" style="font-size:13.5px; color:#8C978F; margin-left:auto;"></i>
       </a>
@@ -335,19 +362,13 @@
     <div class="main">
       <header class="topbar">
         <div>
-          <h1>{% block page_title %}Dashboard{% endblock %}</h1>
-          <div class="sub">{% block page_subtitle %}Manage your store from one elegant workspace.{% endblock %}</div>
+          <h1>{% block page_title %}Sub-Admin Dashboard{% endblock %}</h1>
+          <div class="sub">{% block page_subtitle %}Manage your seller store operations from one elegant workspace.{% endblock %}</div>
         </div>
         <div class="topbar-right">
-          {% if request.user.is_superuser %}
-          <a href="/admin/" target="_blank" class="topbar-pill" title="Jazzmin Django Admin" style="text-decoration:none;">
-            <i class="fa fa-shield-halved"></i>
-            Django Admin
-          </a>
-          {% endif %}
           <a href="{% url 'admin_profile' %}" class="topbar-pill" title="My Profile" style="text-decoration:none; cursor:pointer;">
             <i class="fa fa-user-check"></i>
-            {{ request.user.username }} ({% if request.user.is_superuser %}Super Admin{% else %}Sub Admin{% endif %})
+            {{ request.user.username }} (Sub Admin)
           </a>
           <a href="{% url 'logout' %}" class="topbar-pill" title="Logout">
             <i class="fa fa-sign-out-alt"></i>

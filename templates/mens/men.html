@@ -60,59 +60,7 @@
       <main>
         {% if img %}
         <div class="sv-product-grid sv-product-grid--shop">
-          {% for Men in img %}
-          <div class="sv-product-card">
-            <div class="sv-product-img-wrapper">
-              <img src="{{ Men.image_url }}" alt="{{ Men.name }}" class="sv-product-img" loading="lazy"
-                onerror="this.outerHTML='<div class=\'sv-product-card__placeholder\'><i class=\'fa fa-shirt\'></i></div>'">
-              <span class="sv-tag-badge">NEW</span>
-              <form method="POST" action="{% url 'toggle_wishlist' %}" class="sv-wishlist-form">
-                {% csrf_token %}
-                <input type="hidden" name="model_type" value="men">
-                <input type="hidden" name="object_id" value="{{ Men.pk }}">
-                <button type="submit" class="sv-wishlist-btn" title="Add to Wishlist">
-                  {% if Men.pk in wishlist_ids %}
-                  <i class="fa-solid fa-heart sv-heart--active"></i>
-                  {% else %}
-                  <i class="fa-regular fa-heart"></i>
-                  {% endif %}
-                </button>
-              </form>
-              <div class="sv-product-card__overlay">
-                <a href="#" class="sv-btn sv-btn--sm">Quick View</a>
-              </div>
-            </div>
-            <div class="sv-product-card__info">
-              <span class="sv-product-card__brand">STYLEVERSE MEN</span>
-              <a href="{% url 'product_detail' Men.pk %}?type=men" class="sv-product-card__name">{{ Men.name }}</a>
-
-              <!-- Discount Display -->
-              {% if Men.discount > 0 %}
-              <div class="sv-product-card__pricing">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span class="sv-price" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ Men.price }}</span>
-                  <span class="sv-price" style="color: #e74c3c; font-weight: bold;">₹{{ Men.get_discounted_price }}</span>
-                  <span style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">{{ Men.discount|floatformat:0 }}%</span>
-                </div>
-              </div>
-              {% else %}
-              <div class="sv-product-card__price">
-                <span class="sv-price">₹{{ Men.price }}</span>
-              </div>
-              {% endif %}
-
-              <form method="POST" action="{% url 'cart' %}" style="margin-top:10px;">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ Men.pk }}">
-                <input type="hidden" name="model_type" value="men">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="sv-btn sv-btn--sm sv-btn--full sv-btn--gold">
-                  <i class="fa fa-shopping-bag"></i> Add to Bag
-                </button>
-              </form>
-            </div>
-          </div>
-          {% endfor %}
+          {% include 'products/product_card.html' with products=img %}
         </div>
         {% else %}
         <div class="sv-empty-state">

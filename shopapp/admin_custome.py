@@ -1,19 +1,25 @@
 from django.contrib import admin
 
 
-# ──────────────────────────────────────────────────────────
-#  SUPERADMIN SITE  →  /admin/
-#  Only users with is_superuser = True can access this.
-#  Sellers (is_staff only) are blocked here.
-# ──────────────────────────────────────────────────────────
+def superadmin_has_permission(request):
+    """Only active superusers (is_superuser = True) can access /admin/. Sub-admins are blocked."""
+    return bool(request.user and request.user.is_active and request.user.is_superuser)
+
+
 class SuperAdminSite(admin.AdminSite):
     site_header = 'STYLEVERSE Super Admin'
     site_title  = 'STYLEVERSE Super Admin'
     index_title = 'Super Admin Dashboard'
 
     def has_permission(self, request):
-        """Only superusers (not just staff) can access /admin/"""
-        return request.user.is_active and request.user.is_superuser
+        return superadmin_has_permission(request)
+
+
+# Enforce superuser-only access on default admin.site instance
+admin.site.has_permission = superadmin_has_permission
+admin.site.site_header = 'STYLEVERSE Super Admin'
+admin.site.site_title  = 'STYLEVERSE Super Admin'
+admin.site.index_title = 'Super Admin Dashboard'
 
 
 # ──────────────────────────────────────────────────────────

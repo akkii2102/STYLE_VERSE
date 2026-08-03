@@ -54,35 +54,44 @@
           <li><i class="fa fa-check-circle"></i> Fast delivery</li>
         </ul>
 
-        <!-- Add to Cart -->
-        <form method="POST" action="{% url 'cart' %}" class="sv-pdp__actions">
-          {% csrf_token %}
-          <input type="hidden" name="product_id" value="{{ product.pk }}">
-          <div class="sv-pdp__qty">
-            <label>Qty</label>
-            <div class="sv-qty-wrap">
-              <button type="button" onclick="qtyChange(-1)" class="sv-qty-btn">−</button>
-              <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="10" class="sv-qty-input">
-              <button type="button" onclick="qtyChange(1)" class="sv-qty-btn">+</button>
-            </div>
+        <!-- Qty Selector -->
+        <div class="sv-pdp__qty" style="display:flex; align-items:center; gap:10px; margin-top:24px;">
+          <label style="font-size:13px; font-weight:700; color:var(--sv-muted); margin:0;">Qty</label>
+          <div class="sv-qty-wrap">
+            <button type="button" onclick="qtyChange(-1)" class="sv-qty-btn">−</button>
+            <input type="number" name="quantity" id="qtyInput" form="cartForm" value="1" min="1" max="10" class="sv-qty-input">
+            <button type="button" onclick="qtyChange(1)" class="sv-qty-btn">+</button>
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-            <button type="submit" class="sv-btn sv-btn--lg sv-btn--gold">
-              <i class="fa fa-shopping-bag"></i> Add to Bag
+        </div>
+
+        <!-- Action Buttons Row (Below Qty) -->
+        <div class="sv-pdp__action-group" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px;">
+          <form method="POST" action="{% url 'cart' %}" id="cartForm" style="display:inline-flex; margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.pk }}">
+            <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
+            <button type="submit" class="sv-btn sv-btn--lg sv-btn--gold" style="margin:0; background:#C0A36E; color:#111827; font-weight:700;">
+              <i class="fa-solid fa-lock"></i> Add to Bag
             </button>
-            {% if user.is_authenticated %}
-            <form method="POST" action="{% url 'toggle_wishlist' %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="model_type" value="product">
-              <input type="hidden" name="object_id" value="{{ product.pk }}">
-              <button type="submit" class="sv-btn sv-btn--outline"
-                style="border-color:var(--sv-danger);color:var(--sv-danger);">
-                <i class="fa fa-heart"></i> Wishlist
-              </button>
-            </form>
-            {% endif %}
-          </div>
-        </form>
+          </form>
+
+          {% if user.is_authenticated %}
+          <form method="POST" action="{% url 'toggle_wishlist' %}" style="display:inline-flex; margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
+            <input type="hidden" name="object_id" value="{{ product.pk }}">
+            <button type="submit" class="sv-btn sv-btn--lg"
+              style="margin:0; background:#1A2238; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-heart" style="color:#ef4444;"></i> {% if product.pk in wishlist_ids %}Wishlist{% else %}Wishlist{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}?next={{ request.path }}" class="sv-btn sv-btn--lg"
+            style="margin:0; background:#1A2238; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
+            <i class="fa-regular fa-heart" style="color:#ef4444;"></i> Wishlist
+          </a>
+          {% endif %}
+        </div>
 
         <!-- Share -->
         <div class="sv-pdp__share" style="margin-top:20px;">

@@ -1,9 +1,9 @@
 {% load static %}
 {% for product in products %}
 <div class="sv-product-card">
-  <div class="sv-product-img-wrapper" style="position:relative;">
+  <div class="sv-product-img-wrapper">
     {% if product.image_url %}
-    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="sv-product-img">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="sv-product-img" loading="lazy" onerror="this.outerHTML='<div class=\'sv-product-card__placeholder\'><i class=\'fa fa-shirt\'></i></div>'">
     {% else %}
     <div class="sv-product-card__placeholder"><i class="fa fa-shirt"></i></div>
     {% endif %}
@@ -11,10 +11,10 @@
     <!-- NEW Badge -->
     <span class="sv-tag-badge">NEW</span>
 
-    <!-- Wishlist heart icon -->
+    <!-- Wishlist Heart Button -->
     <form method="POST" action="{% url 'toggle_wishlist' %}" class="sv-wishlist-form">
       {% csrf_token %}
-      <input type="hidden" name="model_type" value="product">
+      <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
       <input type="hidden" name="object_id" value="{{ product.pk }}">
       <button type="submit" class="sv-wishlist-btn" title="Add to Wishlist">
         {% if product.pk in wishlist_ids %}
@@ -25,41 +25,54 @@
       </button>
     </form>
 
-    <!-- Quick View overlay -->
+    <!-- Quick View Overlay -->
     <div class="sv-product-card__overlay">
-      <a href="{% url 'product_detail' product.pk %}" class="sv-btn sv-btn--sm">Quick View</a>
+      <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-quickview-btn">
+        <i class="fa-solid fa-eye"></i> Quick View
+      </a>
     </div>
   </div>
 
   <div class="sv-product-card__info">
-    <span class="sv-product-card__brand">STYLEVERSE</span>
-    <a href="{% url 'product_detail' product.pk %}" class="sv-product-card__name">{{ product.name }}</a>
-
-    <!-- Discount Display -->
-    {% if product.discount > 0 %}
-    <div class="sv-product-card__pricing">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span class="sv-price" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ product.price }}</span>
-        <span class="sv-price" style="color: #e74c3c; font-weight: bold;">₹{{ product.get_discounted_price }}</span>
-        <span style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">{{ product.discount|floatformat:0 }}%</span>
+    <div class="sv-product-card__meta">
+      <span class="sv-product-card__brand">STYLEVERSE</span>
+      <div class="sv-product-card__rating">
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <span class="sv-rating-num">4.9</span>
       </div>
     </div>
-    {% else %}
-    <div class="sv-product-card__price">
-      <span class="sv-price">₹{{ product.price }}</span>
-    </div>
-    {% endif %}
 
-    <!-- Add to Bag Button -->
-    <form method="POST" action="{% url 'cart' %}" style="margin-top:10px;">
-      {% csrf_token %}
-      <input type="hidden" name="product_id" value="{{ product.pk }}">
-      <input type="hidden" name="model_type" value="{{ product.model_name }}">      
-      <input type="hidden" name="quantity" value="1">
-      <button type="submit" class="sv-btn sv-btn--sm sv-btn--full sv-btn--gold">
-        <i class="fa fa-shopping-bag"></i> Add to Bag
-      </button>
-    </form>
+    <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-product-card__name" title="{{ product.name }}">{{ product.name }}</a>
+
+    <!-- Pricing -->
+    <div class="sv-product-card__price-row">
+      {% if product.discount > 0 %}
+      <span class="sv-price">₹{{ product.get_discounted_price }}</span>
+      <span class="sv-price--original">₹{{ product.price }}</span>
+      {% else %}
+      <span class="sv-price">₹{{ product.price }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Dual Action Buttons -->
+    <div class="sv-card-actions">
+      <form method="POST" action="{% url 'cart' %}" class="sv-card-action-form">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.pk }}">
+        <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">      
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="sv-card-btn sv-card-btn--add">
+          <i class="fa-solid fa-bag-shopping"></i> Add
+        </button>
+      </form>
+      <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-card-btn sv-card-btn--buy">
+        Buy Now
+      </a>
+    </div>
   </div>
 </div>
 {% empty %}

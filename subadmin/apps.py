@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class SubshopConfig(AppConfig):
-    name = 'subshop'
+class SubadminConfig(AppConfig):
+    name = 'subadmin'

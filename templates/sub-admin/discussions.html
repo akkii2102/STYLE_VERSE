@@ -68,10 +68,10 @@ border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
 <div class="adm-disc-header">
   <div>
     <h3 style="color:#fff;margin:0;font-size:18px;font-weight:700;">
-      <i class="fa fa-comments" style="color:var(--adm-accent);"></i> Super-Admin & Sub-Admin Discussion Board
+      <i class="fa fa-comments" style="color:var(--adm-accent);"></i> Sub-Admin Workspace Discussion Board
     </h3>
     <p style="color:var(--adm-muted);margin:4px 0 0 0;font-size:13px;">
-      Private messaging space connecting Super Admin and Sub-Admins (Group Broadcasts & Direct Messages).
+      Private messaging space for Sub-Admin store communications (Group Broadcasts & Direct Messages).
     </p>
   </div>
   <button onclick="openDiscModal()" class="btn-new-disc">
@@ -155,7 +155,7 @@ border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
   style="background:var(--adm-card);border-radius:12px;padding:60px 20px;text-align:center;color:var(--adm-muted);border:1px solid var(--adm-border);">
   <i class="fa fa-comments" style="font-size:48px;opacity:.3;margin-bottom:16px;display:block;"></i>
   <h3 style="color:#fff;margin-bottom:8px;">No Discussion Messages</h3>
-  <p style="margin-bottom:20px;">Send a message or query to communicate directly with Super Admin or Sub-Admins.</p>
+  <p style="margin-bottom:20px;">Send a message or query to communicate across team discussions.</p>
   <button onclick="openDiscModal()" class="btn-new-disc">Send First Message</button>
 </div>
 {% endif %}
@@ -189,7 +189,7 @@ border-bottom: 1px solid var(--adm-border); padding-bottom: 12px; }
         <label>Target Recipient (Default Pre-selected)</label>
         <div class="adm-input"
           style="background:#0f0f1a;color:var(--adm-accent);font-weight:700;display:flex;align-items:center;gap:8px;">
-          <i class="fa fa-crown"></i> Super Admin ({{ super_admin.username|default:"Admin@" }})
+          <i class="fa fa-user-shield"></i> Store Admin Support
         </div>
         <input type="hidden" name="recipient" value="superuser">
       </div>

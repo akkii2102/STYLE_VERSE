@@ -18,21 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from shopapp.admin_custome import CustomerAdminSite, SuperAdminSite
+from shopapp.admin_custome import CustomerAdminSite, SuperAdminSite, superadmin_has_permission
 
-# ── Replace the default Django admin site with SuperAdminSite ──────────────
-# This means /admin/ requires is_superuser = True
-# Sellers (is_staff only) CANNOT access /admin/
-# Superusers CAN access both /admin/ and /admin-panel/
-admin.site.__class__ = SuperAdminSite
+# ── Restrict /admin/ access strictly to Superusers (is_superuser = True) ──
+# Sub-admins / Sellers (is_staff only) are BLOCKED from /admin/
+admin.site.has_permission = superadmin_has_permission
 admin.site.site_header = 'STYLEVERSE Super Admin'
 admin.site.site_title  = 'STYLEVERSE Super Admin'
 admin.site.index_title = 'Super Admin Dashboard'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('admin-panel/', include('subshop.urls')),
-    path('seller/', include('subshop.urls')),
+    path('admin-panel/', include('subadmin.urls')),
+    path('seller/', include('subadmin.urls')),
     path('', include('shopapp.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

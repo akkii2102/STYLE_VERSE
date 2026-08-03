@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login — STYLEVERSE</title>
-  <meta name="description" content="Secure Super Admin login portal for STYLEVERSE.">
+  <meta name="description" content="Secure Sub-Admin seller login portal for STYLEVERSE.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -262,13 +262,13 @@
       <div class="brand-mark">SV</div>
       <div class="brand-text">
         <div class="name">STYLEVERSE</div>
-        <div class="tag">Super Admin Portal</div>
+        <div class="tag">Sub-Admin Portal</div>
       </div>
     </div>
 
     <div class="login-left__hero">
       <h1>Your store,<br>fully in control.</h1>
-      <p>You've verified your email. Enter your password below to access the STYLEVERSE admin dashboard.</p>
+      <p>Enter your password below to access the STYLEVERSE Sub-Admin seller dashboard.</p>
 
       <div class="identity-card">
         <div class="id-label"><i class="fa fa-check-circle"></i>&nbsp; Verified Identity</div>
@@ -276,14 +276,14 @@
           <div class="id-avatar">{{ admin_user.username|slice:':2'|upper }}</div>
           <div class="id-info">
             <div class="name">{{ admin_user.get_full_name|default:admin_user.username }}</div>
-            <div class="role">Super Admin · {{ admin_user.email }}</div>
+            <div class="role">Sub Admin · {{ admin_user.email }}</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="login-left__footer">
-      © {% now "Y" %} STYLEVERSE — Super Admin Access Only
+      © {% now "Y" %} STYLEVERSE — Sub-Admin Access Portal
     </div>
   </div>
 
