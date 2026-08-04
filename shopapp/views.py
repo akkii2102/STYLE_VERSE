@@ -416,12 +416,15 @@ def checkout(request):
             )
             # ── Create OrderItems ─────────────────────────
             for item in cart_items:
+                prod = item['product']
                 OrderItem.objects.create(
-                    order        = order_obj,
-                    product_name = item['product'].name,
-                    brand_name   = 'STYLEVERSE',
-                    quantity     = item['quantity'],
-                    unit_price   = item['discounted_price'],
+                    order         = order_obj,
+                    product_code  = getattr(prod, 'product_id_display', getattr(prod, 'product_code', '')),
+                    product_image = getattr(prod, 'image', None),
+                    product_name  = prod.name,
+                    brand_name    = 'STYLEVERSE',
+                    quantity      = item['quantity'],
+                    unit_price    = item['discounted_price'],
                 )
             # ── Clear cart session ────────────────────────
             request.session['cart'] = {}

@@ -52,6 +52,7 @@ class Registration(models.Model):
 # ─────────────────────────────────────────────────────────
 
 class Product(models.Model):
+    product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
@@ -59,6 +60,18 @@ class Product(models.Model):
     image = models.ImageField(upload_to='Product')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_general_products', help_text='Sub-Admin who added this product')
     
+    @property
+    def product_id_display(self):
+        if self.product_code:
+            return self.product_code
+        return f"PRD-{self.id:04d}" if self.id else "PRD-NEW"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.product_code and self.id:
+            self.product_code = f"PRD-{self.id:04d}"
+            super().save(update_fields=['product_code'])
+
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
@@ -94,6 +107,7 @@ class Product(models.Model):
         return 'Store Admin'
 
 class Men(models.Model):
+    product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
@@ -101,6 +115,18 @@ class Men(models.Model):
     image = models.ImageField(upload_to='Product')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_men_products', help_text='Sub-Admin who added this product')
     
+    @property
+    def product_id_display(self):
+        if self.product_code:
+            return self.product_code
+        return f"MEN-{self.id:04d}" if self.id else "MEN-NEW"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.product_code and self.id:
+            self.product_code = f"MEN-{self.id:04d}"
+            super().save(update_fields=['product_code'])
+
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
@@ -136,6 +162,7 @@ class Men(models.Model):
         return 'Store Admin'
 
 class Women(models.Model):
+    product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
@@ -143,6 +170,18 @@ class Women(models.Model):
     image = models.ImageField(upload_to='Product')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_women_products', help_text='Sub-Admin who added this product')
     
+    @property
+    def product_id_display(self):
+        if self.product_code:
+            return self.product_code
+        return f"WMN-{self.id:04d}" if self.id else "WMN-NEW"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.product_code and self.id:
+            self.product_code = f"WMN-{self.id:04d}"
+            super().save(update_fields=['product_code'])
+
     def get_discounted_price(self):
         """Calculate price after discount"""
         if self.discount > 0:
@@ -275,20 +314,49 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order        = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product_name = models.CharField(max_length=200)
-    brand_name   = models.CharField(max_length=100, default='STYLEVERSE')
-    quantity     = models.PositiveIntegerField(default=1)
-    unit_price   = models.FloatField()
-    size         = models.CharField(max_length=10, blank=True)
-    color        = models.CharField(max_length=30, blank=True)
+    order         = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product_code  = models.CharField(max_length=50, blank=True, default='')
+    product_image = models.ImageField(upload_to='OrderItem', null=True, blank=True)
+    product_name  = models.CharField(max_length=200)
+    brand_name    = models.CharField(max_length=100, default='STYLEVERSE')
+    quantity      = models.PositiveIntegerField(default=1)
+    unit_price    = models.FloatField()
+    size          = models.CharField(max_length=10, blank=True)
+    color         = models.CharField(max_length=30, blank=True)
 
     @property
     def sub_total(self):
         return round(self.unit_price * self.quantity, 2)
 
+    @property
+    def code_display(self):
+        if self.product_code:
+            return self.product_code
+        # Lookup matching product from Product, Men, Women models
+        from shopapp.models import Product, Men, Women
+        for model_cls in (Product, Men, Women):
+            p = model_cls.objects.filter(name__iexact=self.product_name).first()
+            if p:
+                return p.product_id_display
+        return f"PRD-{self.id:04d}" if self.id else "PRD-0000"
+
+    @property
+    def image_url(self):
+        if self.product_image:
+            try:
+                return self.product_image.url
+            except Exception:
+                pass
+        # Fallback lookup matching product image from Product, Men, Women
+        from shopapp.models import Product, Men, Women
+        for model_cls in (Product, Men, Women):
+            p = model_cls.objects.filter(name__iexact=self.product_name).first()
+            if p and p.image_url:
+                return p.image_url
+        return ''
+
     def __str__(self):
-        return f"{self.product_name} × {self.quantity}"
+        return f"[{self.code_display}] {self.product_name} × {self.quantity}"
 
 
 # ─────────────────────────────────────────────────────────

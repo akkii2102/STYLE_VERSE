@@ -44,9 +44,26 @@
             <small style="color:var(--adm-muted);">{{ order.phone }}</small>
           </td>
           <td>
-            <div class="adm-order-items">
+            <div class="adm-order-items" style="display:flex;flex-direction:column;gap:8px;">
               {% for item in order.items.all %}
-              {{ item.product_name }} ×{{ item.quantity }}<br>
+              <div style="display:flex;align-items:center;gap:10px;background:#FFFFFF;padding:6px 10px;border-radius:10px;border:1px solid #EAE6DF;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                <div style="width:46px;height:46px;border-radius:8px;overflow:hidden;background:#F6F4EF;flex-shrink:0;border:1px solid #E2DDD5;display:flex;align-items:center;justify-content:center;">
+                  {% if item.image_url %}
+                  <img src="{{ item.image_url }}" alt="{{ item.product_name }}" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='<i class=\'fa fa-shirt\' style=\'color:#A3B19B;\'></i>'">
+                  {% else %}
+                  <i class="fa fa-shirt" style="color:#A3B19B;"></i>
+                  {% endif %}
+                </div>
+                <div style="display:flex;flex-direction:column;line-height:1.35;">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="background:#1B2420;color:#C0A36E;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.5px;">{{ item.code_display }}</span>
+                    <strong style="color:#1B2420;font-size:13px;">{{ item.product_name }}</strong>
+                  </div>
+                  <small style="color:#5B6560;font-size:11.5px;margin-top:3px;">
+                    Qty: <strong style="color:#1B2420;">×{{ item.quantity }}</strong> &middot; ₹{{ item.unit_price }}
+                  </small>
+                </div>
+              </div>
               {% endfor %}
             </div>
           </td>
