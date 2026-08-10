@@ -1322,36 +1322,48 @@
       <!-- Review Form -->
       <div id="writeReviewBox" class="pdp-review-form-wrap">
         <h4><i class="fa fa-pen-to-square" style="color:#c0a36e;"></i> Write Your Review for <em>{{ product.name }}</em></h4>
-        <form onsubmit="submitReview(event)">
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'submit_review' product.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="model_type" value="{{ product.model_name }}">
           <div class="pdp-form-grid">
             <div class="pdp-form-field">
               <label>Your Name</label>
-              <input type="text" id="revName" placeholder="e.g. Rahul Sharma" required>
+              <input type="text" value="{{ user.get_full_name|default:user.username }}" disabled style="background:#f5f5f5; color:#666;">
             </div>
             <div class="pdp-form-field">
               <label>Your Rating</label>
-              <select id="revRating">
-                <option value="5">⭐⭐⭐⭐⭐ — Excellent (5/5)</option>
-                <option value="4">⭐⭐⭐⭐ — Very Good (4/5)</option>
-                <option value="3">⭐⭐⭐ — Average (3/5)</option>
-                <option value="2">⭐⭐ — Below Average (2/5)</option>
-                <option value="1">⭐ — Poor (1/5)</option>
+              <select name="rating">
+                <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; &mdash; Excellent (5/5)</option>
+                <option value="4">&#11088;&#11088;&#11088;&#11088; &mdash; Very Good (4/5)</option>
+                <option value="3">&#11088;&#11088;&#11088; &mdash; Average (3/5)</option>
+                <option value="2">&#11088;&#11088; &mdash; Below Average (2/5)</option>
+                <option value="1">&#11088; &mdash; Poor (1/5)</option>
               </select>
             </div>
           </div>
           <div class="pdp-form-field" style="margin-bottom:14px;">
             <label>Review Title</label>
-            <input type="text" id="revTitle" placeholder="Summarize your experience in one line..." required>
+            <input type="text" name="title" placeholder="Summarize your experience in one line..." required>
           </div>
           <div class="pdp-form-field">
             <label>Your Review</label>
-            <textarea id="revComment" rows="4" placeholder="Tell shoppers about fit, fabric quality, delivery experience..." required></textarea>
+            <textarea name="comment" rows="4" placeholder="Tell shoppers about fit, fabric quality, delivery experience..." required></textarea>
           </div>
           <div class="pdp-form-actions">
             <button type="button" class="pdp-form-cancel" onclick="toggleReviewForm()">Cancel</button>
             <button type="submit" class="pdp-form-submit"><i class="fa fa-paper-plane"></i> Publish Review</button>
           </div>
         </form>
+        {% else %}
+        <div style="text-align:center; padding:30px; color:#666;">
+          <i class="fa fa-lock" style="font-size:32px; color:#c0a36e; margin-bottom:12px; display:block;"></i>
+          <p style="margin-bottom:16px;">Please log in to write a review.</p>
+          <a href="{% url 'login' %}?next={{ request.path }}" class="pdp-form-submit" style="display:inline-block; text-decoration:none; padding:10px 24px;">
+            <i class="fa fa-right-to-bracket"></i> Log In to Review
+          </a>
+        </div>
+        {% endif %}
       </div>
 
       <!-- Reviews List -->
@@ -1360,13 +1372,13 @@
         <div class="pdp-review-card">
           <div class="pdp-rc-top">
             <div class="pdp-rc-user">
-              <div class="pdp-rc-avatar">{{ r.avatar }}</div>
+              <div class="pdp-rc-avatar">{{ r.author_name|default:r.avatar|slice:":1"|upper }}</div>
               <div>
                 <div class="pdp-rc-name">
-                  {{ r.author }}
-                  {% if r.verified %}<span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span>{% endif %}
+                  {{ r.author_name|default:r.author }}
+                  {% if r.is_verified or r.verified %}<span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span>{% endif %}
                 </div>
-                <div class="pdp-rc-date">{{ r.date }}</div>
+                <div class="pdp-rc-date">{{ r.created_at|date:"F j, Y"|default:r.date }}</div>
               </div>
             </div>
             <div class="pdp-rc-stars">
@@ -1380,7 +1392,7 @@
           <div class="pdp-rc-footer">
             <span>Helpful?</span>
             <button type="button" class="pdp-helpful-btn" onclick="helpfulVote(this)">
-              <i class="fa-regular fa-thumbs-up"></i> Yes (<span>{{ r.helpful }}</span>)
+              <i class="fa-regular fa-thumbs-up"></i> Yes (<span>{{ r.helpful_count|default:r.helpful|default:0 }}</span>)
             </button>
             <button type="button" class="pdp-helpful-btn" onclick="reportVote(this)">
               <i class="fa fa-flag"></i> Report

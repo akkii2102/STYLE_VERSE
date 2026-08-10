@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from shopapp import views
 
 from django.contrib.auth import views as auth_views
 
@@ -35,6 +35,9 @@ urlpatterns = [
     # ── Wishlist ──────────────────────────────────────────
     path('wishlist/', views.wishlist, name='wishlist'),
     path('toggle-wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
+
+    # ── Reviews ───────────────────────────────────────────
+    path('product/<int:pk>/review/', views.submit_review, name='submit_review'),
 
     # ── Misc ──────────────────────────────────────────────
     path('cards/', views.card, name='card'),

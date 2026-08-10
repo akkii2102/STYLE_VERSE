@@ -486,3 +486,33 @@ class Announcement(models.Model):
 
     def __str__(self):
         return f"{self.icon} - {self.text}"
+
+
+# ─────────────────────────────────────────────────────────
+#  PRODUCT REVIEWS
+# ─────────────────────────────────────────────────────────
+
+class ProductReview(models.Model):
+    MODEL_CHOICES = [
+        ('product', 'General Product'),
+        ('men', 'Men'),
+        ('women', 'Women'),
+    ]
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
+
+    user         = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='product_reviews')
+    model_type   = models.CharField(max_length=20, choices=MODEL_CHOICES, default='product')
+    object_id    = models.PositiveIntegerField(help_text='PK of the reviewed product')
+    author_name  = models.CharField(max_length=100, help_text='Display name of reviewer')
+    rating       = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=5)
+    title        = models.CharField(max_length=200)
+    comment      = models.TextField()
+    is_verified  = models.BooleanField(default=False, help_text='Verified purchase')
+    helpful_count = models.PositiveIntegerField(default=0)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.author_name} ({self.rating}★) on {self.model_type}:{self.object_id}"
