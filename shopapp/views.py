@@ -189,11 +189,100 @@ def product_detail(request, pk):
     sizes  = all_sizes
     colors = all_colors[:4]
 
-    wishlist_ids = set()
-    if request.user.is_authenticated:
-        wishlist_ids = set(
-            Wishlist.objects.filter(user=request.user).values_list('object_id', flat=True)
-        )
+    reviews = [
+        {
+            'author': "Aarav Sharma",
+            'avatar': "A",
+            'rating': 5,
+            'date': "August 2, 2026",
+            'title': "Superb quality and fantastic fit!",
+            'comment': "Absolutely love this product! The fabric is incredibly soft and extremely comfortable for all-day wear. The stitching and finishing are top-notch — you can clearly feel the premium quality as soon as you hold it. The colour is exactly as shown in the pictures. Highly recommend to anyone who values style and quality!",
+            'verified': True,
+            'helpful': 42,
+        },
+        {
+            'author': "Priya Patel",
+            'avatar': "P",
+            'rating': 5,
+            'date': "July 28, 2026",
+            'title': "Looks even better in person — wow!",
+            'comment': "I was a bit nervous ordering online but this exceeded all my expectations. It arrived in beautiful luxury packaging within 2 days. The colour is true to the photos and it fits like it was custom tailored for me. Will definitely be ordering more pieces from STYLEVERSE!",
+            'verified': True,
+            'helpful': 35,
+        },
+        {
+            'author': "Rohan Verma",
+            'avatar': "R",
+            'rating': 5,
+            'date': "July 20, 2026",
+            'title': "Perfect for both casual and formal occasions",
+            'comment': "What I loved most is the versatility. I wore it to a casual brunch on Sunday and then dressed it up for a work meeting on Monday. Both times I got compliments! The fabric breathes really well even in summer heat. The size L fits perfectly as per the size chart.",
+            'verified': True,
+            'helpful': 28,
+        },
+        {
+            'author': "Sneha Iyer",
+            'avatar': "S",
+            'rating': 4,
+            'date': "July 14, 2026",
+            'title': "Great value for premium quality",
+            'comment': "Really happy with this purchase! The material feels premium and the design looks very elegant. Delivery was super fast. Dropping one star only because the colour was slightly lighter than what's shown on the website, but honestly it still looks amazing. Will be buying more.",
+            'verified': True,
+            'helpful': 19,
+        },
+        {
+            'author': "Karan Mehta",
+            'avatar': "K",
+            'rating': 5,
+            'date': "July 7, 2026",
+            'title': "Best online fashion purchase I've ever made",
+            'comment': "I've bought from many brands online but STYLEVERSE is in a different league. The attention to detail in the product is remarkable — even the stitching at the hem is perfectly done. It holds its shape after washing and the colour remains vibrant. A true premium product.",
+            'verified': True,
+            'helpful': 31,
+        },
+        {
+            'author': "Divya Nair",
+            'avatar': "D",
+            'rating': 4,
+            'date': "June 28, 2026",
+            'title': "Gorgeous product, great packaging",
+            'comment': "The packaging itself made me feel like I was unboxing a luxury gift! The product inside is equally impressive. Fabric is smooth, the fit is flattering, and it washes well without losing shape. My only suggestion would be to add more colour options. Overall a fantastic buy!",
+            'verified': True,
+            'helpful': 24,
+        },
+        {
+            'author': "Arjun Singh",
+            'avatar': "A",
+            'rating': 5,
+            'date': "June 18, 2026",
+            'title': "Bought 3 pieces — worth every rupee!",
+            'comment': "I liked the first one so much that I went back and ordered two more in different colours. The quality is consistently excellent across all three. They fit true to size and are incredibly comfortable. The fabric doesn't wrinkle easily which is a huge plus for travel. 10/10 would recommend!",
+            'verified': True,
+            'helpful': 47,
+        },
+    ]
+
+    rating_stats = {
+        'average': 4.8,
+        'total': 148,
+        'five_star': 78,
+        'four_star': 16,
+        'three_star': 4,
+        'two_star': 1,
+        'one_star': 1,
+    }
+
+    specifications = [
+        ('Brand', brand),
+        ('SKU / Code', sku),
+        ('Category', category),
+        ('Material / Fabric', '100% Premium Cotton Blend'),
+        ('Fit Type', 'Regular Comfort Fit'),
+        ('Sleeve / Collar', 'Standard Style'),
+        ('Care Instructions', 'Machine wash cold with like colors. Tumble dry low.'),
+        ('Country of Origin', 'Made in India'),
+        ('Warranty & Guarantee', '100% Quality & Authenticity Guaranteed'),
+    ]
 
     return render(request, 'products/product_detail.html', {
         'product':        product,
@@ -207,24 +296,49 @@ def product_detail(request, pk):
         'sizes':          sizes,
         'colors':         colors,
         'wishlist_ids':   wishlist_ids,
+        'reviews':        reviews,
+        'rating_stats':   rating_stats,
+        'specifications': specifications,
     })
 
 
 def product_list(request):
     sort_by = request.GET.get('sort', '-pk')
+    brand_filter = request.GET.get('brand', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
     products = get_all_combined_products(sort_by)
+    if brand_filter:
+        products = [p for p in products if brand_filter.lower() in p.name.lower() or brand_filter.lower() in getattr(p, 'product_code', '').lower()]
+
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
             Wishlist.objects.filter(user=request.user).values_list('object_id', flat=True)
         )
+
+    all_brands = [
+        {'name': "Nike", 'icon': "fa-bolt", 'slug': "Nike"},
+        {'name': "Adidas", 'icon': "fa-running", 'slug': "Adidas"},
+        {'name': "Zara", 'icon': "fa-gem", 'slug': "Zara"},
+        {'name': "Levi's", 'icon': "fa-vest", 'slug': "Levi"},
+        {'name': "H&M", 'icon': "fa-heart", 'slug': "H&M"},
+        {'name': "Biba", 'icon': "fa-fan", 'slug': "Biba"},
+        {'name': "Louis Philippe", 'icon': "fa-crown", 'slug': "Louis"},
+        {'name': "Gucci", 'icon': "fa-gem", 'slug': "Gucci"},
+        {'name': "Puma", 'icon': "fa-paw", 'slug': "Puma"},
+        {'name': "Raymond", 'icon': "fa-user-tie", 'slug': "Raymond"},
+        {'name': "Tommy Hilfiger", 'icon': "fa-flag", 'slug': "Tommy"},
+        {'name': "Mango", 'icon': "fa-star", 'slug': "Mango"},
+    ]
+
     return render(request, 'products/product_list.html', {
         'img': products,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
+        'selected_brand': brand_filter,
+        'brands': all_brands,
     })
 
 
@@ -516,37 +630,81 @@ def toggle_wishlist(request):
 
 def men(request):
     sort_by = request.GET.get('sort', '-pk')
+    brand_filter = request.GET.get('brand', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
-    products = Men.objects.all().order_by(sort_by)
+    
+    queryset = Men.objects.all()
+    if brand_filter:
+        queryset = queryset.filter(Q(name__icontains=brand_filter) | Q(product_code__icontains=brand_filter))
+        
+    products = queryset.order_by(sort_by)
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
             Wishlist.objects.filter(user=request.user, model_type='men').values_list('object_id', flat=True)
         )
+
+    men_brands = [
+        {'name': "Nike", 'icon': "fa-bolt", 'slug': "Nike"},
+        {'name': "Adidas", 'icon': "fa-running", 'slug': "Adidas"},
+        {'name': "Levi's", 'icon': "fa-vest", 'slug': "Levi"},
+        {'name': "Zara", 'icon': "fa-gem", 'slug': "Zara"},
+        {'name': "Louis Philippe", 'icon': "fa-crown", 'slug': "Louis"},
+        {'name': "Raymond", 'icon': "fa-user-tie", 'slug': "Raymond"},
+        {'name': "Tommy Hilfiger", 'icon': "fa-flag", 'slug': "Tommy"},
+        {'name': "Puma", 'icon': "fa-paw", 'slug': "Puma"},
+        {'name': "Allen Solly", 'icon': "fa-tshirt", 'slug': "Allen"},
+        {'name': "Jack & Jones", 'icon': "fa-tag", 'slug': "Jack"},
+    ]
+
     return render(request, 'mens/men.html', {
         'img': products,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
+        'selected_brand': brand_filter,
+        'brands': men_brands,
     })
 
 
 def women(request):
     sort_by = request.GET.get('sort', '-pk')
+    brand_filter = request.GET.get('brand', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
-    products = Women.objects.all().order_by(sort_by)
+
+    queryset = Women.objects.all()
+    if brand_filter:
+        queryset = queryset.filter(Q(name__icontains=brand_filter) | Q(product_code__icontains=brand_filter))
+
+    products = queryset.order_by(sort_by)
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
             Wishlist.objects.filter(user=request.user, model_type='women').values_list('object_id', flat=True)
         )
+
+    women_brands = [
+        {'name': "Zara", 'icon': "fa-gem", 'slug': "Zara"},
+        {'name': "H&M", 'icon': "fa-heart", 'slug': "H&M"},
+        {'name': "Biba", 'icon': "fa-fan", 'slug': "Biba"},
+        {'name': "FabIndia", 'icon': "fa-leaf", 'slug': "FabIndia"},
+        {'name': "Mango", 'icon': "fa-star", 'slug': "Mango"},
+        {'name': "Forever 21", 'icon': "fa-wand-magic-sparkles", 'slug': "Forever"},
+        {'name': "Vera Moda", 'icon': "fa-sparkles", 'slug': "Vera"},
+        {'name': "Gucci", 'icon': "fa-crown", 'slug': "Gucci"},
+        {'name': "W for Woman", 'icon': "fa-spa", 'slug': "Woman"},
+        {'name': "Aurelia", 'icon': "fa-ribbon", 'slug': "Aurelia"},
+    ]
+
     return render(request, 'womens/women.html', {
         'img': products,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
+        'selected_brand': brand_filter,
+        'brands': women_brands,
     })
 
 

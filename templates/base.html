@@ -108,8 +108,196 @@
 
   {% block extra_js %}{% endblock %}
 
+  <!-- ══ GLOBAL QUICK VIEW MODAL ══ -->
+  <style>
+    .sv-gqv-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(10,10,25,0.7);
+      z-index: 99000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .sv-gqv-backdrop.open { display: flex; }
+    .sv-gqv-modal {
+      background: #fff;
+      border-radius: 20px;
+      max-width: 840px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+      animation: gqvIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes gqvIn {
+      from { opacity:0; transform:translateY(28px) scale(0.96); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .sv-gqv-modal::-webkit-scrollbar { width: 4px; }
+    .sv-gqv-modal::-webkit-scrollbar-thumb { background: #c0a36e; border-radius: 4px; }
+    .sv-gqv-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 36px; height: 36px; background: #f0ece6;
+      border: none; border-radius: 50%;
+      font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #444; z-index: 10; transition: all .2s;
+    }
+    .sv-gqv-close:hover { background: #6b2737; color: #fff; }
+    .sv-gqv-body { display: grid; grid-template-columns: 1fr 1fr; }
+    .sv-gqv-img-side {
+      aspect-ratio: 3/4; background: #f5f2ee;
+      border-radius: 20px 0 0 20px; overflow: hidden;
+    }
+    .sv-gqv-img-side img { width:100%; height:100%; object-fit:cover; }
+    .sv-gqv-placeholder-side {
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:64px; color:#ccc;
+    }
+    .sv-gqv-info-side {
+      padding: 36px 30px;
+      display: flex; flex-direction: column; justify-content: center; gap: 0;
+    }
+    .sv-gqv-brand-tag {
+      font-size: 10px; font-weight: 800; letter-spacing: 3px;
+      color: #c0a36e; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .sv-gqv-pname {
+      font-size: 22px; font-weight: 800; color: #1a1a2e;
+      margin: 0 0 10px; font-family: 'Outfit',sans-serif; line-height:1.2;
+    }
+    .sv-gqv-stars-row {
+      color: #c0a36e; font-size: 13px; display:flex;
+      gap:2px; align-items:center; margin-bottom:14px;
+    }
+    .sv-gqv-stars-row span { font-size:12px; color:#888; margin-left:6px; }
+    .sv-gqv-price-big {
+      font-size:28px; font-weight:800; color:#1a1a2e;
+      font-family:'Outfit',sans-serif; margin-bottom:4px;
+    }
+    .sv-gqv-price-old { font-size:15px; color:#aaa; text-decoration:line-through; margin-left:6px; }
+    .sv-gqv-desc { font-size:13px; color:#666; line-height:1.65; margin:10px 0 16px; }
+    .sv-gqv-hr { height:1px; background:#ede8df; margin:14px 0; }
+    .sv-gqv-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:8px; }
+    .sv-gqv-sizes { display:flex; gap:7px; margin-bottom:18px; flex-wrap:wrap; }
+    .sv-gqv-sz {
+      padding:6px 14px; border:1.5px solid #ddd; border-radius:7px;
+      font-size:12px; font-weight:700; cursor:pointer; background:#fff; color:#444;
+      transition:all .2s;
+    }
+    .sv-gqv-sz:hover, .sv-gqv-sz.active { border-color:#6b2737; background:#6b2737; color:#fff; }
+    .sv-gqv-btn-add {
+      padding:13px; background:#1a1a2e; color:#fff;
+      border:none; border-radius:11px; font-size:14px; font-weight:700;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      gap:8px; transition:all .2s; margin-bottom:10px; width:100%;
+      font-family:'Inter',sans-serif;
+    }
+    .sv-gqv-btn-add:hover { background:#2d2d4e; }
+    .sv-gqv-btn-detail {
+      padding:12px; background:transparent; color:#6b2737;
+      border:1.5px solid #6b2737; border-radius:11px; font-size:13px; font-weight:700;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      gap:8px; transition:all .2s; text-decoration:none; width:100%;
+      font-family:'Inter',sans-serif;
+    }
+    .sv-gqv-btn-detail:hover { background:#6b2737; color:#fff; }
+    @media(max-width:640px) {
+      .sv-gqv-body { grid-template-columns:1fr; }
+      .sv-gqv-img-side { border-radius:20px 20px 0 0; aspect-ratio:16/9; }
+      .sv-gqv-info-side { padding:20px; }
+    }
+  </style>
 
+  <div class="sv-gqv-backdrop" id="gqvBackdrop" onclick="if(event.target===this)closeQuickView()">
+    <div class="sv-gqv-modal" id="gqvModal">
+      <button class="sv-gqv-close" onclick="closeQuickView()"><i class="fa fa-xmark"></i></button>
+      <div class="sv-gqv-body">
+        <div class="sv-gqv-img-side" id="gqvImgSide">
+          <div class="sv-gqv-placeholder-side"><i class="fa fa-shirt"></i></div>
+        </div>
+        <div class="sv-gqv-info-side">
+          <div class="sv-gqv-brand-tag">STYLEVERSE ESSENTIALS</div>
+          <h3 class="sv-gqv-pname" id="gqvName">Loading…</h3>
+          <div class="sv-gqv-stars-row">
+            <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+            <i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
+            <span>4.8 · 148 Reviews</span>
+          </div>
+          <div>
+            <span class="sv-gqv-price-big" id="gqvPrice">₹0</span>
+            <span class="sv-gqv-price-old" id="gqvPriceOld" style="display:none;"></span>
+          </div>
+          <p class="sv-gqv-desc">Premium quality crafted for all-day comfort and effortless style — a wardrobe essential that transcends seasons.</p>
+          <div class="sv-gqv-hr"></div>
+          <div class="sv-gqv-lbl">SELECT SIZE</div>
+          <div class="sv-gqv-sizes" id="gqvSizes">
+            <button class="sv-gqv-sz active" onclick="svQvSize(this)">XS</button>
+            <button class="sv-gqv-sz" onclick="svQvSize(this)">S</button>
+            <button class="sv-gqv-sz" onclick="svQvSize(this)">M</button>
+            <button class="sv-gqv-sz" onclick="svQvSize(this)">L</button>
+            <button class="sv-gqv-sz" onclick="svQvSize(this)">XL</button>
+            <button class="sv-gqv-sz" onclick="svQvSize(this)">XXL</button>
+          </div>
+          <div id="gqvActions"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    function openQuickView(pk, name, imgUrl, price, discPrice, detailUrl) {
+      document.getElementById('gqvName').textContent = name;
+
+      const imgSide = document.getElementById('gqvImgSide');
+      if (imgUrl && imgUrl !== 'undefined' && imgUrl !== '') {
+        imgSide.innerHTML = `<img src="${imgUrl}" alt="${name}">`;
+      } else {
+        imgSide.innerHTML = `<div class="sv-gqv-placeholder-side"><i class="fa fa-shirt"></i></div>`;
+      }
+
+      const priceEl = document.getElementById('gqvPrice');
+      const oldEl   = document.getElementById('gqvPriceOld');
+      if (discPrice && discPrice.trim() !== '') {
+        priceEl.textContent = '₹' + discPrice;
+        oldEl.textContent   = '₹' + price;
+        oldEl.style.display = 'inline';
+      } else {
+        priceEl.textContent = '₹' + price;
+        oldEl.style.display = 'none';
+      }
+
+      const csrf = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || []).pop() || '';
+      document.getElementById('gqvActions').innerHTML = `
+        <form method="POST" action="/cart/" style="margin:0 0 10px;">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${csrf}">
+          <input type="hidden" name="product_id" value="${pk}">
+          <input type="hidden" name="quantity" value="1">
+          <button type="submit" class="sv-gqv-btn-add"><i class="fa fa-bag-shopping"></i> Add to Bag</button>
+        </form>
+        <a href="${detailUrl}" class="sv-gqv-btn-detail"><i class="fa fa-eye"></i> Full Product Details</a>
+      `;
+
+      document.getElementById('gqvBackdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeQuickView() {
+      document.getElementById('gqvBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function svQvSize(btn) {
+      document.querySelectorAll('.sv-gqv-sz').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQuickView(); });
+  </script>
 </body>
-
 </html>

@@ -3,9 +3,1049 @@
 {% block title %}{{ product.name }} — STYLEVERSE{% endblock %}
 {% block content %}
 
+<style>
+/* ================================================================
+   PRODUCT DETAIL PAGE — Premium Redesign
+   ================================================================ */
+
+/* Breadcrumb */
+.pdp-breadcrumb {
+  background: #f9f7f4;
+  border-bottom: 1px solid #ede8e0;
+  padding: 12px 0;
+}
+.pdp-breadcrumb-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #888;
+}
+.pdp-breadcrumb-inner a { color: #888; text-decoration: none; }
+.pdp-breadcrumb-inner a:hover { color: #6b2737; }
+.pdp-breadcrumb-inner span { color: #1a1a2e; font-weight: 600; }
+.pdp-breadcrumb-inner i { font-size: 10px; }
+
+/* Main Layout */
+.pdp-wrapper {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ── Hero Grid ── */
+.pdp-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+/* Gallery */
+.pdp-gallery {
+  position: sticky;
+  top: 80px;
+}
+.pdp-main-img-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f5f2ee;
+  aspect-ratio: 3/4;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.10);
+}
+.pdp-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  cursor: zoom-in;
+}
+.pdp-main-img-wrap:hover .pdp-main-img {
+  transform: scale(1.05);
+}
+.pdp-badge-new {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  background: #6b2737;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.pdp-badge-discount {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 4px;
+}
+.pdp-placeholder-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, #f5f2ee 0%, #ede8df 100%);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 60px;
+}
+
+/* Thumbnails */
+.pdp-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.pdp-thumb {
+  width: 72px;
+  height: 88px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.pdp-thumb.active, .pdp-thumb:hover {
+  border-color: #6b2737;
+  opacity: 1;
+}
+.pdp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Info Panel ── */
+.pdp-info { display: flex; flex-direction: column; gap: 0; }
+
+.pdp-info-brand {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #c0a36e;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.pdp-info h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1.2;
+  margin: 0 0 14px;
+}
+
+/* Rating row */
+.pdp-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.pdp-stars { color: #c0a36e; font-size: 14px; display: flex; gap: 2px; }
+.pdp-rating-num { font-weight: 700; font-size: 14px; color: #1a1a2e; }
+.pdp-rating-count { font-size: 13px; color: #888; }
+.pdp-rating-divider { color: #ddd; }
+
+/* Price */
+.pdp-price-block {
+  background: linear-gradient(135deg, #fdfbf7, #f5f1ea);
+  border: 1px solid #ede8df;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.pdp-price-main {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1a2e;
+  font-family: 'Outfit', sans-serif;
+}
+.pdp-price-original {
+  font-size: 18px;
+  font-weight: 500;
+  color: #aaa;
+  text-decoration: line-through;
+}
+.pdp-price-save-tag {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+.pdp-free-ship {
+  font-size: 12px;
+  color: #2f6b4f;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+/* Divider */
+.pdp-divider {
+  height: 1px;
+  background: #ede8df;
+  margin: 18px 0;
+}
+
+/* Size & Color Selectors */
+.pdp-selector-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pdp-size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.pdp-size-btn {
+  width: 48px;
+  height: 44px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+  color: #444;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pdp-size-btn:hover, .pdp-size-btn.active {
+  border-color: #6b2737;
+  background: #6b2737;
+  color: #fff;
+}
+.pdp-color-grid {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.pdp-color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.pdp-color-swatch:hover, .pdp-color-swatch.active {
+  outline-color: #6b2737;
+}
+
+/* Qty */
+.pdp-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.pdp-qty-label { font-size: 13px; font-weight: 700; color: #666; }
+.pdp-qty-control {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pdp-qty-btn {
+  width: 40px;
+  height: 42px;
+  background: #f9f7f4;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #444;
+  transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pdp-qty-btn:hover { background: #ede8df; }
+.pdp-qty-input {
+  width: 52px;
+  height: 42px;
+  border: none;
+  border-left: 1.5px solid #ddd;
+  border-right: 1.5px solid #ddd;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+  outline: none;
+  background: #fff;
+}
+
+/* Stock status */
+.pdp-stock-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pdp-stock-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: stockPulse 1.5s ease infinite;
+}
+@keyframes stockPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.pdp-stock-text { color: #2f6b4f; }
+
+/* CTA Buttons */
+.pdp-cta-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.pdp-btn-bag {
+  padding: 15px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.pdp-btn-bag:hover { background: #2d2d4e; transform: translateY(-1px); }
+.pdp-btn-buy {
+  padding: 15px;
+  background: linear-gradient(135deg, #c0a36e, #d8bc88);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.pdp-btn-buy:hover { background: linear-gradient(135deg, #b0933e, #c8ac78); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,163,110,0.35); }
+
+.pdp-btn-wishlist {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b2737;
+  background: none;
+  border: 1.5px solid #e7ddd6;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  justify-content: center;
+}
+.pdp-btn-wishlist:hover { background: #fff5f6; border-color: #6b2737; }
+
+/* Trust badges */
+.pdp-trust-badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.pdp-trust-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 8px;
+  background: #f9f7f4;
+  border: 1px solid #ede8df;
+  border-radius: 10px;
+  text-align: center;
+}
+.pdp-trust-badge i { font-size: 18px; color: #c0a36e; }
+.pdp-trust-badge span { font-size: 10.5px; font-weight: 600; color: #555; line-height: 1.3; }
+
+/* Share */
+.pdp-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+.pdp-share a {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #f0ece6;
+  display: flex; align-items: center; justify-content: center;
+  color: #555;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+.pdp-share a:hover { background: #6b2737; color: #fff; }
+
+/* ================================================================
+   TABS SECTION
+   ================================================================ */
+.pdp-tabs-section {
+  margin-top: 60px;
+  border: 1px solid #ede8df;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.04);
+}
+.pdp-tabs-nav {
+  display: flex;
+  background: #faf8f5;
+  border-bottom: 1px solid #ede8df;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pdp-tabs-nav::-webkit-scrollbar { display: none; }
+.pdp-tab-btn {
+  padding: 18px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+}
+.pdp-tab-btn:hover { color: #6b2737; }
+.pdp-tab-btn.active {
+  color: #6b2737;
+  border-bottom-color: #6b2737;
+  background: #fff;
+  font-weight: 700;
+}
+.pdp-tab-pane { display: none; padding: 36px; }
+.pdp-tab-pane.active { display: block; }
+
+/* Specs table */
+.pdp-specs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pdp-specs-table tr:last-child td,
+.pdp-specs-table tr:last-child th { border-bottom: none; }
+.pdp-specs-table th, .pdp-specs-table td {
+  padding: 13px 18px;
+  text-align: left;
+  border-bottom: 1px solid #f0ece6;
+  font-size: 14px;
+}
+.pdp-specs-table th {
+  width: 32%;
+  font-weight: 600;
+  color: #888;
+  background: #faf8f5;
+}
+.pdp-specs-table td { font-weight: 500; color: #1a1a2e; }
+
+/* ── Reviews Tab ── */
+.pdp-reviews-header {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  gap: 40px;
+  align-items: center;
+  background: #faf8f5;
+  border: 1px solid #ede8df;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+.pdp-score-box { text-align: center; }
+.pdp-score-num {
+  font-size: 56px;
+  font-weight: 900;
+  color: #1a1a2e;
+  line-height: 1;
+  font-family: 'Outfit', sans-serif;
+}
+.pdp-score-stars { color: #c0a36e; font-size: 18px; margin: 6px 0; display: flex; justify-content: center; gap: 3px; }
+.pdp-score-count { font-size: 13px; color: #888; }
+
+/* Rating bars */
+.pdp-rating-bars { display: flex; flex-direction: column; gap: 9px; }
+.pdp-rating-bar-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.pdp-rating-bar-label { width: 50px; color: #666; }
+.pdp-rating-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #ede8df;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.pdp-rating-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c0a36e, #e2c97a);
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+.pdp-rating-bar-pct { width: 36px; font-weight: 600; color: #888; text-align: right; font-size: 12px; }
+
+/* Write review btn */
+.pdp-write-review-btn {
+  padding: 14px 22px;
+  background: #6b2737;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+.pdp-write-review-btn:hover { background: #8a3347; transform: translateY(-1px); }
+
+/* Review Form */
+.pdp-review-form-wrap {
+  display: none;
+  background: #fdfbf7;
+  border: 1.5px solid #c0a36e;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+.pdp-review-form-wrap h4 { font-size: 17px; margin: 0 0 20px; color: #1a1a2e; }
+.pdp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.pdp-form-field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  display: block;
+  margin-bottom: 6px;
+}
+.pdp-form-field input,
+.pdp-form-field select,
+.pdp-form-field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a2e;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.pdp-form-field input:focus,
+.pdp-form-field select:focus,
+.pdp-form-field textarea:focus { border-color: #6b2737; }
+.pdp-form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
+.pdp-form-cancel {
+  padding: 11px 20px;
+  background: #f0ece6;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  font-family: 'Inter', sans-serif;
+}
+.pdp-form-cancel:hover { background: #e7e1d7; }
+.pdp-form-submit {
+  padding: 11px 22px;
+  background: #6b2737;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+}
+.pdp-form-submit:hover { background: #8a3347; }
+
+/* Review Cards */
+.pdp-review-card {
+  padding: 22px 24px;
+  border: 1px solid #ede8df;
+  border-radius: 14px;
+  background: #fff;
+  margin-bottom: 14px;
+  transition: box-shadow 0.2s ease;
+}
+.pdp-review-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+.pdp-rc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.pdp-rc-user { display: flex; align-items: center; gap: 12px; }
+.pdp-rc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6b2737, #9c3e54);
+  color: #fff;
+  font-weight: 800;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pdp-rc-name { font-weight: 700; font-size: 15px; color: #1a1a2e; }
+.pdp-rc-date { font-size: 12px; color: #aaa; margin-top: 2px; }
+.pdp-rc-verified {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2f6b4f;
+  background: #e4f0ea;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.pdp-rc-stars { color: #c0a36e; font-size: 13px; display: flex; gap: 2px; flex-shrink: 0; }
+.pdp-rc-title { font-size: 15.5px; font-weight: 700; color: #1a1a2e; margin: 0 0 8px; }
+.pdp-rc-body { font-size: 13.5px; color: #555; line-height: 1.65; margin: 0 0 14px; }
+.pdp-rc-footer { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #aaa; }
+.pdp-helpful-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+.pdp-helpful-btn:hover { background: #f9f7f4; border-color: #c0a36e; color: #6b2737; }
+
+/* Shipping tab */
+.pdp-ship-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.pdp-ship-card {
+  padding: 24px;
+  background: #faf8f5;
+  border: 1px solid #ede8df;
+  border-radius: 14px;
+  text-align: center;
+}
+.pdp-ship-card i { font-size: 30px; color: #6b2737; display: block; margin-bottom: 14px; }
+.pdp-ship-card h4 { font-size: 15px; margin: 0 0 8px; color: #1a1a2e; }
+.pdp-ship-card p { font-size: 13px; color: #666; line-height: 1.55; margin: 0; }
+
+/* ================================================================
+   RELATED & RECENTLY VIEWED
+   ================================================================ */
+.pdp-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 56px 0 24px;
+}
+.pdp-section-head h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdp-section-head h2 i { color: #c0a36e; }
+.pdp-view-all {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b2737;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: gap 0.2s;
+}
+.pdp-view-all:hover { gap: 9px; }
+
+/* Product grid */
+.pdp-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.pdp-prod-card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #ede8df;
+  transition: all 0.25s ease;
+}
+.pdp-prod-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.09);
+}
+.pdp-prod-img-wrap {
+  position: relative;
+  aspect-ratio: 3/4;
+  background: #f5f2ee;
+  overflow: hidden;
+}
+.pdp-prod-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.pdp-prod-card:hover .pdp-prod-img { transform: scale(1.04); }
+.pdp-prod-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26,26,46,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.pdp-prod-card:hover .pdp-prod-overlay { opacity: 1; }
+.pdp-prod-overlay a {
+  padding: 10px 20px;
+  background: #fff;
+  color: #1a1a2e;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.pdp-prod-overlay a:hover { background: #c0a36e; color: #1a1a2e; }
+.pdp-prod-new-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #6b2737;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.pdp-prod-info { padding: 14px; }
+.pdp-prod-brand { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #c0a36e; text-transform: uppercase; }
+.pdp-prod-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-decoration: none;
+  display: block;
+  margin: 4px 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pdp-prod-name:hover { color: #6b2737; }
+.pdp-prod-price { font-size: 16px; font-weight: 800; color: #1a1a2e; }
+.pdp-prod-price-old { font-size: 12px; color: #aaa; text-decoration: line-through; margin-left: 5px; }
+
+/* ================================================================
+   QUICK VIEW MODAL
+   ================================================================ */
+.sv-qv-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 30, 0.72);
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.sv-qv-backdrop.open { display: flex; }
+
+.sv-qv-modal {
+  background: #fff;
+  border-radius: 20px;
+  max-width: 820px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.22);
+  animation: qvSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes qvSlideIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sv-qv-modal::-webkit-scrollbar { width: 4px; }
+.sv-qv-modal::-webkit-scrollbar-track { background: #f5f2ee; }
+.sv-qv-modal::-webkit-scrollbar-thumb { background: #c0a36e; border-radius: 4px; }
+
+.sv-qv-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: #f0ece6;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+.sv-qv-close:hover { background: #6b2737; color: #fff; }
+
+.sv-qv-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.sv-qv-img-wrap {
+  aspect-ratio: 3/4;
+  background: #f5f2ee;
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
+}
+.sv-qv-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sv-qv-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  color: #ccc;
+}
+.sv-qv-info {
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+.sv-qv-brand {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #c0a36e;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.sv-qv-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 10px;
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.2;
+}
+.sv-qv-stars { color: #c0a36e; font-size: 13px; display: flex; gap: 2px; align-items: center; margin-bottom: 14px; }
+.sv-qv-stars span { font-size: 12px; color: #888; margin-left: 6px; }
+.sv-qv-price {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+  font-family: 'Outfit', sans-serif;
+}
+.sv-qv-price-old {
+  font-size: 15px;
+  color: #aaa;
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+.sv-qv-desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  margin: 10px 0 16px;
+}
+.sv-qv-divider { height: 1px; background: #ede8df; margin: 14px 0; }
+.sv-qv-size-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 8px;
+}
+.sv-qv-sizes {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.sv-qv-size-opt {
+  padding: 6px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+  color: #444;
+  transition: all 0.2s;
+}
+.sv-qv-size-opt:hover, .sv-qv-size-opt.active {
+  border-color: #6b2737;
+  background: #6b2737;
+  color: #fff;
+}
+.sv-qv-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+.sv-qv-btn-bag {
+  padding: 13px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+}
+.sv-qv-btn-bag:hover { background: #2d2d4e; }
+.sv-qv-btn-detail {
+  padding: 12px;
+  background: transparent;
+  color: #6b2737;
+  border: 1.5px solid #6b2737;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+}
+.sv-qv-btn-detail:hover { background: #6b2737; color: #fff; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .pdp-hero { grid-template-columns: 1fr; gap: 36px; }
+  .pdp-gallery { position: static; }
+  .pdp-product-grid { grid-template-columns: repeat(2, 1fr); }
+  .pdp-reviews-header { grid-template-columns: 1fr; gap: 20px; }
+}
+@media (max-width: 768px) {
+  .pdp-wrapper { padding: 20px 16px 60px; }
+  .pdp-info h1 { font-size: 24px; }
+  .pdp-cta-group { grid-template-columns: 1fr; }
+  .pdp-trust-badges { grid-template-columns: 1fr 1fr; }
+  .pdp-tab-pane { padding: 20px; }
+  .pdp-product-grid { grid-template-columns: 1fr 1fr; }
+  .sv-qv-body { grid-template-columns: 1fr; }
+  .sv-qv-img-wrap { border-radius: 20px 20px 0 0; aspect-ratio: 16/9; }
+  .pdp-form-grid { grid-template-columns: 1fr; }
+}
+</style>
+
 <!-- Breadcrumb -->
-<div class="sv-breadcrumb">
-  <div class="sv-container">
+<div class="pdp-breadcrumb">
+  <div class="pdp-breadcrumb-inner">
     <a href="{% url 'index' %}">Home</a>
     <i class="fa fa-chevron-right"></i>
     <a href="{% url 'product_list' %}">Shop</a>
@@ -14,174 +1054,650 @@
   </div>
 </div>
 
-<section class="sv-section">
-  <div class="sv-container">
-    <div class="sv-pdp">
+<div class="pdp-wrapper">
 
-      <!-- Gallery -->
-      <div class="sv-pdp__gallery">
-        {% if product.image %}
-        <div class="sv-pdp__img-wrap">
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="sv-pdp__main-img" id="mainImg">
-          <span class="sv-pdp__badge">New Arrival</span>
-        </div>
-        {% else %}
-        <div class="sv-pdp__placeholder"><i class="fa fa-tshirt"></i></div>
+  <!-- ══ HERO ══ -->
+  <div class="pdp-hero">
+
+    <!-- Gallery -->
+    <div class="pdp-gallery">
+      {% if product.image %}
+      <div class="pdp-main-img-wrap" id="mainImgWrap">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="pdp-main-img" id="mainImg">
+        <span class="pdp-badge-new">New</span>
+        {% if product.discount > 0 %}
+        <span class="pdp-badge-discount">{{ product.discount|floatformat:0 }}% OFF</span>
         {% endif %}
       </div>
+      <!-- Thumbnails (same image repeated to simulate gallery) -->
+      <div class="pdp-thumbs">
+        <div class="pdp-thumb active" onclick="switchMain(this, '{{ product.image.url }}')">
+          <img src="{{ product.image.url }}" alt="">
+        </div>
+        <div class="pdp-thumb" onclick="switchMain(this, '{{ product.image.url }}')">
+          <img src="{{ product.image.url }}" alt="" style="filter:brightness(1.15) saturate(0.8);">
+        </div>
+        <div class="pdp-thumb" onclick="switchMain(this, '{{ product.image.url }}')">
+          <img src="{{ product.image.url }}" alt="" style="filter:brightness(0.85) saturate(1.2);">
+        </div>
+      </div>
+      {% else %}
+      <div class="pdp-placeholder-img">
+        <i class="fa fa-tshirt"></i>
+        <span style="font-size:16px; margin-top:10px; color:#bbb;">No Image</span>
+      </div>
+      {% endif %}
+    </div>
 
-      <!-- Info -->
-      <div class="sv-pdp__info">
-        <p class="sv-pdp__brand">STYLEVERSE ESSENTIALS</p>
-        <h1>{{ product.name }}</h1>
+    <!-- Info -->
+    <div class="pdp-info">
+      <p class="pdp-info-brand">STYLEVERSE ESSENTIALS</p>
+      <h1>{{ product.name }}</h1>
 
-        <!-- Stars (static, visual only) -->
-        <div class="sv-stars" style="margin:8px 0 16px;">
+      <!-- Rating Row -->
+      <div class="pdp-rating-row">
+        <div class="pdp-stars">
           <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
           <i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
-          <small>(4.5 · 128 reviews)</small>
         </div>
+        <span class="pdp-rating-num">{{ rating_stats.average }}</span>
+        <span class="pdp-rating-divider">·</span>
+        <a href="#reviewsPane" onclick="switchTabById('reviewsPane')" style="color:#6b2737; text-decoration:none; font-size:13px; font-weight:600;">
+          {{ rating_stats.total }} Reviews
+        </a>
+        <span class="pdp-rating-divider">·</span>
+        <span style="font-size:12px; font-weight:600; color:#2f6b4f;"><i class="fa fa-circle-check"></i> SKU: {{ sku }}</span>
+      </div>
 
-        <div class="sv-pdp__price">
-          <span class="sv-price sv-price--lg">₹{{ product.price }}</span>
-          <span class="sv-pdp__free-ship"><i class="fa fa-truck"></i> Free shipping over ₹999</span>
-        </div>
+      <!-- Price -->
+      <div class="pdp-price-block">
+        {% if product.discount > 0 %}
+        <span class="pdp-price-main">₹{{ product.get_discounted_price }}</span>
+        <span class="pdp-price-original">₹{{ product.price }}</span>
+        <span class="pdp-price-save-tag">{{ product.discount|floatformat:0 }}% OFF</span>
+        {% else %}
+        <span class="pdp-price-main">₹{{ product.price }}</span>
+        {% endif %}
+        <span class="pdp-free-ship"><i class="fa fa-truck-fast"></i> Free over ₹999</span>
+      </div>
 
-        <ul class="sv-pdp__features">
-          <li><i class="fa fa-check-circle"></i> Premium quality fabric</li>
-          <li><i class="fa fa-check-circle"></i> 30-day easy returns</li>
-          <li><i class="fa fa-check-circle"></i> Secure checkout</li>
-          <li><i class="fa fa-check-circle"></i> Fast delivery</li>
-        </ul>
+      <!-- Stock -->
+      <div class="pdp-stock-status" style="margin-bottom:18px;">
+        <span class="pdp-stock-dot"></span>
+        <span class="pdp-stock-text">In Stock</span>
+        <span style="color:#aaa; font-size:12px; margin-left:4px;">({{ stock_qty }} units left)</span>
+      </div>
 
-        <!-- Qty Selector -->
-        <div class="sv-pdp__qty" style="display:flex; align-items:center; gap:10px; margin-top:24px;">
-          <label style="font-size:13px; font-weight:700; color:var(--sv-muted); margin:0;">Qty</label>
-          <div class="sv-qty-wrap">
-            <button type="button" onclick="qtyChange(-1)" class="sv-qty-btn">−</button>
-            <input type="number" name="quantity" id="qtyInput" form="cartForm" value="1" min="1" max="10" class="sv-qty-input">
-            <button type="button" onclick="qtyChange(1)" class="sv-qty-btn">+</button>
-          </div>
-        </div>
+      <div class="pdp-divider"></div>
 
-        <!-- Action Buttons Row (Below Qty) -->
-        <div class="sv-pdp__action-group" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px;">
-          <form method="POST" action="{% url 'cart' %}" id="cartForm" style="display:inline-flex; margin:0;">
-            {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.pk }}">
-            <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
-            <button type="submit" class="sv-btn sv-btn--lg sv-btn--gold" style="margin:0; background:#C0A36E; color:#111827; font-weight:700;">
-              <i class="fa-solid fa-lock"></i> Add to Bag
-            </button>
-          </form>
+      <!-- Size -->
+      <div class="pdp-selector-label">
+        SIZE
+        <a href="#" style="font-size:11px; font-weight:600; color:#6b2737; text-decoration:none;"><i class="fa fa-ruler-horizontal"></i> Size Guide</a>
+      </div>
+      <div class="pdp-size-grid">
+        {% for s in sizes %}
+        <button type="button" class="pdp-size-btn{% if forloop.first %} active{% endif %}" onclick="selectSize(this)">{{ s }}</button>
+        {% endfor %}
+      </div>
 
-          {% if user.is_authenticated %}
-          <form method="POST" action="{% url 'toggle_wishlist' %}" style="display:inline-flex; margin:0;">
-            {% csrf_token %}
-            <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
-            <input type="hidden" name="object_id" value="{{ product.pk }}">
-            <button type="submit" class="sv-btn sv-btn--lg"
-              style="margin:0; background:#1A2238; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:8px;">
-              <i class="fa-solid fa-heart" style="color:#ef4444;"></i> {% if product.pk in wishlist_ids %}Wishlist{% else %}Wishlist{% endif %}
-            </button>
-          </form>
-          {% else %}
-          <a href="{% url 'login' %}?next={{ request.path }}" class="sv-btn sv-btn--lg"
-            style="margin:0; background:#1A2238; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
-            <i class="fa-regular fa-heart" style="color:#ef4444;"></i> Wishlist
-          </a>
-          {% endif %}
-        </div>
+      <!-- Color -->
+      <div class="pdp-selector-label">COLOR</div>
+      <div class="pdp-color-grid" style="margin-bottom:20px;">
+        {% for c in colors %}
+        <button type="button" class="pdp-color-swatch{% if forloop.first %} active{% endif %}"
+          style="background: {{ c.hex }};"
+          title="{{ c.name }}"
+          onclick="selectColor(this)"></button>
+        {% endfor %}
+      </div>
 
-        <!-- Share -->
-        <div class="sv-pdp__share" style="margin-top:20px;">
-          <span>Share:</span>
-          <a href="#" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
-          <a href="#" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" title="Copy link" onclick="navigator.clipboard.writeText(window.location.href);return false;"><i
-              class="fa fa-link"></i></a>
+      <div class="pdp-divider"></div>
+
+      <!-- Qty -->
+      <div class="pdp-qty-row">
+        <span class="pdp-qty-label">Quantity</span>
+        <div class="pdp-qty-control">
+          <button type="button" class="pdp-qty-btn" onclick="qtyChange(-1)">−</button>
+          <input type="number" id="qtyInput" class="pdp-qty-input" value="1" min="1" max="10" form="cartForm">
+          <button type="button" class="pdp-qty-btn" onclick="qtyChange(1)">+</button>
         </div>
       </div>
+
+      <!-- CTA Buttons -->
+      <div class="pdp-cta-group">
+        <form method="POST" action="{% url 'cart' %}" id="cartForm" style="margin:0;">
+          {% csrf_token %}
+          <input type="hidden" name="product_id" value="{{ product.pk }}">
+          <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
+          <button type="submit" class="pdp-btn-bag" style="width:100%;">
+            <i class="fa fa-bag-shopping"></i> Add to Bag
+          </button>
+        </form>
+
+        <a href="{% url 'product_detail' product.pk %}" class="pdp-btn-buy">
+          <i class="fa fa-bolt"></i> Buy Now
+        </a>
+      </div>
+
+      <!-- Wishlist -->
+      {% if user.is_authenticated %}
+      <form method="POST" action="{% url 'toggle_wishlist' %}" style="margin-bottom:18px;">
+        {% csrf_token %}
+        <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
+        <input type="hidden" name="object_id" value="{{ product.pk }}">
+        <button type="submit" class="pdp-btn-wishlist" style="width:100%;">
+          {% if product.pk in wishlist_ids %}
+          <i class="fa-solid fa-heart"></i> Saved to Wishlist
+          {% else %}
+          <i class="fa-regular fa-heart"></i> Add to Wishlist
+          {% endif %}
+        </button>
+      </form>
+      {% else %}
+      <a href="{% url 'login' %}?next={{ request.path }}" class="pdp-btn-wishlist" style="width:100%; display:flex; margin-bottom:18px;">
+        <i class="fa-regular fa-heart"></i> Add to Wishlist
+      </a>
+      {% endif %}
+
+      <!-- Trust Badges -->
+      <div class="pdp-trust-badges">
+        <div class="pdp-trust-badge">
+          <i class="fa fa-shield-halved"></i>
+          <span>100% Authentic Products</span>
+        </div>
+        <div class="pdp-trust-badge">
+          <i class="fa fa-rotate-left"></i>
+          <span>30-Day Easy Returns</span>
+        </div>
+        <div class="pdp-trust-badge">
+          <i class="fa fa-lock"></i>
+          <span>Secure Checkout</span>
+        </div>
+      </div>
+
+      <!-- Share -->
+      <div class="pdp-share">
+        <span>Share this:</span>
+        <a href="#" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" title="Copy Link" onclick="navigator.clipboard.writeText(window.location.href); return false;"><i class="fa fa-link"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TABS ══ -->
+  <div class="pdp-tabs-section">
+    <div class="pdp-tabs-nav">
+      <button type="button" class="pdp-tab-btn active" onclick="switchTab(this, 'specsPane')">
+        <i class="fa fa-list-ul"></i> Description & Specs
+      </button>
+      <button type="button" class="pdp-tab-btn" onclick="switchTab(this, 'reviewsPane')">
+        <i class="fa fa-star"></i> Reviews ({{ rating_stats.total }})
+      </button>
+      <button type="button" class="pdp-tab-btn" onclick="switchTab(this, 'shippingPane')">
+        <i class="fa fa-truck-fast"></i> Shipping & Returns
+      </button>
     </div>
 
-    <!-- Related Products -->
-    {% if related %}
-    <div class="sv-section-header" style="margin-top:60px;">
-      <h2 class="sv-section__title" style="text-align:left;margin-bottom:0;">You May Also Like</h2>
-      <a href="{% url 'product_list' %}" class="sv-link">View All <i class="fa fa-arrow-right"></i></a>
+    <!-- Specs Pane -->
+    <div id="specsPane" class="pdp-tab-pane active">
+      <h3 style="font-size:19px; font-weight:800; color:#1a1a2e; margin:0 0 10px;">About {{ product.name }}</h3>
+      <p style="color:#666; line-height:1.7; margin:0 0 28px; font-size:14px;">
+        Crafted with extreme attention to detail, <strong>{{ product.name }}</strong> merges modern luxury aesthetics with
+        all-day comfort. Built from premium grade materials and tailored to perfection — offering unmatched durability,
+        breathability, and timeless style that effortlessly elevates any wardrobe.
+      </p>
+
+      <ul style="padding:0 0 0 20px; margin:0 0 28px; color:#555; font-size:14px; line-height:1.9;">
+        <li><strong>Premium Fabric</strong> — Top-grade, skin-friendly material that lasts</li>
+        <li><strong>Perfect Fit</strong> — Tailored silhouette for a flattering look</li>
+        <li><strong>Colour-Fast</strong> — Vibrant colours that stay wash after wash</li>
+        <li><strong>Eco-Responsible</strong> — Responsibly sourced and packaged</li>
+      </ul>
+
+      <h4 style="font-size:16px; font-weight:700; color:#1a1a2e; margin:0 0 14px;">Product Specifications</h4>
+      <table class="pdp-specs-table">
+        <tbody>
+          {% for label, val in specifications %}
+          <tr>
+            <th>{{ label }}</th>
+            <td>{{ val }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="sv-product-grid" style="margin-top:24px;">
-      {% for rp in related %}
-      <div class="sv-product-card">
-        <div class="sv-product-img-wrapper" style="position: relative;">
-          <img src="{{ rp.image_url }}" alt="{{ rp.name }}" class="sv-product-img"
-            onerror="this.style.background='#222'">
 
-          <!-- NEW Badge -->
-          <span class="sv-tag-badge">NEW</span>
+    <!-- Reviews Pane -->
+    <div id="reviewsPane" class="pdp-tab-pane">
 
-          <!-- Wishlist heart -->
-          <form method="POST" action="{% url 'toggle_wishlist' %}" class="sv-wishlist-form">
-            {% csrf_token %}
-            <input type="hidden" name="model_type" value="product">
-            <input type="hidden" name="object_id" value="{{ rp.pk }}">
-            <button type="submit" class="sv-wishlist-btn" title="Add to Wishlist">
-              {% if rp.pk in wishlist_ids %}
-              <i class="fa-solid fa-heart sv-heart--active"></i>
-              {% else %}
-              <i class="fa-regular fa-heart"></i>
-              {% endif %}
-            </button>
-          </form>
+      <!-- Rating Header -->
+      <div class="pdp-reviews-header">
+        <!-- Score -->
+        <div class="pdp-score-box">
+          <div class="pdp-score-num">{{ rating_stats.average }}</div>
+          <div class="pdp-score-stars">
+            <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+            <i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
+          </div>
+          <div class="pdp-score-count">{{ rating_stats.total }} verified reviews</div>
+        </div>
 
-          <!-- Quick View overlay -->
-          <div class="sv-product-card__overlay">
-            <a href="{% url 'product_detail' rp.pk %}" class="sv-btn sv-btn--sm">Quick View</a>
+        <!-- Bars -->
+        <div class="pdp-rating-bars">
+          <div class="pdp-rating-bar-row">
+            <span class="pdp-rating-bar-label">5 ★</span>
+            <div class="pdp-rating-bar-track"><div class="pdp-rating-bar-fill" style="width:78%;"></div></div>
+            <span class="pdp-rating-bar-pct">78%</span>
+          </div>
+          <div class="pdp-rating-bar-row">
+            <span class="pdp-rating-bar-label">4 ★</span>
+            <div class="pdp-rating-bar-track"><div class="pdp-rating-bar-fill" style="width:16%;"></div></div>
+            <span class="pdp-rating-bar-pct">16%</span>
+          </div>
+          <div class="pdp-rating-bar-row">
+            <span class="pdp-rating-bar-label">3 ★</span>
+            <div class="pdp-rating-bar-track"><div class="pdp-rating-bar-fill" style="width:4%;"></div></div>
+            <span class="pdp-rating-bar-pct">4%</span>
+          </div>
+          <div class="pdp-rating-bar-row">
+            <span class="pdp-rating-bar-label">2 ★</span>
+            <div class="pdp-rating-bar-track"><div class="pdp-rating-bar-fill" style="width:1%;"></div></div>
+            <span class="pdp-rating-bar-pct">1%</span>
+          </div>
+          <div class="pdp-rating-bar-row">
+            <span class="pdp-rating-bar-label">1 ★</span>
+            <div class="pdp-rating-bar-track"><div class="pdp-rating-bar-fill" style="width:1%;"></div></div>
+            <span class="pdp-rating-bar-pct">1%</span>
           </div>
         </div>
-        <div class="sv-product-card__info">
-          <span class="sv-product-card__brand">STYLEVERSE</span>
-          <a href="{% url 'product_detail' rp.pk %}" class="sv-product-card__name">{{ rp.name }}</a>
 
-          <!-- Discount Display -->
-          {% if rp.discount > 0 %}
-          <div class="sv-product-card__pricing">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="sv-price" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ rp.price }}</span>
-              <span class="sv-price" style="color: #e74c3c; font-weight: bold;">₹{{ rp.get_discounted_price }}</span>
-              <span
-                style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">{{ rp.discount|floatformat:0 }}%</span>
+        <!-- Write Review -->
+        <button type="button" class="pdp-write-review-btn" onclick="toggleReviewForm()">
+          <i class="fa fa-pen-nib"></i> Write a Review
+        </button>
+      </div>
+
+      <!-- Review Form -->
+      <div id="writeReviewBox" class="pdp-review-form-wrap">
+        <h4><i class="fa fa-pen-to-square" style="color:#c0a36e;"></i> Write Your Review for <em>{{ product.name }}</em></h4>
+        <form onsubmit="submitReview(event)">
+          <div class="pdp-form-grid">
+            <div class="pdp-form-field">
+              <label>Your Name</label>
+              <input type="text" id="revName" placeholder="e.g. Rahul Sharma" required>
+            </div>
+            <div class="pdp-form-field">
+              <label>Your Rating</label>
+              <select id="revRating">
+                <option value="5">⭐⭐⭐⭐⭐ — Excellent (5/5)</option>
+                <option value="4">⭐⭐⭐⭐ — Very Good (4/5)</option>
+                <option value="3">⭐⭐⭐ — Average (3/5)</option>
+                <option value="2">⭐⭐ — Below Average (2/5)</option>
+                <option value="1">⭐ — Poor (1/5)</option>
+              </select>
             </div>
           </div>
-          {% else %}
-          <div class="sv-product-card__price">
-            <span class="sv-price">₹{{ rp.price }}</span>
+          <div class="pdp-form-field" style="margin-bottom:14px;">
+            <label>Review Title</label>
+            <input type="text" id="revTitle" placeholder="Summarize your experience in one line..." required>
           </div>
-          {% endif %}
+          <div class="pdp-form-field">
+            <label>Your Review</label>
+            <textarea id="revComment" rows="4" placeholder="Tell shoppers about fit, fabric quality, delivery experience..." required></textarea>
+          </div>
+          <div class="pdp-form-actions">
+            <button type="button" class="pdp-form-cancel" onclick="toggleReviewForm()">Cancel</button>
+            <button type="submit" class="pdp-form-submit"><i class="fa fa-paper-plane"></i> Publish Review</button>
+          </div>
+        </form>
+      </div>
 
-          <!-- Add to Bag Button -->
-          <form method="POST" action="{% url 'cart' %}" style="margin-top:10px;">
-            {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ rp.pk }}">
-            <input type="hidden" name="quantity" value="1">
-            <button type="submit" class="sv-btn sv-btn--sm sv-btn--full sv-btn--gold">
-              <i class="fa fa-shopping-bag"></i> Add to Bag
+      <!-- Reviews List -->
+      <div id="reviewsList">
+        {% for r in reviews %}
+        <div class="pdp-review-card">
+          <div class="pdp-rc-top">
+            <div class="pdp-rc-user">
+              <div class="pdp-rc-avatar">{{ r.avatar }}</div>
+              <div>
+                <div class="pdp-rc-name">
+                  {{ r.author }}
+                  {% if r.verified %}<span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span>{% endif %}
+                </div>
+                <div class="pdp-rc-date">{{ r.date }}</div>
+              </div>
+            </div>
+            <div class="pdp-rc-stars">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= r.rating %}<i class="fa fa-star"></i>{% else %}<i class="fa-regular fa-star" style="color:#ddd;"></i>{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <p class="pdp-rc-title">{{ r.title }}</p>
+          <p class="pdp-rc-body">{{ r.comment }}</p>
+          <div class="pdp-rc-footer">
+            <span>Helpful?</span>
+            <button type="button" class="pdp-helpful-btn" onclick="helpfulVote(this)">
+              <i class="fa-regular fa-thumbs-up"></i> Yes (<span>{{ r.helpful }}</span>)
             </button>
-          </form>
+            <button type="button" class="pdp-helpful-btn" onclick="reportVote(this)">
+              <i class="fa fa-flag"></i> Report
+            </button>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center; padding:40px; color:#aaa;">
+          <i class="fa fa-star" style="font-size:36px; margin-bottom:12px; display:block;"></i>
+          <p>No reviews yet. Be the first to share your experience!</p>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <!-- Shipping Pane -->
+    <div id="shippingPane" class="pdp-tab-pane">
+      <div class="pdp-ship-grid">
+        <div class="pdp-ship-card">
+          <i class="fa fa-truck-fast"></i>
+          <h4>Express Delivery</h4>
+          <p>Orders dispatched within 24 hours. Free standard shipping on all orders above ₹999 across India.</p>
+        </div>
+        <div class="pdp-ship-card">
+          <i class="fa fa-rotate-left"></i>
+          <h4>30-Day Easy Returns</h4>
+          <p>Not the right fit? Return or exchange within 30 days of delivery — no questions asked.</p>
+        </div>
+        <div class="pdp-ship-card">
+          <i class="fa fa-shield-halved"></i>
+          <h4>Quality Guarantee</h4>
+          <p>Every product passes a rigorous 5-point quality inspection before dispatch.</p>
+        </div>
+        <div class="pdp-ship-card">
+          <i class="fa fa-box-open"></i>
+          <h4>Premium Packaging</h4>
+          <p>Delivered in eco-friendly luxury packaging that's gift-ready from the start.</p>
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% endif %}
-
   </div>
-</section>
+
+  <!-- ══ YOU MAY ALSO LIKE ══ -->
+  {% if related %}
+  <div class="pdp-section-head">
+    <h2><i class="fa fa-fire-flame-curved"></i> You May Also Like</h2>
+    <a href="{% url 'product_list' %}" class="pdp-view-all">View All <i class="fa fa-arrow-right"></i></a>
+  </div>
+  <div class="pdp-product-grid">
+    {% for rp in related %}
+    <div class="pdp-prod-card">
+      <div class="pdp-prod-img-wrap">
+        <img src="{{ rp.image_url }}" alt="{{ rp.name }}" class="pdp-prod-img" onerror="this.style.background='#ddd'">
+        <span class="pdp-prod-new-badge">NEW</span>
+        <div class="pdp-prod-overlay">
+          <a href="#" onclick="openQuickView('{{ rp.pk }}', '{{ rp.name|escapejs }}', '{{ rp.image_url }}', '{{ rp.price }}', '{% if rp.discount > 0 %}{{ rp.get_discounted_price }}{% endif %}', '{% url "product_detail" rp.pk %}'); return false;">
+            <i class="fa fa-eye"></i> Quick View
+          </a>
+        </div>
+      </div>
+      <div class="pdp-prod-info">
+        <div class="pdp-prod-brand">STYLEVERSE</div>
+        <a href="{% url 'product_detail' rp.pk %}" class="pdp-prod-name">{{ rp.name }}</a>
+        <div>
+          <span class="pdp-prod-price">
+            {% if rp.discount > 0 %}₹{{ rp.get_discounted_price }}{% else %}₹{{ rp.price }}{% endif %}
+          </span>
+          {% if rp.discount > 0 %}
+          <span class="pdp-prod-price-old">₹{{ rp.price }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ══ RECENTLY VIEWED ══ -->
+  {% if recently_viewed %}
+  <div class="pdp-section-head">
+    <h2><i class="fa fa-clock-rotate-left"></i> Recently Viewed</h2>
+  </div>
+  <div class="pdp-product-grid">
+    {% for rv in recently_viewed %}
+    <div class="pdp-prod-card">
+      <div class="pdp-prod-img-wrap">
+        <img src="{{ rv.image_url }}" alt="{{ rv.name }}" class="pdp-prod-img" onerror="this.style.background='#ddd'">
+        <div class="pdp-prod-overlay">
+          <a href="{% url 'product_detail' rv.pk %}">View Item</a>
+        </div>
+      </div>
+      <div class="pdp-prod-info">
+        <div class="pdp-prod-brand">STYLEVERSE</div>
+        <a href="{% url 'product_detail' rv.pk %}" class="pdp-prod-name">{{ rv.name }}</a>
+        <div><span class="pdp-prod-price">₹{{ rv.price }}</span></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div><!-- /pdp-wrapper -->
+
+<!-- ══════════════════════════════════════
+     QUICK VIEW MODAL
+══════════════════════════════════════ -->
+<div class="sv-qv-backdrop" id="qvBackdrop" onclick="closeQV(event)">
+  <div class="sv-qv-modal" id="qvModal">
+    <button class="sv-qv-close" onclick="closeQuickView()"><i class="fa fa-xmark"></i></button>
+    <div class="sv-qv-body">
+      <!-- Image -->
+      <div class="sv-qv-img-wrap" id="qvImgWrap">
+        <div class="sv-qv-placeholder"><i class="fa fa-shirt"></i></div>
+      </div>
+      <!-- Info -->
+      <div class="sv-qv-info">
+        <div class="sv-qv-brand">STYLEVERSE ESSENTIALS</div>
+        <h3 class="sv-qv-name" id="qvName">Product Name</h3>
+        <div class="sv-qv-stars">
+          <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+          <i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
+          <span>4.8 · {{ rating_stats.total }} Reviews</span>
+        </div>
+        <div>
+          <span class="sv-qv-price" id="qvPrice">₹0</span>
+          <span class="sv-qv-price-old" id="qvPriceOld" style="display:none;"></span>
+        </div>
+        <p class="sv-qv-desc">Premium quality fabric crafted for all-day comfort and effortless style. A wardrobe essential that transcends seasons.</p>
+        <div class="sv-qv-divider"></div>
+        <div class="sv-qv-size-label">SELECT SIZE</div>
+        <div class="sv-qv-sizes">
+          {% for s in sizes %}
+          <button type="button" class="sv-qv-size-opt{% if forloop.first %} active{% endif %}" onclick="selectQvSize(this)">{{ s }}</button>
+          {% endfor %}
+        </div>
+        <div class="sv-qv-actions" id="qvActions">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-  function qtyChange(d) {
-    const i = document.getElementById('qtyInput');
-    const v = Math.min(10, Math.max(1, parseInt(i.value) + d));
-    i.value = v;
+/* ── Qty ── */
+function qtyChange(d) {
+  const inp = document.getElementById('qtyInput');
+  inp.value = Math.min(10, Math.max(1, parseInt(inp.value) + d));
+}
+
+/* ── Gallery thumb switch ── */
+function switchMain(thumb, src) {
+  document.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+  const mi = document.getElementById('mainImg');
+  if (mi) mi.src = src;
+}
+
+/* ── Size / Color Selectors ── */
+function selectSize(btn) {
+  document.querySelectorAll('.pdp-size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function selectColor(swatch) {
+  document.querySelectorAll('.pdp-color-swatch').forEach(s => s.classList.remove('active'));
+  swatch.classList.add('active');
+}
+function selectQvSize(btn) {
+  document.querySelectorAll('.sv-qv-size-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ── Tabs ── */
+function switchTab(btn, paneId) {
+  document.querySelectorAll('.pdp-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.pdp-tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if (pane) pane.classList.add('active');
+}
+function switchTabById(paneId) {
+  const btn = document.querySelector(`.pdp-tab-btn[onclick*="${paneId}"]`);
+  if (btn) switchTab(btn, paneId);
+}
+
+/* ── Review Form ── */
+function toggleReviewForm() {
+  const box = document.getElementById('writeReviewBox');
+  if (!box) return;
+  const open = box.style.display === 'block';
+  box.style.display = open ? 'none' : 'block';
+  if (!open) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function submitReview(e) {
+  e.preventDefault();
+  const name    = document.getElementById('revName').value.trim();
+  const rating  = parseInt(document.getElementById('revRating').value);
+  const title   = document.getElementById('revTitle').value.trim();
+  const comment = document.getElementById('revComment').value.trim();
+  if (!name || !title || !comment) return;
+
+  let starsHtml = '';
+  for (let i = 1; i <= 5; i++)
+    starsHtml += i <= rating ? '<i class="fa fa-star"></i>' : '<i class="fa-regular fa-star" style="color:#ddd;"></i>';
+
+  const card = document.createElement('div');
+  card.className = 'pdp-review-card';
+  card.style.cssText = 'animation: fadeInUp 0.35s ease; border-color:#c0a36e;';
+  card.innerHTML = `
+    <div class="pdp-rc-top">
+      <div class="pdp-rc-user">
+        <div class="pdp-rc-avatar">${name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="pdp-rc-name">${name} <span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span></div>
+          <div class="pdp-rc-date">Just now</div>
+        </div>
+      </div>
+      <div class="pdp-rc-stars">${starsHtml}</div>
+    </div>
+    <p class="pdp-rc-title">${title}</p>
+    <p class="pdp-rc-body">${comment}</p>
+    <div class="pdp-rc-footer">
+      <span>Helpful?</span>
+      <button type="button" class="pdp-helpful-btn" onclick="helpfulVote(this)">
+        <i class="fa-regular fa-thumbs-up"></i> Yes (<span>0</span>)
+      </button>
+    </div>
+  `;
+
+  const list = document.getElementById('reviewsList');
+  if (list) list.prepend(card);
+
+  document.getElementById('writeReviewBox').style.display = 'none';
+  document.getElementById('revName').value = '';
+  document.getElementById('revTitle').value = '';
+  document.getElementById('revComment').value = '';
+
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:28px;right:28px;background:#2f6b4f;color:#fff;padding:14px 22px;border-radius:12px;font-size:14px;font-weight:600;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.15);';
+  toast.innerHTML = '<i class="fa fa-circle-check"></i> Review published successfully!';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+function helpfulVote(btn) {
+  const span = btn.querySelector('span');
+  if (span) { span.innerText = parseInt(span.innerText) + 1; }
+  btn.style.color = '#2f6b4f';
+  btn.style.borderColor = '#2f6b4f';
+  btn.disabled = true;
+}
+
+function reportVote(btn) {
+  btn.innerHTML = '<i class="fa fa-check"></i> Reported';
+  btn.disabled = true;
+}
+
+/* ── Quick View Modal ── */
+function openQuickView(pk, name, imgUrl, price, discPrice, detailUrl) {
+  const backdrop = document.getElementById('qvBackdrop');
+  const imgWrap  = document.getElementById('qvImgWrap');
+  const qvName   = document.getElementById('qvName');
+  const qvPrice  = document.getElementById('qvPrice');
+  const qvOld    = document.getElementById('qvPriceOld');
+  const qvActions= document.getElementById('qvActions');
+
+  qvName.textContent = name;
+
+  if (imgUrl && imgUrl !== 'undefined' && imgUrl !== '') {
+    imgWrap.innerHTML = `<img src="${imgUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else {
+    imgWrap.innerHTML = `<div class="sv-qv-placeholder"><i class="fa fa-shirt"></i></div>`;
   }
+
+  if (discPrice && discPrice !== '') {
+    qvPrice.textContent = '₹' + discPrice;
+    qvOld.textContent   = '₹' + price;
+    qvOld.style.display = 'inline';
+  } else {
+    qvPrice.textContent = '₹' + price;
+    qvOld.style.display = 'none';
+  }
+
+  qvActions.innerHTML = `
+    <form method="POST" action="/cart/" style="margin:0;">
+      <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+      <input type="hidden" name="product_id" value="${pk}">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="sv-qv-btn-bag">
+        <i class="fa fa-bag-shopping"></i> Add to Bag
+      </button>
+    </form>
+    <a href="${detailUrl}" class="sv-qv-btn-detail">
+      <i class="fa fa-eye"></i> Full Product Details
+    </a>
+  `;
+
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuickView() {
+  document.getElementById('qvBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeQV(event) {
+  if (event.target === event.currentTarget) closeQuickView();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQuickView(); });
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return v ? v.pop() : '';
+}
 </script>
 {% endblock %}

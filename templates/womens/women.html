@@ -16,9 +16,10 @@
     <div class="sv-shop-header">
       <div>
         <h1 class="sv-page-title" style="margin-bottom:4px;">Women's Collection</h1>
-        <p style="color:var(--sv-muted);font-size:14px;">{{ img|length }} styles available</p>
+        <p style="color:var(--sv-muted);font-size:14px;">{{ img|length }} styles available {% if selected_brand %}for brand <strong>"{{ selected_brand }}"</strong>{% endif %}</p>
       </div>
       <form method="GET" action="" class="sv-shop-sort">
+        {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
         <label>Sort by:</label>
         <select name="sort" class="sv-input" onchange="this.form.submit()">
           <option value="-pk" {% if sort_by == "-pk" %}selected{% endif %}>Newest</option>
@@ -38,6 +39,17 @@
           <a href="{% url 'men' %}">Men</a>
           <a href="{% url 'women' %}" class="active">Women</a>
         </div>
+
+        <div class="sv-filter-group">
+          <h4>Top Brands</h4>
+          <div class="sv-filter-brands">
+            <a href="{% url 'women' %}" class="sv-filter-brand-tag {% if not selected_brand %}active{% endif %}">All</a>
+            {% for b in brands %}
+            <a href="?brand={{ b.slug }}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="sv-filter-brand-tag {% if selected_brand == b.slug %}active{% endif %}">{{ b.name }}</a>
+            {% endfor %}
+          </div>
+        </div>
+
         <div class="sv-filter-group">
           <h4>Category</h4>
           <a href="#" class="active">All</a>
@@ -58,6 +70,32 @@
       </aside>
 
       <main>
+        <!-- Category Brands Showcase Slider -->
+        <div class="sv-brands-slider-wrapper">
+          <div class="sv-brands-slider-header">
+            <div class="sv-brands-slider-title">
+              <i class="fa fa-gem"></i> Featured Women's Brands
+            </div>
+            <div class="sv-brands-slider-controls">
+              {% if selected_brand %}
+              <a href="{% url 'women' %}" class="sv-clear-brand"><i class="fa fa-times"></i> Clear Filter</a>
+              {% endif %}
+              <button type="button" class="sv-slider-btn" onclick="slideBrands(this, -220)" aria-label="Slide Left"><i class="fa fa-chevron-left"></i></button>
+              <button type="button" class="sv-slider-btn" onclick="slideBrands(this, 220)" aria-label="Slide Right"><i class="fa fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="sv-brands-slider-track">
+            <a href="{% url 'women' %}" class="sv-brand-card {% if not selected_brand %}active{% endif %}">
+              <i class="fa fa-th-large"></i> All Brands
+            </a>
+            {% for b in brands %}
+            <a href="?brand={{ b.slug }}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="sv-brand-card {% if selected_brand == b.slug %}active{% endif %}">
+              <i class="fa {{ b.icon }}"></i> {{ b.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
         {% if img %}
         <div class="sv-product-grid sv-product-grid--shop">
           {% include 'products/product_card.html' with products=img %}
@@ -65,12 +103,42 @@
         {% else %}
         <div class="sv-empty-state">
           <i class="fa fa-tshirt"></i>
-          <h2>No products yet</h2>
+          <h2>No products found</h2>
+          {% if selected_brand %}
+          <p>No products match the brand "{{ selected_brand }}".</p>
+          <a href="{% url 'women' %}" class="sv-btn">View All Women's Brands</a>
+          {% else %}
+          <p>Check back soon for new arrivals.</p>
           <a href="{% url 'product_list' %}" class="sv-btn">Browse All Products</a>
+          {% endif %}
         </div>
         {% endif %}
       </main>
     </div>
   </div>
 </section>
+
+<script>
+function slideBrands(btn, amount) {
+  const wrapper = btn.closest('.sv-brands-slider-wrapper');
+  if (wrapper) {
+    const track = wrapper.querySelector('.sv-brands-slider-track');
+    if (track) {
+      track.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const tracks = document.querySelectorAll('.sv-brands-slider-track');
+  tracks.forEach(track => {
+    track.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        track.scrollBy({ left: e.deltaY * 2, behavior: 'smooth' });
+      }
+    }, { passive: false });
+  });
+});
+</script>
 {% endblock %}

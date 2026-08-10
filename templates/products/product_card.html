@@ -27,7 +27,9 @@
 
     <!-- Quick View Overlay -->
     <div class="sv-product-card__overlay">
-      <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-quickview-btn">
+      <a href="#"
+         onclick="openQuickView('{{ product.pk }}', '{{ product.name|escapejs }}', '{{ product.image_url }}', '{{ product.price }}', '{% if product.discount > 0 %}{{ product.get_discounted_price }}{% endif %}', '{% url "product_detail" product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}'); return false;"
+         class="sv-quickview-btn">
         <i class="fa-solid fa-eye"></i> Quick View
       </a>
     </div>
