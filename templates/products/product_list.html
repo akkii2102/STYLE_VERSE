@@ -18,9 +18,22 @@
     <div class="sv-shop-header">
       <div>
         <h1 class="sv-page-title" style="margin-bottom:4px;">Shop All</h1>
-        <p style="color:var(--sv-muted);font-size:14px;">{{ img|length }} products available</p>
+        <p style="color:var(--sv-muted);font-size:14px;">
+          {{ img|length }} products available
+          {% if selected_brand %} for brand <strong>"{{ selected_brand }}"</strong>{% endif %}
+          {% if price_range %}
+            (Price: 
+            {% if price_range == '0-500' %}Under ₹500{% endif %}
+            {% if price_range == '500-2000' %}₹500 – ₹2,000{% endif %}
+            {% if price_range == '2000-5000' %}₹2,000 – ₹5,000{% endif %}
+            {% if price_range == '5000-plus' %}Above ₹5,000{% endif %}
+            )
+          {% endif %}
+        </p>
       </div>
       <form method="GET" action="" class="sv-shop-sort">
+        {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
+        {% if price_range %}<input type="hidden" name="price_range" value="{{ price_range }}">{% endif %}
         <label>Sort by:</label>
         <select name="sort" class="sv-input" onchange="this.form.submit()">
           <option value="-pk" {% if sort_by == "-pk" %}selected{% endif %}>Newest</option>
@@ -37,31 +50,59 @@
         <h3>Filters</h3>
         <div class="sv-filter-group">
           <h4>Collection</h4>
-          <a href="{% url 'product_list' %}" class="{% if request.path == '/details/' %}active{% endif %}">All
-            Products</a>
+          <a href="{% url 'product_list' %}" class="{% if request.path == '/details/' %}active{% endif %}">All Products</a>
           <a href="{% url 'men' %}" class="{% if request.path == '/men/' %}active{% endif %}">Men</a>
           <a href="{% url 'women' %}" class="{% if request.path == '/women/' %}active{% endif %}">Women</a>
         </div>
+
         <div class="sv-filter-group">
-          <h4>Category</h4>
-          <a href="#" class="active">All</a>
-          <a href="#">T-Shirts</a>
-          <a href="#">Jeans</a>
-          <a href="#">Shirts</a>
-          <a href="#">Jackets</a>
-          <a href="#">Suits</a>
+          <h4>Top Brands</h4>
+          <div class="sv-filter-brands">
+            <a href="?{% if price_range %}price_range={{ price_range }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}" class="sv-filter-brand-tag {% if not selected_brand %}active{% endif %}">All</a>
+            {% for b in brands %}
+            <a href="?brand={{ b.slug }}{% if price_range %}&price_range={{ price_range }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="sv-filter-brand-tag {% if selected_brand == b.slug %}active{% endif %}">{{ b.name }}</a>
+            {% endfor %}
+          </div>
         </div>
+
         <div class="sv-filter-group">
           <h4>Price Range</h4>
-          <a href="#">Under ₹500</a>
-          <a href="#">₹500 – ₹2,000</a>
-          <a href="#">₹2,000 – ₹5,000</a>
-          <a href="#">Above ₹5,000</a>
+          <a href="?{% if selected_brand %}brand={{ selected_brand }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}" class="{% if not price_range %}active{% endif %}">All Prices</a>
+          <a href="?price_range=0-500{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="{% if price_range == '0-500' %}active{% endif %}">Under ₹500</a>
+          <a href="?price_range=500-2000{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="{% if price_range == '500-2000' %}active{% endif %}">₹500 – ₹2,000</a>
+          <a href="?price_range=2000-5000{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="{% if price_range == '2000-5000' %}active{% endif %}">₹2,000 – ₹5,000</a>
+          <a href="?price_range=5000-plus{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="{% if price_range == '5000-plus' %}active{% endif %}">Above ₹5,000</a>
         </div>
       </aside>
 
       <!-- Product Grid -->
       <main>
+        <!-- Category Brands Showcase Slider -->
+        <div class="sv-brands-slider-wrapper">
+          <div class="sv-brands-slider-header">
+            <div class="sv-brands-slider-title">
+              <i class="fa fa-award"></i> Featured Shop Brands
+            </div>
+            <div class="sv-brands-slider-controls">
+              {% if selected_brand or price_range %}
+              <a href="{% url 'product_list' %}" class="sv-clear-brand"><i class="fa fa-times"></i> Clear Filters</a>
+              {% endif %}
+              <button type="button" class="sv-slider-btn" onclick="slideBrands(this, -220)" aria-label="Slide Left"><i class="fa fa-chevron-left"></i></button>
+              <button type="button" class="sv-slider-btn" onclick="slideBrands(this, 220)" aria-label="Slide Right"><i class="fa fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="sv-brands-slider-track">
+            <a href="?{% if price_range %}price_range={{ price_range }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}" class="sv-brand-card {% if not selected_brand %}active{% endif %}">
+              <i class="fa fa-th-large"></i> All Brands
+            </a>
+            {% for b in brands %}
+            <a href="?brand={{ b.slug }}{% if price_range %}&price_range={{ price_range }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="sv-brand-card {% if selected_brand == b.slug %}active{% endif %}">
+              <i class="fa {{ b.icon }}"></i> {{ b.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
         {% if img %}
         <div class="sv-product-grid sv-product-grid--shop">
           {% include 'products/product_card.html' with products=img %}
@@ -70,12 +111,41 @@
         <div class="sv-empty-state">
           <i class="fa fa-tshirt"></i>
           <h2>No products found</h2>
+          {% if selected_brand or price_range %}
+          <p>No products match your current filters.</p>
+          <a href="{% url 'product_list' %}" class="sv-btn">Clear All Filters</a>
+          {% else %}
           <p>Check back soon for new arrivals.</p>
           <a href="{% url 'product_list' %}" class="sv-btn">Browse All</a>
+          {% endif %}
         </div>
         {% endif %}
       </main>
     </div>
   </div>
 </section>
+
+<script>
+function slideBrands(btn, amount) {
+  const wrapper = btn.closest('.sv-brands-slider-wrapper');
+  if (wrapper) {
+    const track = wrapper.querySelector('.sv-brands-slider-track');
+    if (track) {
+      track.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const tracks = document.querySelectorAll('.sv-brands-slider-track');
+  tracks.forEach(track => {
+    track.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        track.scrollBy({ left: e.deltaY * 2, behavior: 'smooth' });
+      }
+    }, { passive: false });
+  });
+});
+</script>
 {% endblock %}

@@ -54,6 +54,7 @@ class Registration(models.Model):
 class Product(models.Model):
     product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
+    brand = models.CharField(max_length=50, default='STYLEVERSE', blank=True, help_text="Brand name e.g. Zara, Nike, Levi's, Gucci, Puma, STYLEVERSE")
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
     stock = models.IntegerField(default=25, help_text='Stock quantity available')
@@ -109,6 +110,7 @@ class Product(models.Model):
 class Men(models.Model):
     product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
+    brand = models.CharField(max_length=50, default='STYLEVERSE', blank=True, help_text="Brand name e.g. Zara, Nike, Levi's, Gucci, Puma, STYLEVERSE")
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
     stock = models.IntegerField(default=25, help_text='Stock quantity available')
@@ -164,6 +166,7 @@ class Men(models.Model):
 class Women(models.Model):
     product_code = models.CharField(max_length=50, blank=True, default='', help_text='Unique Product ID / SKU')
     name = models.CharField(max_length=50)
+    brand = models.CharField(max_length=50, default='STYLEVERSE', blank=True, help_text="Brand name e.g. Zara, Nike, Levi's, Gucci, Puma, STYLEVERSE")
     price = models.FloatField()
     discount = models.FloatField(default=0, help_text='Discount percentage (0-100)')
     stock = models.IntegerField(default=25, help_text='Stock quantity available')
@@ -344,15 +347,26 @@ class OrderItem(models.Model):
     def image_url(self):
         if self.product_image:
             try:
-                return self.product_image.url
+                if self.product_image.url:
+                    return self.product_image.url
             except Exception:
                 pass
         # Fallback lookup matching product image from Product, Men, Women
         from shopapp.models import Product, Men, Women
         for model_cls in (Product, Men, Women):
-            p = model_cls.objects.filter(name__iexact=self.product_name).first()
+            if self.product_code:
+                p = model_cls.objects.filter(product_code__iexact=self.product_code).first()
+                if p and p.image_url:
+                    return p.image_url
+            p = model_cls.objects.filter(name__icontains=self.product_name).first()
             if p and p.image_url:
                 return p.image_url
+
+        # Ultimate fallback: return first available product image
+        for model_cls in (Product, Men, Women):
+            first_p = model_cls.objects.exclude(image='').first()
+            if first_p and first_p.image_url:
+                return first_p.image_url
         return ''
 
     def __str__(self):
@@ -384,6 +398,7 @@ class ProductRequest(models.Model):
     category     = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='product')
     target_id    = models.PositiveIntegerField(null=True, blank=True, help_text='ID of existing product if edit')
     name         = models.CharField(max_length=100)
+    brand        = models.CharField(max_length=50, default='STYLEVERSE', blank=True, help_text="Brand name e.g. Zara, Nike, Levi's, Gucci, Puma, STYLEVERSE")
     price        = models.FloatField()
     discount     = models.FloatField(default=0, help_text='Discount percentage (0-100)')
     image        = models.ImageField(upload_to='ProductRequest', null=True, blank=True)

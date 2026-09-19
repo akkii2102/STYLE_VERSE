@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from shopapp.models import Contact, UserProfile, Product, Men, Women, Wishlist, Order, OrderItem, ProductReview
+from shopapp.models import Contact, UserProfile, Registration, Product, Men, Women, Wishlist, Order, OrderItem, ProductReview, SubAdminRequest, AdminDiscussion, AdminDiscussionReply, ProductRequest, Announcement
 from shopapp.forms import LoginUserForm, RegisterUserForm, UserProfileForm, CheckoutForm, SubAdminRequestForm
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
 from django.contrib.auth import login as auth_login
@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, Avg
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
@@ -52,18 +52,127 @@ STYLEVERSE Admin System
 
 
 # ──────────────────────────────────────────────────────────
-#  BASIC PAGES
+#  BASIC PAGES & HELPERS
 # ──────────────────────────────────────────────────────────
 
+BRAND_ICONS = {
+    # High-end Luxury Fashion Houses
+    'gucci': 'fa-gem',
+    'prada': 'fa-crown',
+    'louis vuitton': 'fa-building-columns',
+    'louis-vuitton': 'fa-building-columns',
+    'lv': 'fa-building-columns',
+    'versace': 'fa-sun',
+    'dior': 'fa-sparkles',
+    'christian dior': 'fa-sparkles',
+    'chanel': 'fa-ribbon',
+    'armani': 'fa-user-tie',
+    'emporio armani': 'fa-user-tie',
+    'burberry': 'fa-shield-halved',
+    'balenciaga': 'fa-fire',
+    'hermes': 'fa-chess-knight',
+    'hermès': 'fa-chess-knight',
+    'yves saint laurent': 'fa-wand-magic-sparkles',
+    'ysl': 'fa-wand-magic-sparkles',
+    'ralph lauren': 'fa-trophy',
+    'ralph-lauren': 'fa-trophy',
+    'tommy hilfiger': 'fa-flag',
+    'tommy-hilfiger': 'fa-flag',
+    'calvin klein': 'fa-shirt',
+    'calvin-klein': 'fa-shirt',
+    'hugo boss': 'fa-user-ninja',
+    'rolex': 'fa-clock',
+    'sabyasachi': 'fa-crown',
+    'manish malhotra': 'fa-gem',
+    # Premium & Sportswear Brands
+    'zara': 'fa-shop',
+    'nike': 'fa-bolt',
+    'adidas': 'fa-shirt',
+    'puma': 'fa-paw',
+    'levi\'s': 'fa-tag',
+    'levis': 'fa-tag',
+    'h&m': 'fa-bag-shopping',
+    'hm': 'fa-bag-shopping',
+    'biba': 'fa-heart',
+    'mango': 'fa-feather',
+    'styleverse': 'fa-star',
+}
+
+def get_category_brands(queryset_or_list):
+    """Dynamically extracts distinct brands from products list or queryset with icons and slugs, excluding site brand name STYLEVERSE."""
+    brand_names = set()
+    for obj in queryset_or_list:
+        b = getattr(obj, 'brand', None)
+        if b and b.strip() and b.strip().upper() != 'STYLEVERSE':
+            brand_names.add(b.strip())
+    
+    sorted_brands = sorted(list(brand_names))
+    brand_list = []
+    for b in sorted_brands:
+        slug = b.lower().replace("'", "").replace(" ", "-")
+        icon = BRAND_ICONS.get(b.lower(), BRAND_ICONS.get(slug, 'fa-tag'))
+        brand_list.append({
+            'name': b,
+            'slug': slug,
+            'icon': icon,
+        })
+    return brand_list
+
+
 def get_all_combined_products(sort_by='-pk'):
-    """Combines products from Product, Men, and Women models dynamically."""
+    """Combines products from Product, Men, and Women models dynamically and removes all duplicate cards/images."""
     p1 = list(Product.objects.all())
     p2 = list(Men.objects.all())
     p3 = list(Women.objects.all())
     all_prods = p1 + p2 + p3
+
+    seen_names = set()
+    seen_images = set()
+    dedup_prods = []
+    for p in all_prods:
+        name_key = p.name.strip().lower()
+        img_key = (p.image.name if p.image else '').strip().lower()
+
+        if name_key in seen_names:
+            continue
+        if img_key and img_key in seen_images:
+            continue
+
+        seen_names.add(name_key)
+        if img_key:
+            seen_images.add(img_key)
+        dedup_prods.append(p)
+
+    return sort_product_list(dedup_prods, sort_by)
+
+
+def filter_by_price_range(products, price_range):
+    """Filters product list/queryset by price range (using discounted price)."""
+    if not price_range:
+        return products
+    filtered = []
+    for p in products:
+        eff_price = p.get_discounted_price() if hasattr(p, 'get_discounted_price') else getattr(p, 'price', 0)
+        if price_range == '0-500' and eff_price <= 500:
+            filtered.append(p)
+        elif price_range == '500-2000' and 500 <= eff_price <= 2000:
+            filtered.append(p)
+        elif price_range == '2000-5000' and 2000 <= eff_price <= 5000:
+            filtered.append(p)
+        elif price_range == '5000-plus' and eff_price >= 5000:
+            filtered.append(p)
+    return filtered
+
+
+def sort_product_list(products, sort_by='-pk'):
+    """Sorts a Python list of products by key (e.g. price, -price, pk, -pk)."""
     reverse = sort_by.startswith('-')
-    all_prods.sort(key=lambda x: x.pk, reverse=reverse)
-    return all_prods
+    field = sort_by.lstrip('-')
+    if field == 'price':
+        products.sort(key=lambda x: (x.get_discounted_price() if hasattr(x, 'get_discounted_price') else getattr(x, 'price', 0)), reverse=reverse)
+    else:
+        products.sort(key=lambda x: getattr(x, field, x.pk), reverse=reverse)
+    return products
 
 
 def get_product_by_pk(pk, model_type=None):
@@ -82,6 +191,27 @@ def get_product_by_pk(pk, model_type=None):
     return None
 
 
+def get_rating_map(model_type):
+    """Returns dict of {object_id: {'avg': x, 'count': y}} for a model type."""
+    qs = (
+        ProductReview.objects
+        .filter(model_type=model_type)
+        .values('object_id')
+        .annotate(avg=Avg('rating'), count=Count('id'))
+    )
+    return {r['object_id']: {'avg': round(r['avg'], 1), 'count': r['count']} for r in qs}
+
+
+def attach_ratings(products, model_type):
+    """Attaches avg_rating and review_count attrs to each product in the list."""
+    rmap = get_rating_map(model_type)
+    for p in products:
+        info = rmap.get(p.pk, {})
+        p.avg_rating = info.get('avg', None)
+        p.review_count = info.get('count', 0)
+    return products
+
+
 def index(request):
     products = get_all_combined_products('-pk')
     count = len(products)
@@ -92,6 +222,30 @@ def index(request):
 
     men_products   = list(Men.objects.all().order_by('-pk')[:4])
     women_products = list(Women.objects.all().order_by('-pk')[:4])
+
+    # Attach real ratings to homepage product lists
+    prod_ratings  = get_rating_map('product')
+    men_ratings   = get_rating_map('men')
+    women_ratings = get_rating_map('women')
+
+    def _attach(prods):
+        for p in prods:
+            mtype = getattr(p, 'model_name', 'product')
+            rmap = {'product': prod_ratings, 'men': men_ratings, 'women': women_ratings}.get(mtype, prod_ratings)
+            info = rmap.get(p.pk, {})
+            p.avg_rating   = info.get('avg', None)
+            p.review_count = info.get('count', 0)
+        return prods
+
+    _attach(new_arrivals)
+    _attach(best_sellers)
+    _attach(trending)
+    _attach(flash_sale)
+    _attach(men_products)
+    _attach(women_products)
+
+    # Featured brands — extracted from all products for the homepage brand row
+    featured_brands = get_category_brands(products)
 
     wishlist_ids = set()
     if request.user.is_authenticated:
@@ -106,6 +260,7 @@ def index(request):
         'flash_sale':     flash_sale,
         'men_products':   men_products,
         'women_products': women_products,
+        'featured_brands': featured_brands,
         'wishlist_ids':   wishlist_ids,
     })
 
@@ -176,7 +331,7 @@ def product_detail(request, pk):
 
     sku      = f'SV-{product.pk:04d}'
     category = 'Fashion'
-    brand    = 'STYLEVERSE'
+    brand    = getattr(product, 'brand', None) or 'STYLEVERSE'
     in_stock = True
     stock_qty = getattr(product, 'stock', 15)
 
@@ -299,10 +454,40 @@ def submit_review(request, pk):
 
 def product_list(request):
     sort_by = request.GET.get('sort', '-pk')
+    selected_brand = request.GET.get('brand', '').strip().lower()
+    price_range = request.GET.get('price_range', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
-    products = get_all_combined_products(sort_by)
+
+    all_prods = get_all_combined_products(sort_by)
+
+    # Attach real ratings from DB
+    prod_ratings  = get_rating_map('product')
+    men_ratings   = get_rating_map('men')
+    women_ratings = get_rating_map('women')
+    for p in all_prods:
+        mtype = getattr(p, 'model_name', 'product')
+        rmap = {'product': prod_ratings, 'men': men_ratings, 'women': women_ratings}.get(mtype, prod_ratings)
+        info = rmap.get(p.pk, {})
+        p.avg_rating   = info.get('avg', None)
+        p.review_count = info.get('count', 0)
+
+    brands = get_category_brands(all_prods)
+
+    products = all_prods
+    if selected_brand:
+        products = [
+            p for p in products
+            if (getattr(p, 'brand', None) or 'STYLEVERSE').lower().replace("'", "").replace(" ", "-") == selected_brand
+            or (getattr(p, 'brand', None) or 'STYLEVERSE').lower() == selected_brand
+        ]
+
+    if price_range:
+        products = filter_by_price_range(products, price_range)
+
+    products = sort_product_list(products, sort_by)
+
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
@@ -310,6 +495,9 @@ def product_list(request):
         )
     return render(request, 'products/product_list.html', {
         'img': products,
+        'brands': brands,
+        'selected_brand': selected_brand,
+        'price_range': price_range,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
     })
@@ -319,7 +507,6 @@ def product_list(request):
 #  CART  (session-based)
 # ──────────────────────────────────────────────────────────
 
-@login_required
 def cart(request):
     cart_data = request.session.get('cart', {})
 
@@ -327,7 +514,7 @@ def cart(request):
         action = request.POST.get('action', 'add')
         product_id = request.POST.get('product_id')
         model_type = request.POST.get('model_type', 'product')
-        key = request.POST.get('cart_key') or (f"{model_type}_{product_id}" if model_type else str(product_id))
+        key = request.POST.get('cart_key') or (f"{model_type}_{product_id}" if model_type and model_type != 'product' else str(product_id))
 
         if action == 'remove':
             if key in cart_data:
@@ -603,10 +790,35 @@ def toggle_wishlist(request):
 
 def men(request):
     sort_by = request.GET.get('sort', '-pk')
+    selected_brand = request.GET.get('brand', '').strip().lower()
+    price_range = request.GET.get('price_range', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
-    products = Men.objects.all().order_by(sort_by)
+
+    all_men = list(Men.objects.all())
+    # Attach real ratings
+    men_ratings = get_rating_map('men')
+    for p in all_men:
+        info = men_ratings.get(p.pk, {})
+        p.avg_rating   = info.get('avg', None)
+        p.review_count = info.get('count', 0)
+
+    brands = get_category_brands(all_men)
+
+    products = all_men
+    if selected_brand:
+        products = [
+            m for m in products
+            if (m.brand or 'STYLEVERSE').lower().replace("'", "").replace(" ", "-") == selected_brand
+            or (m.brand or 'STYLEVERSE').lower() == selected_brand
+        ]
+
+    if price_range:
+        products = filter_by_price_range(products, price_range)
+
+    products = sort_product_list(products, sort_by)
+
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
@@ -614,6 +826,9 @@ def men(request):
         )
     return render(request, 'mens/men.html', {
         'img': products,
+        'brands': brands,
+        'selected_brand': selected_brand,
+        'price_range': price_range,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
     })
@@ -621,10 +836,35 @@ def men(request):
 
 def women(request):
     sort_by = request.GET.get('sort', '-pk')
+    selected_brand = request.GET.get('brand', '').strip().lower()
+    price_range = request.GET.get('price_range', '').strip()
     allowed = ['-pk', 'pk', 'price', '-price']
     if sort_by not in allowed:
         sort_by = '-pk'
-    products = Women.objects.all().order_by(sort_by)
+
+    all_women = list(Women.objects.all())
+    # Attach real ratings
+    women_ratings = get_rating_map('women')
+    for p in all_women:
+        info = women_ratings.get(p.pk, {})
+        p.avg_rating   = info.get('avg', None)
+        p.review_count = info.get('count', 0)
+
+    brands = get_category_brands(all_women)
+
+    products = all_women
+    if selected_brand:
+        products = [
+            w for w in products
+            if (w.brand or 'STYLEVERSE').lower().replace("'", "").replace(" ", "-") == selected_brand
+            or (w.brand or 'STYLEVERSE').lower() == selected_brand
+        ]
+
+    if price_range:
+        products = filter_by_price_range(products, price_range)
+
+    products = sort_product_list(products, sort_by)
+
     wishlist_ids = set()
     if request.user.is_authenticated:
         wishlist_ids = set(
@@ -632,6 +872,9 @@ def women(request):
         )
     return render(request, 'womens/women.html', {
         'img': products,
+        'brands': brands,
+        'selected_brand': selected_brand,
+        'price_range': price_range,
         'wishlist_ids': wishlist_ids,
         'sort_by': sort_by,
     })
@@ -735,6 +978,11 @@ STYLEVERSE Team
             seller_form = SubAdminRequestForm()
             if user_form.is_valid():
                 user = user_form.save()
+                Registration.objects.create(
+                    firstname=user.first_name or user.username,
+                    lastname=user.last_name or '',
+                    email=user.email
+                )
 
                 # ── Send welcome email to the newly registered customer ─────
                 try:

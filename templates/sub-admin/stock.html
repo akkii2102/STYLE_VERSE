@@ -1,9 +1,9 @@
 {% extends 'sub-admin/sub_base.html' %}
 {% load static %}
 
-{% block title %}Stock Details — Seller Panel{% endblock %}
-{% block page_title %}Seller Stock & Inventory Details{% endblock %}
-{% block page_subtitle %}Monitor inventory counts across all categories, track low stock alerts, and update stock levels.{% endblock %}
+{% block title %}Stock Details — Sub-Admin Panel{% endblock %}
+{% block page_title %}Sub-Admin Product Stock & Inventory Details{% endblock %}
+{% block page_subtitle %}Monitor inventory counts across all categories, track low stock alerts, and update product stock levels.{% endblock %}
 
 {% block content %}
 <!-- KPI Inventory Summary Cards -->
@@ -57,20 +57,36 @@
 <!-- Search & Inventory Filters -->
 <div class="adm-table-wrap mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-    <div class="d-flex align-items-center gap-2">
-      <a href="?filter=all" class="btn btn-sm {% if stock_filter == 'all' %}btn-dark{% else %}btn-outline-secondary{% endif %}">All Inventory</a>
-      <a href="?filter=in_stock" class="btn btn-sm {% if stock_filter == 'in_stock' %}btn-dark{% else %}btn-outline-secondary{% endif %}">In Stock</a>
-      <a href="?filter=low" class="btn btn-sm {% if stock_filter == 'low' %}btn-dark{% else %}btn-outline-warning{% endif %}">
-        <i class="fa fa-exclamation-triangle"></i> Low Stock
+    
+    <!-- Left Filter Controls -->
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <!-- Store Scope Tabs -->
+      <div class="btn-group btn-group-sm me-2">
+        <a href="?scope=my&category={{ category_filter }}&filter={{ stock_filter }}" class="btn {% if scope == 'my' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+          <i class="fa fa-user-tag me-1"></i> My Store Products
+        </a>
+        <a href="?scope=all&category={{ category_filter }}&filter={{ stock_filter }}" class="btn {% if scope == 'all' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+          <i class="fa fa-globe me-1"></i> All Catalog Products
+        </a>
+      </div>
+
+      <!-- Stock Health Tabs -->
+      <a href="?scope={{ scope }}&category={{ category_filter }}&filter=all" class="btn btn-sm {% if stock_filter == 'all' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">All Stock</a>
+      <a href="?scope={{ scope }}&category={{ category_filter }}&filter=in_stock" class="btn btn-sm {% if stock_filter == 'in_stock' %}btn-success{% else %}btn-outline-success{% endif %}">In Stock</a>
+      <a href="?scope={{ scope }}&category={{ category_filter }}&filter=low" class="btn btn-sm {% if stock_filter == 'low' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+        <i class="fa fa-exclamation-triangle me-1"></i> Low Stock
       </a>
-      <a href="?filter=out" class="btn btn-sm {% if stock_filter == 'out' %}btn-dark{% else %}btn-outline-danger{% endif %}">
-        <i class="fa fa-times-circle"></i> Out of Stock
+      <a href="?scope={{ scope }}&category={{ category_filter }}&filter=out" class="btn btn-sm {% if stock_filter == 'out' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+        <i class="fa fa-times-circle me-1"></i> Out of Stock
       </a>
     </div>
 
+    <!-- Search Form -->
     <form method="GET" class="d-flex align-items-center gap-2" style="max-width:320px;">
-      {% if stock_filter != 'all' %}<input type="hidden" name="filter" value="{{ stock_filter }}">{% endif %}
-      <input type="text" name="q" value="{{ search_q }}" class="form-control form-control-sm" placeholder="Search product name or category...">
+      <input type="hidden" name="scope" value="{{ scope }}">
+      <input type="hidden" name="category" value="{{ category_filter }}">
+      <input type="hidden" name="filter" value="{{ stock_filter }}">
+      <input type="text" name="q" value="{{ search_q }}" class="form-control form-control-sm" placeholder="Search product name or brand...">
       <button type="submit" class="btn btn-sm btn-dark"><i class="fa fa-search"></i></button>
     </form>
   </div>
@@ -79,13 +95,13 @@
   <table class="adm-table">
     <thead>
       <tr>
-        <th>Product</th>
+        <th style="width: 260px;">Product Name & ID</th>
         <th>Category</th>
         <th>Sub-Admin / Creator</th>
-        <th>Price</th>
+        <th>Price & Discount</th>
         <th>Current Stock</th>
         <th>Stock Status</th>
-        <th class="text-end">Quick Update Stock</th>
+        <th class="text-end" style="width: 180px;">Quick Save Stock</th>
       </tr>
     </thead>
     <tbody>
@@ -101,21 +117,21 @@
             </div>
             {% endif %}
             <div>
-              <div class="fw-bold text-dark">{{ p.name }}</div>
-              <div class="text-muted small">ID: #{{ p.pk }}</div>
+              <div class="fw-bold text-dark" style="font-size:14px;">{{ p.name }}</div>
+              <div class="text-muted small">Code: <code>{{ p.product_id_display }}</code></div>
             </div>
           </div>
         </td>
         <td>
-          <span class="badge bg-light text-dark border">{{ p.category_label }}</span>
+          <span class="badge bg-light text-dark border px-2 py-1">{{ p.category_label }}</span>
         </td>
         <td>
-          <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 font-monospace fw-semibold" style="font-size:11.5px;">
+          <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 font-monospace fw-semibold px-2 py-1" style="font-size:11.5px;">
             <i class="fa fa-user-tag me-1"></i>{{ p.added_by_name }}
           </span>
         </td>
         <td>
-          <div class="fw-semibold text-dark">₹{{ p.get_discounted_price }}</div>
+          <div class="fw-bold text-dark">₹{{ p.get_discounted_price }}</div>
           {% if p.discount > 0 %}
           <div class="text-muted small text-decoration-line-through">₹{{ p.price }} ({{ p.discount|stringformat:".0f" }}% off)</div>
           {% endif %}
@@ -127,21 +143,21 @@
         </td>
         <td>
           {% if p.is_out_of_stock %}
-          <span class="adm-badge badge-cancelled"><i class="fa fa-circle-xmark"></i> Out of Stock</span>
+          <span class="adm-badge badge-cancelled"><i class="fa fa-circle-xmark me-1"></i> Out of Stock</span>
           {% elif p.is_low_stock %}
-          <span class="adm-badge badge-processing"><i class="fa fa-exclamation-triangle"></i> Low Stock</span>
+          <span class="adm-badge badge-processing"><i class="fa fa-exclamation-triangle me-1"></i> Low Stock</span>
           {% else %}
-          <span class="adm-badge badge-completed"><i class="fa fa-check-circle"></i> In Stock</span>
+          <span class="adm-badge badge-completed"><i class="fa fa-check-circle me-1"></i> In Stock</span>
           {% endif %}
         </td>
         <td class="text-end">
-          <form method="POST" class="d-inline-flex align-items-center justify-content-end gap-2" style="max-width:200px;margin-left:auto;">
+          <form method="POST" class="d-inline-flex align-items-center justify-content-end gap-2" style="max-width:180px;margin-left:auto;">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_stock">
             <input type="hidden" name="category" value="{{ p.model_name }}">
             <input type="hidden" name="product_id" value="{{ p.pk }}">
             <input type="number" name="stock" value="{{ p.stock }}" min="0" class="form-control form-control-sm text-center fw-bold" style="width:75px;">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Save Stock">
+            <button type="submit" class="btn btn-sm btn-dark" title="Save Stock">
               <i class="fa fa-save"></i>
             </button>
           </form>
@@ -149,9 +165,9 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="6" class="text-center py-4 text-muted">
+        <td colspan="7" class="text-center py-5 text-muted">
           <i class="fa fa-boxes-stacked fa-2x mb-2 d-block opacity-50"></i>
-          No products found matching your inventory filter.
+          No inventory items found matching your filters.
         </td>
       </tr>
       {% endfor %}

@@ -3,24 +3,29 @@
 <div class="sv-product-card">
   <div class="sv-product-img-wrapper">
     {% if product.image_url %}
-    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="sv-product-img" loading="lazy" onerror="this.outerHTML='<div class=\'sv-product-card__placeholder\'><i class=\'fa fa-shirt\'></i></div>'">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="sv-product-img" loading="lazy"
+         onerror="this.outerHTML='<div class=\'sv-product-card__placeholder\'><i class=\'fa fa-shirt\'></i></div>'">
     {% else %}
     <div class="sv-product-card__placeholder"><i class="fa fa-shirt"></i></div>
     {% endif %}
 
-    <!-- NEW Badge -->
-    <span class="sv-tag-badge">NEW</span>
+    <!-- NEW / SALE Badge -->
+    {% if product.discount > 0 %}
+    <span class="sv-tag-badge sv-tag-badge--sale" style="background:#e74c3c;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:.5px;">SALE</span>
+    {% else %}
+    <span class="sv-tag-badge" style="background:#1a1a2e;color:#c0a36e;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:.5px;">NEW</span>
+    {% endif %}
 
-    <!-- Wishlist Heart Button -->
+    <!-- Wishlist Heart -->
     <form method="POST" action="{% url 'toggle_wishlist' %}" class="sv-wishlist-form">
       {% csrf_token %}
-      <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">
-      <input type="hidden" name="object_id" value="{{ product.pk }}">
+      <input type="hidden" name="model_type" value="{{ product.model_name|default:'product' }}">
+      <input type="hidden" name="object_id"  value="{{ product.pk }}">
       <button type="submit" class="sv-wishlist-btn" title="Add to Wishlist">
         {% if product.pk in wishlist_ids %}
-        <i class="fa-solid fa-heart sv-heart--active"></i>
+          <i class="fa-solid fa-heart sv-heart--active"></i>
         {% else %}
-        <i class="fa-regular fa-heart"></i>
+          <i class="fa-regular fa-heart"></i>
         {% endif %}
       </button>
     </form>
@@ -37,46 +42,80 @@
 
   <div class="sv-product-card__info">
     <div class="sv-product-card__meta">
-      <span class="sv-product-card__brand">STYLEVERSE</span>
+      <span class="sv-product-card__brand">{{ product.brand|default:"STYLEVERSE" }}</span>
+
+      <!-- Real DB rating if available, else fallback stars -->
       <div class="sv-product-card__rating">
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <span class="sv-rating-num">4.9</span>
+        {% if product.avg_rating %}
+          {% with avg=product.avg_rating %}
+            {% if avg >= 4.5 %}
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            {% elif avg >= 3.5 %}
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-regular fa-star"></i>
+            {% elif avg >= 2.5 %}
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+              <i class="fa-regular fa-star"></i>
+            {% else %}
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+              <i class="fa-regular fa-star"></i>
+            {% endif %}
+            <span class="sv-rating-num">{{ avg }}</span>
+          {% endwith %}
+        {% else %}
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <span class="sv-rating-num">5.0</span>
+        {% endif %}
       </div>
     </div>
 
-    <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-product-card__name" title="{{ product.name }}">{{ product.name }}</a>
+    <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}"
+       class="sv-product-card__name" title="{{ product.name }}">{{ product.name }}</a>
 
     <!-- Pricing -->
     <div class="sv-product-card__price-row">
       {% if product.discount > 0 %}
-      <span class="sv-price">₹{{ product.get_discounted_price }}</span>
-      <span class="sv-price--original">₹{{ product.price }}</span>
+        <span class="sv-price">₹{{ product.get_discounted_price }}</span>
+        <span class="sv-price--original">₹{{ product.price }}</span>
+        <span style="font-size:11px;font-weight:700;color:#e74c3c;background:#fdf2f2;padding:2px 7px;border-radius:10px;">{{ product.discount|floatformat:"0" }}% OFF</span>
       {% else %}
-      <span class="sv-price">₹{{ product.price }}</span>
+        <span class="sv-price">₹{{ product.price }}</span>
       {% endif %}
     </div>
+
+    <!-- Review count -->
+    {% if product.review_count %}
+    <div style="font-size:11px;color:#888;margin:-6px 0 8px;">({{ product.review_count }} review{{ product.review_count|pluralize }})</div>
+    {% endif %}
 
     <!-- Dual Action Buttons -->
     <div class="sv-card-actions">
       <form method="POST" action="{% url 'cart' %}" class="sv-card-action-form">
         {% csrf_token %}
         <input type="hidden" name="product_id" value="{{ product.pk }}">
-        <input type="hidden" name="model_type" value="{% if product.model_name %}{{ product.model_name }}{% else %}product{% endif %}">      
-        <input type="hidden" name="quantity" value="1">
+        <input type="hidden" name="model_type"  value="{{ product.model_name|default:'product' }}">
+        <input type="hidden" name="quantity"    value="1">
         <button type="submit" class="sv-card-btn sv-card-btn--add">
           <i class="fa-solid fa-bag-shopping"></i> Add
         </button>
       </form>
-      <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}" class="sv-card-btn sv-card-btn--buy">
+      <a href="{% url 'product_detail' product.pk %}{% if product.model_name %}?type={{ product.model_name }}{% endif %}"
+         class="sv-card-btn sv-card-btn--buy">
         Buy Now
       </a>
     </div>
   </div>
 </div>
 {% empty %}
-<p class="sv-empty">No products found.</p>
+<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#888;">
+  <i class="fa fa-tshirt" style="font-size:40px;color:#ddd;display:block;margin-bottom:12px;"></i>
+  <p>No products found.</p>
+</div>
 {% endfor %}

@@ -173,16 +173,54 @@
   </div>
 </section>
 
-<!-- ═══ NEW ARRIVALS ═══ -->
+<!-- ═══ NEW ARRIVALS SHOWCASE SESSION ═══ -->
 {% if new_arrivals %}
-<section class="sv-section">
+<section class="sv-section sv-new-arrivals-section">
   <div class="sv-container">
-    <div class="sv-section-header">
-      <h2 class="sv-section__title">New Arrivals</h2>
-      <a href="{% url 'product_list' %}" class="sv-link">View All <i class="fa fa-arrow-right"></i></a>
+    <div class="sv-na-header">
+      <div>
+        <div class="sv-na-badge-pill">
+          <span class="sv-pulse-dot"></span> JUST DROPPED &bull; 2026 EDITION
+        </div>
+        <h2 class="sv-section__title" style="font-size:32px; margin-top:8px;">New Arrivals</h2>
+        <p style="color:var(--sv-muted); font-size:14px; margin:0;">Be the first to wear the season's most anticipated luxury pieces.</p>
+      </div>
+      <div class="sv-na-header-actions">
+        <a href="{% url 'product_list' %}?sort=-pk" class="sv-btn sv-btn--outline-gold">
+          Explore All New Drops <i class="fa fa-arrow-right" style="margin-left:6px;"></i>
+        </a>
+      </div>
     </div>
-    <div class="sv-product-grid">
-      {% include 'products/product_card.html' with products=new_arrivals %}
+
+    <!-- Dual Layout: Large Editorial Hero + Product Grid -->
+    <div class="sv-na-layout">
+
+      <!-- Left Hero Showcase Card -->
+      <div class="sv-na-hero-card">
+        <div class="sv-na-hero-img-wrap">
+          <img src="{% static 'images/hero4.png' %}" alt="New Arrivals Collection" class="sv-na-hero-img">
+          <div class="sv-na-hero-gradient"></div>
+        </div>
+        <div class="sv-na-hero-content">
+          <span class="sv-na-tag">EDITORIAL SELECTION</span>
+          <h3 class="sv-na-hero-title">Spring / Summer<br>2026 Collection</h3>
+          <p class="sv-na-hero-desc">Crafted from Italian silk & Egyptian cotton blends. Hand-finished for effortless grandeur.</p>
+          <div class="sv-na-hero-footer">
+            <span class="sv-na-price-tag">Starting from ₹1,499</span>
+            <a href="{% url 'product_list' %}?sort=-pk" class="sv-btn sv-btn--gold">
+              Shop The Drop <i class="fa fa-shopping-bag" style="margin-left:6px;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Grid of New Products -->
+      <div class="sv-na-grid-wrap">
+        <div class="sv-product-grid sv-product-grid--na">
+          {% include 'products/product_card.html' with products=new_arrivals %}
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

@@ -63,13 +63,14 @@ class AdminDiscussionAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'discount', 'get_discounted_price', 'added_by_seller', 'image')
-    search_fields = ('name', 'created_by__username')
-    list_filter = ('created_by', 'discount')
+    list_display = ('name', 'brand', 'price', 'discount', 'stock', 'stock_status_badge', 'get_discounted_price', 'added_by_seller', 'image')
+    list_editable = ('stock',)
+    search_fields = ('name', 'brand', 'created_by__username')
+    list_filter = ('brand', 'created_by', 'discount')
     fieldsets = (
         ('Product & Seller Assignment', {
-            'fields': ('name', 'image', 'created_by'),
-            'description': 'Select which Sub-Admin / Seller owns this product.'
+            'fields': ('name', 'brand', 'image', 'created_by'),
+            'description': 'Select which Sub-Admin / Seller owns this product and set the Brand name.'
         }),
         ('Pricing & Stock', {
             'fields': ('price', 'discount', 'stock'),
@@ -88,6 +89,14 @@ class ProductAdmin(admin.ModelAdmin):
         return f"₹{obj.get_discounted_price()}"
     get_discounted_price.short_description = 'Final Price'
 
+    def stock_status_badge(self, obj):
+        if obj.is_out_of_stock():
+            return format_html('<span style="background:#e74c3c; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Out of Stock</span>')
+        elif obj.is_low_stock():
+            return format_html('<span style="background:#f39c12; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Low Stock ({})</span>', obj.stock)
+        return format_html('<span style="background:#27ae60; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">In Stock ({})</span>', obj.stock)
+    stock_status_badge.short_description = 'Stock Status'
+
     def added_by_seller(self, obj):
         if obj.created_by:
             return format_html('<span style="background:#27ae60; color:#fff; padding:4px 10px; border-radius:12px; font-weight:bold; font-size:12px; white-space:nowrap; display:inline-block;">🏪 @{}</span>', obj.created_by.username)
@@ -97,13 +106,14 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Men)
 class MenAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'discount', 'get_discounted_price', 'added_by_seller', 'image')
-    search_fields = ('name', 'created_by__username')
-    list_filter = ('created_by', 'discount')
+    list_display = ('name', 'brand', 'price', 'discount', 'stock', 'stock_status_badge', 'get_discounted_price', 'added_by_seller', 'image')
+    list_editable = ('stock',)
+    search_fields = ('name', 'brand', 'created_by__username')
+    list_filter = ('brand', 'created_by', 'discount')
     fieldsets = (
         ('Product & Seller Assignment', {
-            'fields': ('name', 'image', 'created_by'),
-            'description': 'Select which Sub-Admin / Seller owns this product.'
+            'fields': ('name', 'brand', 'image', 'created_by'),
+            'description': 'Select which Sub-Admin / Seller owns this product and set the Brand name.'
         }),
         ('Pricing & Stock', {
             'fields': ('price', 'discount', 'stock'),
@@ -121,6 +131,14 @@ class MenAdmin(admin.ModelAdmin):
     def get_discounted_price(self, obj):
         return f"₹{obj.get_discounted_price()}"
     get_discounted_price.short_description = 'Final Price'
+
+    def stock_status_badge(self, obj):
+        if obj.is_out_of_stock():
+            return format_html('<span style="background:#e74c3c; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Out of Stock</span>')
+        elif obj.is_low_stock():
+            return format_html('<span style="background:#f39c12; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Low Stock ({})</span>', obj.stock)
+        return format_html('<span style="background:#27ae60; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">In Stock ({})</span>', obj.stock)
+    stock_status_badge.short_description = 'Stock Status'
 
     def added_by_seller(self, obj):
         if obj.created_by:
@@ -131,13 +149,14 @@ class MenAdmin(admin.ModelAdmin):
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'discount', 'get_discounted_price', 'added_by_seller', 'image')
-    search_fields = ('name', 'created_by__username')
-    list_filter = ('created_by', 'discount')
+    list_display = ('name', 'brand', 'price', 'discount', 'stock', 'stock_status_badge', 'get_discounted_price', 'added_by_seller', 'image')
+    list_editable = ('stock',)
+    search_fields = ('name', 'brand', 'created_by__username')
+    list_filter = ('brand', 'created_by', 'discount')
     fieldsets = (
         ('Product & Seller Assignment', {
-            'fields': ('name', 'image', 'created_by'),
-            'description': 'Select which Sub-Admin / Seller owns this product.'
+            'fields': ('name', 'brand', 'image', 'created_by'),
+            'description': 'Select which Sub-Admin / Seller owns this product and set the Brand name.'
         }),
         ('Pricing & Stock', {
             'fields': ('price', 'discount', 'stock'),
@@ -155,6 +174,14 @@ class WomenAdmin(admin.ModelAdmin):
     def get_discounted_price(self, obj):
         return f"₹{obj.get_discounted_price()}"
     get_discounted_price.short_description = 'Final Price'
+
+    def stock_status_badge(self, obj):
+        if obj.is_out_of_stock():
+            return format_html('<span style="background:#e74c3c; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Out of Stock</span>')
+        elif obj.is_low_stock():
+            return format_html('<span style="background:#f39c12; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">Low Stock ({})</span>', obj.stock)
+        return format_html('<span style="background:#27ae60; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">In Stock ({})</span>', obj.stock)
+    stock_status_badge.short_description = 'Stock Status'
 
     def added_by_seller(self, obj):
         if obj.created_by:
@@ -187,9 +214,9 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(ProductRequest)
 class ProductRequestAdmin(admin.ModelAdmin):
-    list_display = ('name', 'request_type_badge', 'category', 'price_display', 'sub_admin_username', 'status_badge', 'approve_reject_buttons', 'created_at')
-    list_filter = ('status', 'request_type', 'category', 'user')
-    search_fields = ('name', 'user__username')
+    list_display = ('name', 'brand', 'request_type_badge', 'category', 'price_display', 'sub_admin_username', 'status_badge', 'approve_reject_buttons', 'created_at')
+    list_filter = ('status', 'brand', 'request_type', 'category', 'user')
+    search_fields = ('name', 'brand', 'user__username')
     list_per_page = 20
     actions = ['approve_requests', 'reject_requests']
 
@@ -253,9 +280,11 @@ class ProductRequestAdmin(admin.ModelAdmin):
     def _process_approval(self, req_obj):
         model_map = {'product': Product, 'men': Men, 'women': Women}
         ModelClass = model_map.get(req_obj.category, Product)
+        brand = req_obj.brand if req_obj.brand else 'STYLEVERSE'
         if req_obj.request_type == 'add':
             ModelClass.objects.create(
                 name=req_obj.name,
+                brand=brand,
                 price=req_obj.price,
                 discount=req_obj.discount,
                 image=req_obj.image,
@@ -265,6 +294,7 @@ class ProductRequestAdmin(admin.ModelAdmin):
             target_obj = ModelClass.objects.filter(pk=req_obj.target_id).first()
             if target_obj:
                 target_obj.name = req_obj.name
+                target_obj.brand = brand
                 target_obj.price = req_obj.price
                 target_obj.discount = req_obj.discount
                 if req_obj.image:
@@ -335,7 +365,7 @@ class SubAdminRequestAdmin(admin.ModelAdmin):
                 f'approve-seller/{obj.pk}/',
                 f'reject-seller/{obj.pk}/'
             )
-        return format_html('<span style="color:#888; font-weight:bold; text-transform:uppercase; font-size:11px;">Processed</span>')
+        return mark_safe('<span style="color:#888; font-weight:bold; text-transform:uppercase; font-size:11px;">Processed</span>')
     approve_reject_buttons.short_description = 'Actions'
 
     def get_urls(self):
@@ -503,3 +533,22 @@ class CustomUserAdmin(BaseUserAdmin):
                 '👤 REGULAR CUSTOMER</span>'
             )
     user_role_badge.short_description = 'Account Role / Type'
+
+
+# ── Product Reviews Admin ─────────────────────────────────────────────────────
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('author_name', 'rating_stars', 'title', 'model_type', 'object_id', 'is_verified', 'helpful_count', 'created_at')
+    list_filter  = ('rating', 'model_type', 'is_verified', 'created_at')
+    search_fields = ('author_name', 'title', 'comment')
+    list_per_page = 30
+    readonly_fields = ('created_at',)
+
+    def rating_stars(self, obj):
+        stars = '★' * obj.rating + '☆' * (5 - obj.rating)
+        colors = {5: '#f1c40f', 4: '#f39c12', 3: '#e67e22', 2: '#e74c3c', 1: '#c0392b'}
+        return format_html(
+            '<span style="color:{}; font-size:14px; letter-spacing:1px;">{}</span>',
+            colors.get(obj.rating, '#f1c40f'), stars
+        )
+    rating_stars.short_description = 'Rating'

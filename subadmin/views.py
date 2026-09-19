@@ -432,6 +432,7 @@ def admin_products(request):
         if action == 'request_add':
             category = request.POST.get('category', 'product')
             name = request.POST.get('name', '').strip()
+            brand = request.POST.get('brand', 'STYLEVERSE').strip() or 'STYLEVERSE'
             raw_price = request.POST.get('price', '').strip()
             raw_discount = request.POST.get('discount', '').strip()
 
@@ -453,6 +454,7 @@ def admin_products(request):
                 request_type='add',
                 category=category,
                 name=name,
+                brand=brand,
                 price=price,
                 discount=discount,
                 image=image,
@@ -466,6 +468,7 @@ def admin_products(request):
             target_id = request.POST.get('target_id')
             category = request.POST.get('category', 'product')
             name = request.POST.get('name', '').strip()
+            brand = request.POST.get('brand', 'STYLEVERSE').strip() or 'STYLEVERSE'
             raw_price = request.POST.get('price', '').strip()
             raw_discount = request.POST.get('discount', '').strip()
 
@@ -485,6 +488,7 @@ def admin_products(request):
             target_obj = get_object_or_404(ModelClass, pk=target_id)
 
             target_obj.name = name
+            target_obj.brand = brand
             target_obj.price = price
             target_obj.discount = discount
             if image:
@@ -726,7 +730,7 @@ def admin_delivery(request):
 
 @admin_required
 def admin_stock(request):
-    """Seller Panel: Individual Stock & Inventory Details Section."""
+    """Seller Panel: Dedicated Sub-Admin Product Stock & Inventory Management Section."""
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'update_stock':
@@ -748,24 +752,39 @@ def admin_stock(request):
                 messages.success(request, f'📦 Stock for "{prod_item.name}" updated to {stock_val} units!')
             except (ValueError, TypeError):
                 messages.error(request, 'Invalid stock quantity entered.')
-            return redirect('admin_stock')
+            return redirect(request.get_full_path())
 
-    # Get combined product list with category tag and stock status
-    p1 = list(Product.objects.all())
-    for p in p1: p.category_label = 'General'
-    p2 = list(Men.objects.all())
-    for p in p2: p.category_label = 'Men'
-    p3 = list(Women.objects.all())
-    for p in p3: p.category_label = 'Women'
-
-    all_products = p1 + p2 + p3
-    all_products.sort(key=lambda x: x.stock)
-
+    scope = request.GET.get('scope', 'my' if (not request.user.is_superuser and request.user.is_staff) else 'all')
+    category_filter = request.GET.get('category', 'all')
     stock_filter = request.GET.get('filter', 'all')
     search_q = request.GET.get('q', '').strip().lower()
 
+    if scope == 'my' and not request.user.is_superuser:
+        p1 = list(Product.objects.filter(created_by=request.user))
+        p2 = list(Men.objects.filter(created_by=request.user))
+        p3 = list(Women.objects.filter(created_by=request.user))
+    else:
+        p1 = list(Product.objects.all())
+        p2 = list(Men.objects.all())
+        p3 = list(Women.objects.all())
+
+    for p in p1: p.category_label = 'General'
+    for p in p2: p.category_label = 'Men'
+    for p in p3: p.category_label = 'Women'
+
+    if category_filter == 'general':
+        all_products = p1
+    elif category_filter == 'men':
+        all_products = p2
+    elif category_filter == 'women':
+        all_products = p3
+    else:
+        all_products = p1 + p2 + p3
+
+    all_products.sort(key=lambda x: x.stock)
+
     if search_q:
-        all_products = [p for p in all_products if search_q in p.name.lower() or search_q in p.category_label.lower()]
+        all_products = [p for p in all_products if search_q in p.name.lower() or search_q in p.category_label.lower() or search_q in getattr(p, 'brand', '').lower()]
 
     if stock_filter == 'low':
         all_products = [p for p in all_products if p.is_low_stock()]
@@ -774,15 +793,15 @@ def admin_stock(request):
     elif stock_filter == 'in_stock':
         all_products = [p for p in all_products if p.stock > 5]
 
-    # Inventory summary KPI stats
-    all_raw = list(Product.objects.all()) + list(Men.objects.all()) + list(Women.objects.all())
-    total_items = len(all_raw)
-    in_stock_count = sum(1 for p in all_raw if p.stock > 5)
-    low_stock_count = sum(1 for p in all_raw if p.is_low_stock())
-    out_stock_count = sum(1 for p in all_raw if p.is_out_of_stock())
+    total_items = len(all_products)
+    in_stock_count = sum(1 for p in all_products if p.stock > 5)
+    low_stock_count = sum(1 for p in all_products if p.is_low_stock())
+    out_stock_count = sum(1 for p in all_products if p.is_out_of_stock())
 
     return render(request, 'sub-admin/stock.html', {
         'products': all_products,
+        'scope': scope,
+        'category_filter': category_filter,
         'stock_filter': stock_filter,
         'search_q': request.GET.get('q', ''),
         'total_items': total_items,

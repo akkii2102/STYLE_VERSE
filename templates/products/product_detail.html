@@ -1372,13 +1372,13 @@
         <div class="pdp-review-card">
           <div class="pdp-rc-top">
             <div class="pdp-rc-user">
-              <div class="pdp-rc-avatar">{{ r.author_name|default:r.avatar|slice:":1"|upper }}</div>
+              <div class="pdp-rc-avatar">{{ r.author_name|slice:":1"|upper }}</div>
               <div>
                 <div class="pdp-rc-name">
-                  {{ r.author_name|default:r.author }}
-                  {% if r.is_verified or r.verified %}<span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span>{% endif %}
+                  {{ r.author_name }}
+                  {% if r.is_verified %}<span class="pdp-rc-verified"><i class="fa fa-circle-check"></i> Verified Purchase</span>{% endif %}
                 </div>
-                <div class="pdp-rc-date">{{ r.created_at|date:"F j, Y"|default:r.date }}</div>
+                <div class="pdp-rc-date">{{ r.created_at|date:"F j, Y" }}</div>
               </div>
             </div>
             <div class="pdp-rc-stars">
@@ -1392,7 +1392,7 @@
           <div class="pdp-rc-footer">
             <span>Helpful?</span>
             <button type="button" class="pdp-helpful-btn" onclick="helpfulVote(this)">
-              <i class="fa-regular fa-thumbs-up"></i> Yes (<span>{{ r.helpful_count|default:r.helpful|default:0 }}</span>)
+              <i class="fa-regular fa-thumbs-up"></i> Yes (<span>{{ r.helpful_count|default:0 }}</span>)
             </button>
             <button type="button" class="pdp-helpful-btn" onclick="reportVote(this)">
               <i class="fa fa-flag"></i> Report

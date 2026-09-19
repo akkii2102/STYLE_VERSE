@@ -27,6 +27,7 @@ urlpatterns = [
 
     # ── Shop flow ─────────────────────────────────────────
     path('cart/', views.cart, name='cart'),
+    path('cart/add/', views.cart, name='add_to_cart'),
     path('checkout/', views.checkout, name='checkout'),
     path('order/', views.order, name='order'),
     path('orders/', views.order, name='orders'),          # alias
@@ -41,4 +42,5 @@ urlpatterns = [
 
     # ── Misc ──────────────────────────────────────────────
     path('cards/', views.card, name='card'),
+    path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='login/password_reset_complete.html'), name='password_reset_complete'),
 ]
